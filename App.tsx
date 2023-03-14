@@ -49,12 +49,7 @@ export default function App() {
         return null;
     }
   };
-  const addTask = (task) => {
-    setTasks((prev)=>({
-      ...
-    }))
-))
- };
+  
   return (
     <React.Fragment>
       <StripeProvider

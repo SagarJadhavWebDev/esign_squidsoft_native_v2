@@ -7,6 +7,7 @@ import useAuth from "../utils/auth";
 import Checkout from "./Checkout/Checkout";
 import CreateEnvelope from "./CreateEnvelope/CreateEnvelope";
 import Dashboard from "./Dashboard";
+import ForgotPassword from "./ForgotPassword";
 import Login from "./Login";
 import Manage from "./Manage/Manage";
 import Plans from "./Plans/Plans";
@@ -50,6 +51,11 @@ const Router = () => {
               <Stack.Screen
                 name={routes.register}
                 component={Register}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.ForgotPassword}
+                component={ForgotPassword}
                 options={{ headerShown: false }}
               />
             </>

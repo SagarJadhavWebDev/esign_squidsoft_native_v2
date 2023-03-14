@@ -79,7 +79,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             step: 1,
             existingEnvelope: envelope,
           });
-        } else {
+        } else if (type !== "Deleted") {
           navigation.navigate(routes.viewEnvelope, {
             envelope,
             type: operation === "1" ? "SIGN" : "VIEW",
@@ -167,18 +167,28 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
           </Text>
         </View>
       </View>
-      <View className="h-1/4 w-full  flex flex-row justify-between items-start">
-        <View className="">
-          <Text className="mx-2 text-xs text-gray-500">
-            {convertDate(envelope?.sent_at, "datetime")}
-          </Text>
+      {!["Drafts", "Deleted"].includes(type) ? (
+        <View className="h-1/4 w-full  flex flex-row justify-between items-start">
+          <View className="">
+            <Text className="mx-2 text-xs text-gray-500">
+              {convertDate(envelope?.sent_at, "datetime")}
+            </Text>
+          </View>
+          <View className="">
+            <Text className="mx-2 text-xs text-gray-500">
+              {convertDate(envelope?.expire_at, "datetime")}
+            </Text>
+          </View>
         </View>
-        <View className="">
-          <Text className="mx-2 text-xs text-gray-500">
-            {convertDate(envelope?.expire_at, "datetime")}
-          </Text>
+      ) : (
+        <View className="h-1/4 w-full  flex flex-row justify-between items-start">
+          <View className="">
+            <Text className="mx-2 text-xs text-gray-500">
+              {convertDate(envelope?.created_date, "datetime")}
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
     </TouchableOpacity>
   );
 };

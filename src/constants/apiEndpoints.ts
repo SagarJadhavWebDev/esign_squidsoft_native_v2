@@ -6,7 +6,6 @@ const apiEndpoints = {
   register: "auth/register",
   profileCheck: "auth/profile-check",
   setPassword: "auth/set-password-and-login",
-  resetPassword: "users/send-otp",
   logout: "auth/logout",
   envelopeList: (type: string, page: number, perPage: number) =>
     `${HttpService.getHostName()}/envelopes/${type}?page=${page}&per_page=${perPage}`,
@@ -55,5 +54,8 @@ const apiEndpoints = {
     `get-country-state-city/${country_code}/${state_code}`,
   cancelSubscription: (id: any) =>
     `${HttpService.getHostName()}/orders/cancel/${id}`,
+  forgotPassword: `users/send-otp`,
+  validateOtp: `users/forgot-password-otp-validate`,
+  resetPassword: `users/reset-new-password`,
 };
 export default apiEndpoints;

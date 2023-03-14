@@ -183,7 +183,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
           <View className=" rounded-2xl bg-white shadow-2xl shadow-gray-500 p-2 m-8">
             <GetSvg name="SignInSquareIcon" />
           </View>
-          <Text className="text-2xl font-black m-1 uppercase ">Sign In{" "}</Text>
+          <Text className="text-2xl font-black m-1 uppercase ">Sign In </Text>
           <Text className="text-sm opacity-30 font-semibold w-full text-center ">
             Access to your account
           </Text>
@@ -202,33 +202,44 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                 svgIcon1={<GetSvg name="userIcon" classN="w-5 h-5 m-auto" />}
               />
               {loadComponent === "loadLogin" ? (
-                <WFullInputField
-                  secureTextEntry={!showPassword}
-                  onChangeText={password.set}
-                  value={password.value}
-                  error={!password.valid ? password.error : null}
-                  placeholder="Password"
-                  autoFocus={true}
-                  className="text-base w-11/12"
-                  toggleIcon={!showPassword}
-                  svgIcon1={
-                    <GetSvg
-                      name="eyeOpenIcon"
-                      callBack={() => setShowPassword(!showPassword)}
-                      classN="w-5 h-5 m-auto"
-                    />
-                  }
-                  svgIcon2={
-                    <GetSvg
-                      name="eyeCloseIcon"
-                      callBack={() => setShowPassword(!showPassword)}
-                      classN="w-5 h-5 m-auto"
-                    />
-                  }
-                />
+                <>
+                  <WFullInputField
+                    secureTextEntry={!showPassword}
+                    onChangeText={password.set}
+                    value={password.value}
+                    error={!password.valid ? password.error : null}
+                    placeholder="Password"
+                    autoFocus={true}
+                    className="text-base w-11/12"
+                    toggleIcon={!showPassword}
+                    svgIcon1={
+                      <GetSvg
+                        name="eyeOpenIcon"
+                        callBack={() => setShowPassword(!showPassword)}
+                        classN="w-5 h-5 m-auto"
+                      />
+                    }
+                    svgIcon2={
+                      <GetSvg
+                        name="eyeCloseIcon"
+                        callBack={() => setShowPassword(!showPassword)}
+                        classN="w-5 h-5 m-auto"
+                      />
+                    }
+                  />
+                  <Text
+                    onPress={() => {
+                      navigation.navigate(routes?.ForgotPassword);
+                    }}
+                    className="text-right my-3 text-xs text-blue-600 font-semibold"
+                  >
+                    Forgot Password
+                  </Text>
+                </>
               ) : (
                 <></>
               )}
+
               <WFullBlackButton
                 text={loadComponent === "loadLogin" ? "Sign In" : "Submit"}
                 className="uppercase text-base"
@@ -311,7 +322,9 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
               navigation.navigate(routes.register);
             }}
           >
-            <Text className="text-center my-3 text-sm font-semibold">Register / Sign Up</Text>
+            <Text className="text-center my-3 text-sm font-semibold">
+              Register / Sign Up
+            </Text>
           </TouchableOpacity>
         </View>
         <View className=" w-full"></View>

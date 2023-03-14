@@ -145,9 +145,9 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
           onPress={() => {
             handleExport(source);
           }}
-          className="rounded-xl justify-around items-center absolute bg-[#d10000] right-8 bottom-24  flex flex-row w-[120px] h-8 px-2 "
+          className="rounded-xl justify-between items-center absolute bg-[#d10000] right-8 bottom-24  flex flex-row w-40 h-8 px-5 "
         >
-          <Text className="text-white " numberOfLines={1}>
+          <Text className="text-white w-24 " numberOfLines={1}>
             {document?.name}
           </Text>
           <GetSvg name="downloadIcon" classN="w-5 h-5 mx-2" color="white" />

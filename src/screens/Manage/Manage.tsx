@@ -306,8 +306,17 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           }}
           refreshing={refresh}
           onRefresh={() => {
+            const isQuickView = [
+              "expiringsoon",
+              "actionrequired",
+              "completed",
+            ].includes(selectedMenu);
             setEnvelopeList([]);
-            getEnvelopeList(selectedMenu, [], 1);
+            if (isQuickView) {
+              getQuickViewsList(selectedMenu, [], 1);
+            } else {
+              getEnvelopeList(selectedMenu, [], 1);
+            }
           }}
           ListFooterComponent={
             listloading ? (

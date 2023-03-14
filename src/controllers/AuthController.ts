@@ -52,11 +52,49 @@ const Logout = async () => {
   return {};
 };
 
+const ForgotPassword = async (email: any) => {
+  const response = await HttpService.post(apiEndpoints.forgotPassword, {
+    body: JSON.stringify({
+      email: email,
+    }),
+  });
+  return response;
+};
+
+const validateOtp = (email: string, otp: string) => {
+  const response = HttpService.post(apiEndpoints.validateOtp, {
+    body: JSON.stringify({
+      email: email,
+      otp: otp,
+    }),
+  });
+  return response;
+};
+const ResetPassword = (
+  email: string,
+  password: string,
+  confirm_password: string,
+  otp: string
+) => {
+  const response = HttpService.post(apiEndpoints.resetPassword, {
+    body: JSON.stringify({
+      email: email,
+      password: password,
+      confirm_password: confirm_password,
+      otp: otp,
+    }),
+  });
+  return response;
+};
+
 const AuthController = {
   Login,
   Register,
   SetPassword,
   Logout,
   ProfileCheck,
+  ForgotPassword,
+  ResetPassword,
+  validateOtp,
 };
 export default AuthController;

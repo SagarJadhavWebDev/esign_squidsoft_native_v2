@@ -13,5 +13,6 @@ const routes = {
   Plans: "Plans",
   Checkout: "Checkout",
   StripeCheckout: "StripeCheckout",
+  ForgotPassword:"ForgotPassword"
 };
 export default routes;

@@ -61,12 +61,12 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
               // borderWidth: 1,
               // borderColor: data?.response_payload?.rgbaColor,
             }}
-            className="justify-center items-center"
+            className="justify-center items-start"
           >
             <Text
               numberOfLines={1}
               style={{ fontSize: (width ?? 0) / 12 }}
-              className=""
+              className="w-full"
             >
               {data?.meta_data?.fieldvalue}
             </Text>
