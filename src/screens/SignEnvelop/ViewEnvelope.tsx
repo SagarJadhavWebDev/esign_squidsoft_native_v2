@@ -1,0 +1,201 @@
+import { chain, isEmpty, isNull, omit, pick, result } from "lodash";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useToast } from "react-native-toast-notifications";
+import ConfirmModal from "../../components/modals/ConfirmModal";
+import apiEndpoints from "../../constants/apiEndpoints";
+import routes from "../../constants/routes";
+import { EnvelopeDocument } from "../../types/EnvelopeType";
+import { FieldPayload } from "../../types/FieldTypes";
+import useAuth from "../../utils/auth";
+import CryptoHandler from "../../utils/EncryptDecryptHandler";
+import GetSvg from "../../utils/GetSvg";
+import HttpService from "../../utils/HttpService";
+import DocumentDiv from "../CreateEnvelope/PrepareDocumentView/DocumentDiv";
+import ViewDocument from "./ViewDocument";
+
+interface ViewEnvelopeProps {
+  route: any;
+  navigation: any;
+}
+
+const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
+  const { envelope, type } = route?.params;
+  const documents = envelope?.documents;
+  const [downloading, setDownloading] = useState(false);
+  const [isCoonfirmModalOpen, setIsCoonfirmModalOpen] = useState(false);
+  const [IsLoading, setIsLoading] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<EnvelopeDocument>(
+    documents?.[0]
+  );
+  const { token } = useAuth();
+  const toast = useToast();
+  const [envelopeData, setEnvelope] = useState(envelope);
+  const isAlreadyFill = envelopeData?.authFields?.every((f: any) => {
+    return !isNull(f?.filled_at) ? true : false;
+  });
+  const [isAllFilled, setIsAllFilled] = useState(false);
+  useEffect(() => {
+    const check = envelopeData?.fields?.every((e: any) => {
+      return e?.meta_data?.fieldvalue !== undefined;
+    });
+    setIsAllFilled(check);
+  }, [envelopeData]);
+
+  const handleSubmit = () => {
+    setIsCoonfirmModalOpen(false);
+    setIsLoading(true);
+    if (envelopeData?.fields) {
+      const payload = envelopeData?.fields?.map((s: any) => {
+        const id = pick(s, ["id"]);
+        const metaData = pick(s?.response_payload, [
+          "type",
+          "width",
+          "height",
+          "xCord",
+          "yCord",
+        ]);
+        const value = pick(s?.meta_data, ["fieldvalue"]);
+        const d = { ...id, ...metaData, ...{ value: value?.fieldvalue } };
+        return d;
+      });
+      HttpService.put(apiEndpoints.signFields(envelopeData?.id), {
+        token: token,
+        body: JSON.stringify({
+          fields: payload,
+        }),
+      }).then((res: any) => {
+        if (res?.message) {
+          toast.show(res?.message, { type: "error" });
+
+          setIsLoading(false);
+        } else {
+          toast.show("envelope signed successfully", { type: "success" });
+          navigation.navigate(routes.dashboard, {
+            update: Date.now(),
+          });
+          setIsLoading(false);
+        }
+      });
+    }
+  };
+  console.log("TYPE", type);
+  return (
+    <SafeAreaView className="w-full h-full flex flex-col justify-start">
+      <View className="w-full h-12 flex flex-row justify-between items-center px-3 bg-white">
+        <Text className="text-lg font-normal">Envelope : {envelope?.id}</Text>
+        <GetSvg
+          name="closeWithoutCircleIcon"
+          classN="w-5 h-5"
+          callBack={() => {
+            navigation.pop();
+          }}
+        />
+      </View>
+      <View className="w-full">
+        <ScrollView
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{
+            width: "100%",
+            height: 24,
+            backgroundColor: "white",
+          }}
+          className="border-b border-gray-300 gap-x-2"
+          contentContainerStyle={{ paddingHorizontal: 5 }}
+        >
+          {documents?.map((doc: any) => {
+            const isSelected = doc?.id === selectedDocument?.id;
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedDocument(doc);
+                }}
+                key={doc?.id}
+                className={`${isSelected ? "bg-[#d10000]  " : "bg-gray-200 "}  
+                border-b-0 px-3 rounded-t-xl justify-center items-center max-w-[100px]`}
+              >
+                <Text
+                  className={` ${
+                    isSelected ? " text-white" : "text-black"
+                  } text-xs`}
+                  numberOfLines={1}
+                >
+                  {doc?.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+      <View className=" relative w-full h-full pb-6">
+        <ViewDocument
+          document={selectedDocument}
+          envelope={envelopeData}
+          type={type}
+          setEnvelope={setEnvelope}
+          setDownloading={setDownloading}
+        />
+        {type === "SIGN" ? (
+          <View className=" w-full h-14 absolute flex flex-row bottom-20 justify-between items-center px-5">
+            <Text
+              onPress={() => {
+                navigation.navigate(routes.dashboard);
+              }}
+              className=" bg-slate-800  p-2 w-20 text-center  text-white rounded-xl font-bold "
+            >
+              Cancel
+            </Text>
+            <Text
+              onPress={() => {
+                if (isAllFilled) {
+                  setIsCoonfirmModalOpen(true);
+                }
+              }}
+              className={`${
+                !isAllFilled
+                  ? "bg-[#f8b6b6]"
+                  : isAlreadyFill
+                  ? "bg-[#f8b6b6]"
+                  : "bg-[#d10000]"
+              }   p-2 w-20 text-center  text-white rounded-xl font-bold `}
+            >
+              Finish
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      {isCoonfirmModalOpen ? (
+        <ConfirmModal
+          isOpen={isCoonfirmModalOpen}
+          modalType="confirmModal"
+          setIsOpen={setIsCoonfirmModalOpen}
+          key="confirmModal"
+          onSubmit={handleSubmit}
+          title="Click on Next to Continue"
+          description="By Clicking on Accept you agree the terms and conditions"
+        />
+      ) : null}
+      {downloading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
+      ) : null}
+      {IsLoading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
+      ) : null}
+    </SafeAreaView>
+  );
+};
+
+export default ViewEnvelope;

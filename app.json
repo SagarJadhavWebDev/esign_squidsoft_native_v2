@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "esign_squidsoft_native",
+    "slug": "esign_squidsoft_native",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "esign_squidsoft_native"
+}
