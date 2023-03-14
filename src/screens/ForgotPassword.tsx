@@ -74,6 +74,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
     });
   };
   const handleCheckUser = () => {
+    setIsLoading(true);
     AuthController.ProfileCheck(email)
       .then((result) => {
         console.log("RESULT", result);
@@ -92,13 +93,16 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
 
   const handleValidateOtp = () => {
     console.log("OPT FUN");
+    setIsLoading(true);
     AuthController.validateOtp(email, otp).then((res) => {
       console.log("OPT FUN", res);
       if (!res?.status) {
         toast.show(res?.message, { type: "error" });
+        setIsLoading(false);
       } else {
         toast.show(res?.message, { type: "success" });
         setLoadComponent("changePassword");
+        setIsLoading(false);
       }
     });
   };
@@ -107,6 +111,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   );
   const handleResetPassword = () => {
     if (validated) {
+      setIsLoading(true);
       AuthController.ResetPassword(
         email,
         passwordsValue.new_password,
@@ -114,14 +119,16 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
         otp
       ).then((res) => {
         if (res?.status) {
+          setIsLoading(false);
           toast.show(res?.message, { type: "success" });
           navigation.navigate(routes.login);
         } else {
           toast.show(res?.message, { type: "error" });
+          setIsLoading(false);
         }
       });
     } else {
-      toast.show("Please enter password in given format", {type:"error"})
+      toast.show("Please enter password in given format", { type: "error" });
       console.log(showPasswordsValidation);
     }
   };

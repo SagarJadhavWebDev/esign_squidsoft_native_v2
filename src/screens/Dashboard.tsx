@@ -198,9 +198,9 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
               strokeWidth={1.2}
               pathStrokeWidth={1.2}
             />
-            <View className="absolute text-center h-2.5 w-2.5 justify-center items-center right-1 top-0 rounded-full  bg-[#d10000] text-white font-bold ">
+            {/* <View className="absolute text-center h-2.5 w-2.5 justify-center items-center right-1 top-0 rounded-full  bg-[#d10000] text-white font-bold ">
               <Text className="  text-white text-[10px] mx-0.5"></Text>
-            </View>
+            </View> */}
           </TouchableOpacity>
           {currentTab !== "Settings" && (
             <Pressable
@@ -308,7 +308,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
           setIsOpen={setNotificationsModal}
           modalHeightInPercentage={70}
           children={
-            <View className="w-full ">
+            <View className="w-full px-1 py-2">
               <View className="w-full h-8 px-3 justify-center items-start my-2">
                 <Text className="text-lg font-medium">Notifications </Text>
               </View>
