@@ -77,6 +77,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     width?: number
   ) => {
     const url = ApiConfig.FILES_URL + data?.image_url;
+
     switch (type) {
       case "date":
       case "time":
@@ -90,12 +91,12 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               // borderWidth: 1,
               // borderColor: data?.response_payload?.rgbaColor,
             }}
-            className="justify-center items-center"
+            className="justify-center items-start"
           >
             <Text
               numberOfLines={1}
               style={{ fontSize: (width ?? 0) / 12 }}
-              className=""
+              className="w-full"
             >
               {data?.meta_data?.fieldvalue}
             </Text>
@@ -193,15 +194,12 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         const stamps = auth?.user?.stamps;
         if (stamps.length === 1) {
           handleUpdateEnvelope(stamps?.[0]?.id, field);
-          console.log("TESTING1");
         } else if (stamps.length > 1) {
-          console.log("TESTING2");
           setselectStampModal({
             isOpen: true,
             type: "stamp",
           });
         } else {
-          console.log("TESTING3");
           setuploadInitialModal({
             isOpen: true,
             type: "stamp",
@@ -556,7 +554,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             className="relative bg-[#ffffffe1] flex flex-row"
           >
             <TextInput
-              value={data?.meta_data?.fieldvalue}
+              value={data?.meta_data?.fieldvalue ?? ""}
               onChangeText={setTextValue}
               style={{ fontSize: (width ?? 0) / 12 }}
               className=""
@@ -643,7 +641,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   }, [textValue]);
 
   // ############# HANDLING TEXT FIELDS END ##############
-
+  console.log("SAGAR", fields?.filter((f) => f?.type === "text")?.length);
   return (
     <View
       key={pageNumber}
@@ -715,7 +713,6 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               "Failed to open document please try with different document",
               { type: "error" }
             );
-            console.log("Error:", e);
           }}
         />
       </View>
@@ -726,7 +723,6 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         {fields
           ? fields?.map((f: PageFieldType) => {
               const i: FieldPayload = f?.response_payload;
-
               const dpw =
                 ((containerSize.width - Number(i?.dispalypagewidth)) /
                   Number(i?.dispalypagewidth)) *

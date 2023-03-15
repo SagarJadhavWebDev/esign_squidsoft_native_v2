@@ -1,6 +1,12 @@
 import { isEmpty, lowerCase } from "lodash";
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, View, TouchableOpacity } from "react-native";
+import {
+  SafeAreaView,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useToast } from "react-native-toast-notifications";
 import BackgroundWave2 from "../assets/svg/BackgroundWave2";
@@ -63,13 +69,16 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   const [loadComponent, setLoadComponent] = useState("profileCheck");
   const [email, setEmail] = useState<any>(null);
   const handleSendOtp = () => {
+    setIsLoading(true);
     AuthController.ForgotPassword(email).then((res) => {
       console.log("OPT SEND FUN", res);
       if (!res?.status) {
         toast.show(res?.message, { type: "error" });
+        setIsLoading(false);
       } else {
         toast.show(res?.message, { type: "success" });
         setLoadComponent("loadOtp");
+        setIsLoading(false);
       }
     });
   };
@@ -386,6 +395,11 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
         </ScrollView>
         <View className=" w-full"></View>
       </SafeAreaView>
+      {isLoading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
+      ) : null}
     </>
   );
 };

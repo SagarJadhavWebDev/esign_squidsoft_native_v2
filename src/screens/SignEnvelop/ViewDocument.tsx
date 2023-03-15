@@ -41,7 +41,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
   const { token } = useAuth();
   // const fields = envelope?.fields;
   const handleDocumentFetch = async () => {
-    console.log("selectedDocument?.name", document?.name);
     const response = await RNFetchBlob.config({
       // path: s,
       fileCache: true,
@@ -52,7 +51,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       )
       .then((value) => {
         setSource(value.path());
-        console.log("RESPONSE FROM RN FECTH BLOB:", value.path());
         // console.log("RESPONSE FROM RN FECTH BLOB:", value);
       })
       .catch((error) => {
@@ -60,7 +58,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
           "Failed to open document please try with different document",
           { type: "error" }
         );
-        console.log("ERROR:", error);
       });
   };
 
@@ -68,7 +65,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
     if (source) {
       PdfUtil.getPageCount(source)
         .then((res) => {
-          console.log(res);
           setTotalPages(res);
         })
         .catch((err) => console.log(err));
@@ -96,7 +92,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       })
       .catch((err) => {
         setDownloading(false);
-        console.log("ERROR WHILE READING FILE:", err);
       });
   };
 
@@ -117,7 +112,6 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
                   f?.response_payload?.documentid === document?.id &&
                   f?.response_payload?.pageno === pageNumber + 1
               );
-              console.log("fields",fields)
               return type === "VIEW" ? (
                 <PDFViewSinglePage
                   handlePageLoad={handlePageLoadComplete}
