@@ -5,7 +5,7 @@ import { convertDate } from "../../utils/dateConvertor";
 import GetSvg from "../../utils/GetSvg";
 
 interface TemplateListCardProps {
-  template: TemplateType;
+  template:any;
   navigation: any;
 }
 

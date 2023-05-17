@@ -194,23 +194,25 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Update AsyncStorage & context state
-  const SignIn = async (payload: any, callback: Function) => {
+  const SignIn = async (token: any, callback: Function) => {
     try {
-      const token = EncryptDecrypt.decrypt(
-        payload?.token,
-        ApiConfig.APP_AUTH_TOKEN_KEY,
-        ApiConfig.APP_AUTH_TOKEN_KEY
-      );
+      // const token = EncryptDecrypt.decrypt(
+      //   payload?.token,
+      //   ApiConfig.APP_AUTH_TOKEN_KEY,
+      //   ApiConfig.APP_AUTH_TOKEN_KEY
+      // );
+      console.log("FROM AUTH", token);
       AsyncStorage.setItem(SP.AUTHTOKEN, token);
-      AsyncStorage.setItem(
-        SP.CREDENTIALS,
-        JSON.stringify({ e_payload: payload?.e_payload })
-      );
-      const authData = CryptoHandler.response(
-        { e_payload: payload?.e_payload },
-        token
-      );
-      setAuthState(authData);
+      setAuthToken(token);
+      // AsyncStorage.setItem(
+      //   SP.CREDENTIALS,
+      //   JSON.stringify({ e_payload: payload?.e_payload })
+      // );
+      // const authData = CryptoHandler.response(
+      //   { e_payload: payload?.e_payload },
+      //   token
+      // );
+      // setAuthState(authData);
       callback();
     } catch (error) {
       Promise.reject(error).catch((err) => console.log("LOGIN ERR", err));

@@ -17,6 +17,10 @@ import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
+import { handleGetTemplates } from "../../services/TemplatesService";
+import { useDispatch } from "react-redux";
+import { setTemplates } from "../../redux/reducers/TemplatesSlice";
+import { useTemplates } from "../../utils/useReduxUtil";
 interface TemplatesProps {
   navigation: any;
   setIsLoading: any;
@@ -24,31 +28,42 @@ interface TemplatesProps {
 const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
   const { token } = useAuth();
 
-  const [templates, setTemplates] = useState<TemplateType[] | null>(null);
+  //const [templates, setTemplates] = useState<TemplateType[] | null>(null);
   const [allTemplates, setAllTemplates] = useState<TemplateType[] | null>(null);
   const [categories, setCategories] = useState<TemplateCategoryType[] | null>(
     null
   );
+  const templates = useTemplates();
+  const dispatch = useDispatch();
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const getTemplates = () => {
     setIsLoading && setIsLoading(true);
-    HttpService.get(apiEndpoints.templates, { token: token ?? "" }).then(
-      (response) => {
-        const data = CryptoHandler.response(response, token ?? "");
-        if (data) {
-          console.log("DATA:", data?.templates[0].documents);
-          setSelectedCategory({ id: 0, name: "All" });
-          setAllTemplates(data?.templates);
-          setCategories(data?.categories);
-          setTemplates(data?.templates);
-          setIsLoading && setIsLoading(false);
-        }
+    // HttpService.get(apiEndpoints.templates, { token: token ?? "" }).then(
+    //   (response) => {
+    //     const data = CryptoHandler.response(response, token ?? "");
+    //     if (data) {
+    //       console.log("DATA:", data?.templates[0].documents);
+    //       setSelectedCategory({ id: 0, name: "All" });
+    //       setAllTemplates(data?.templates);
+    //       setCategories(data?.categories);
+    //       setTemplates(data?.templates);
+    //       setIsLoading && setIsLoading(false);
+    //     }
+    //   }
+    // );
+    handleGetTemplates(1, 5, (data) => {
+      console.log("TEMPLATES", data);
+      if (data) {
+        dispatch(setTemplates(data));
+        setIsLoading && setIsLoading(false);
+      } else {
+        setIsLoading(false);
       }
-    );
+    });
   };
   console.log("seletect", selectedCategory);
-  console.log("tem", templates?.[0]);
+  console.log("tem", templates?.data);
   useEffect(() => {
     getTemplates();
   }, []);
@@ -231,8 +246,8 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
         }}
         className="bg-white"
       >
-        {templates &&
-          templates?.map((template: TemplateType) => {
+        {templates?.data &&
+          templates?.data?.map((template) => {
             return (
               <TemplateListCard
                 key={template?.id}

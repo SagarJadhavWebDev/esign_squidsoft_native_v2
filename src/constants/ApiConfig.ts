@@ -1,5 +1,5 @@
 const ApiConfig = {
-  API_URL: "https://api-esign.squidsoft.tech/api/",
+  API_URL: "https://api-esign-dev.squidsoft.tech/api",
   APP_AUTH_TOKEN_KEY:
     "VNb0q33YEb8tKWn4UatglN6PDn5KmtSQJYeBFHLvcn4vkZTeZzDDCIacQNlaW9RPAFuA2egL5CYgwuSytkZYb7W6dCuFLf0a7qBl",
   FILES_URL: "https://api-esign.squidsoft.tech/files/",

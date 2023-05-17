@@ -17,8 +17,10 @@
     "@react-navigation/bottom-tabs": "^6.5.2",
     "@react-navigation/native": "^6.1.1",
     "@react-navigation/native-stack": "^6.9.7",
+    "@reduxjs/toolkit": "^1.9.5",
     "@stripe/stripe-react-native": "^0.23.3",
     "@types/lodash": "^4.14.191",
+    "axios": "^1.4.0",
     "country-state-city": "^3.1.2",
     "crypto-js": "^4.1.1",
     "expo": "~47.0.9",
@@ -53,6 +55,7 @@
     "react-native-svg": "^13.6.0",
     "react-native-toast-notifications": "^3.3.1",
     "react-native-webview": "^11.26.1",
+    "react-redux": "^8.0.5",
     "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {

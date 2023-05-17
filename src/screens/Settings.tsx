@@ -23,24 +23,22 @@ import useAuth from "../utils/auth";
 import getIpData from "../utils/getIpData";
 import GetSvg from "../utils/GetSvg";
 import HttpService from "../utils/HttpService";
+import store, { revertAll } from "../redux/store";
+import { useUser } from "../utils/useReduxUtil";
 
 interface SettingsProps {
   navigation: any;
 }
 const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   const { auth, token, RefreshUser, SignOut } = useAuth();
-  const user = auth?.user;
+  const user = useUser();
   const [EditProfile, setEditProfile] = useState(false);
   const [changePassword, setChangePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
   const toast = useToast();
   const [userProfilePicture, setUserProfilePicture] = useState<any>(
-    ApiConfig.FILES_URL +
-      "profile-pictures/" +
-      auth?.user?.id +
-      ".jpg?" +
-      Date.now()
+    user?.profile_picture
   );
   const ProfileMenuList = [
     {
@@ -128,6 +126,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       onClick: () => {
         SignOut &&
           SignOut(() => {
+            store.dispatch(revertAll());
             // navigation.navigate(routes.login);
           });
       },
@@ -135,33 +134,27 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    setUserProfilePicture(
-      ApiConfig.FILES_URL +
-        "profile-pictures/" +
-        auth?.user?.id +
-        ".jpg?" +
-        Date.now()
-    );
-  }, [auth?.user]);
+    setUserProfilePicture(user?.profile_picture);
+  }, [user?.profile_picture]);
 
-  const SendOtp = () => {
-    setIsLoading(true);
-    HttpService.post(apiEndpoints.sendOtp, {
-      body: JSON.stringify({
-        email: auth?.user?.email,
-      }),
-    }).then((res) => {
-      console.log("OTP", res);
-      if (res?.message) {
-        setIsLoading(false);
-        setVerifyEmail(true);
+  // const SendOtp = () => {
+  //   setIsLoading(true);
+  //   HttpService.post(apiEndpoints.sendOtp, {
+  //     body: JSON.stringify({
+  //       email: auth?.user?.email,
+  //     }),
+  //   }).then((res) => {
+  //     console.log("OTP", res);
+  //     if (res?.message) {
+  //       setIsLoading(false);
+  //       setVerifyEmail(true);
 
-        toast.show(res?.message, { type: "success" });
-      } else {
-        setIsLoading(false);
-      }
-    });
-  };
+  //       toast.show(res?.message, { type: "success" });
+  //     } else {
+  //       setIsLoading(false);
+  //     }
+  //   });
+  // };
   return (
     <View className="w-full h-full">
       <ScrollView className="h-full">
@@ -192,10 +185,10 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
               numberOfLines={1}
               className="w-full max-w-[200px] mb-1 text-lg capitalize"
             >
-              {auth?.user?.name}{" "}
+              {user?.name}{" "}
             </Text>
 
-            <View className="flex flex-row justify-between items-center">
+            {/* <View className="flex flex-row justify-between items-center">
               {auth?.user?.email_verified_at ? (
                 <View className="px-1 pr-2 py-1 bg-green-600 rounded-full flex flex-row items-center justify-between mr-2">
                   <GetSvg
@@ -252,7 +245,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
                   </Text>
                 </TouchableOpacity>
               )}
-            </View>
+            </View> */}
           </View>
           <View className=" w-24 h-24 mx-4 items-center justify-center rounded-full border-2 border-gray-400 p-0.5 ">
             {!isEmpty(userProfilePicture) ? (

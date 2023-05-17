@@ -20,6 +20,20 @@ import { EnvelopeListType } from "../../types/ApiEndPointType";
 import EnvelopeListCard from "../../components/EnvelopeListCard";
 import { EnvelopeType } from "../../types/EnvelopeType";
 import NoDataFound from "../../components/atoms/NoDataFound";
+import ApiInstance from "../../services/ApiInstance";
+import handleResponse from "../../services/handleResponse";
+import { useToast } from "react-native-toast-notifications";
+import { handleGetEnvelopes } from "../../services/ManageService";
+import {
+  useEnvelopesCount,
+  useManageList,
+  useUser,
+} from "../../utils/useReduxUtil";
+import { useDispatch } from "react-redux";
+import {
+  setManageCount,
+  setManageList,
+} from "../../redux/reducers/ManageSlice";
 interface HomeProps {
   setIsLoading: any;
   navigation: any;
@@ -28,51 +42,41 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
   const router = route?.params;
   const greetings = getGreetings();
-  const [quickViewCount, setQuickViewCount] = useState<any>(null);
-  const { token, auth } = useAuth();
+  const { currentTab, list } = useManageList();
+  const counts = useEnvelopesCount();
+  const user = useUser();
   const widthAndHeight = 150;
+  const toast = useToast();
   const sliceColor = ["#facc15", "#22c55e", "#ef4444"];
-  const [envelopeList, setEnvelopeList] = useState<EnvelopeType | null>();
+  const dispatch = useDispatch();
   const getQuickView = () => {
-    HttpService.get(apiEndpoints.getQuickViews, { token: token ?? "" }).then(
-      (res: any) => {
-        if (res) {
-          const data = CryptoHandler.response(res, token ?? "");
-          setQuickViewCount([
-            data?.action_required,
-            data?.completed,
-            data?.expiring_soon,
-          ]);
-        }
-      }
-    );
-  };
-
-  useEffect(() => {
-    getQuickView();
-  }, []);
-
-  const getEnvelopeList = (type: EnvelopeListType) => {
-    setEnvelopeList(null);
-    HttpService.get(apiEndpoints.envelopeList(type, 1, 5), {
-      token: token ?? "",
-    }).then((response) => {
-      if (response) {
-        const data = CryptoHandler.response(response, token ?? "");
-        setEnvelopeList(data?.data);
+    ApiInstance.get(apiEndpoints.manage.getCount).then(async (res: any) => {
+      if (res) {
+        const data = await handleResponse(res as any, toast);
+        dispatch(setManageCount(data));
       }
     });
   };
-  useEffect(() => {
-    getEnvelopeList("inbox");
-  }, []);
+
+  const getEnvelopeList = () => {
+    handleGetEnvelopes(currentTab, 1, 10, "", (data) => {
+      if (data) {
+        console.log("ENVELOPE LIST", data);
+        dispatch(setManageList(data));
+      } else {
+      }
+    });
+  };
+
   useEffect(() => {
     if (router?.update) {
-      setEnvelopeList(null);
-      getEnvelopeList("inbox");
+      getEnvelopeList();
     }
   }, [router?.update]);
-
+  useEffect(() => {
+    getQuickView();
+    getEnvelopeList();
+  }, []);
   return (
     <SafeAreaView className=" h-full w-full bg-white px-2">
       <ScrollView
@@ -95,7 +99,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
               className="text-xl my-2 text-gray-900 tracking-wide font-medium"
               numberOfLines={1}
             >
-              {auth?.user?.name ?? "Squid user"}
+              {user?.name ?? "Squid user"}
             </Text>
             <Text className="text-sm text-gray-400 tracking-wide font-medium">
               Welcome to eSign by SquidSoft
@@ -113,25 +117,27 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
             <View className="flex flex-col ">
               <View className="flex flex-row items-center justify-start my-1.5">
                 <View className="h-8 w-8  rounded-full border-2 border-yellow-400 justify-center items-center">
-                  <Text className="text-sm">{quickViewCount?.[0] ?? 0}</Text>
+                  <Text className="text-sm">
+                    {counts?.action_required ?? 0}
+                  </Text>
                 </View>
                 <Text className="px-3 text-xs">Action Required</Text>
               </View>
               <View className="flex flex-row items-center justify-start my-1.5">
                 <View className="h-8 w-8  rounded-full border-2 border-green-500 justify-center items-center">
-                  <Text className="text-sm">{quickViewCount?.[1] ?? 0}</Text>
+                  <Text className="text-sm">{counts?.completed ?? 0}</Text>
                 </View>
                 <Text className="px-3 text-xs">Completed</Text>
               </View>
               <View className="flex flex-row items-center justify-start my-1.5">
                 <View className="h-8 w-8  rounded-full border-2 border-red-500 justify-center items-center">
-                  <Text className="text-sm">{quickViewCount?.[2] ?? 0}</Text>
+                  <Text className="text-sm">{counts?.expiring_soon ?? 0}</Text>
                 </View>
                 <Text className="px-3 text-xs">Expiring Soon</Text>
               </View>
             </View>
             <View className="mx-2 mb-3 w-1/2  items-center justify-center">
-              {isNull(quickViewCount) ? (
+              {isNull(counts) ? (
                 <PieChart
                   widthAndHeight={widthAndHeight}
                   series={[5, 5, 5]}
@@ -144,14 +150,14 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
                 <PieChart
                   widthAndHeight={widthAndHeight}
                   series={
-                    (quickViewCount?.[0] ?? 0) === 0 &&
-                    (quickViewCount?.[1] ?? 0) === 0 &&
-                    (quickViewCount?.[2] ?? 0) === 0
+                    (counts?.action_required ?? 0) === 0 &&
+                    (counts?.completed ?? 0) === 0 &&
+                    (counts?.expiring_soon ?? 0) === 0
                       ? [0, 0, 1]
                       : [
-                          quickViewCount?.[0] ?? 0,
-                          quickViewCount?.[1] ?? 0,
-                          quickViewCount?.[2] ?? 1,
+                          counts?.action_required ?? 0,
+                          counts?.completed ?? 0,
+                          counts?.expiring_soon ?? 1,
                         ]
                   }
                   sliceColor={sliceColor}
@@ -171,21 +177,18 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
             <Text className="mx-2 text-sm font-semibold my-0.5">Inbox</Text>
           </View>
           <ScrollView nestedScrollEnabled={true} className="px-2">
-            {!isEmpty(envelopeList) ? (
+            {!isEmpty(list) ? (
               //@ts-ignore
-              envelopeList?.map((envelope: any, key: any) => {
+              list?.map((envelope: any, key: any) => {
                 return (
                   <EnvelopeListCard
-                    type={"inbox"}
-                    key={key}
-                    envelope={envelope?.envelope}
-                    operation={envelope?.operation}
-                    token={envelope?.token}
+                    key={envelope?.id}
+                    envelope={envelope}
                     navigation={navigation}
                   />
                 );
               })
-            ) : isEmpty(envelopeList) ? (
+            ) : isEmpty(list) ? (
               <View
                 style={{
                   //paddingHorizontal: 8,

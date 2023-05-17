@@ -11,6 +11,10 @@ import AuthController from "../controllers/AuthController";
 import useAuth from "../utils/auth";
 import CommonUtils from "../utils/CommonUtils";
 import GetSvg from "../utils/GetSvg";
+import ApiInstance from "../services/ApiInstance";
+import apiEndpoint from "../constants/apiEndpoints";
+import handleResponse from "../services/handleResponse";
+import { useDispatch } from "react-redux";
 interface LoginProps {
   navigation: any;
 }
@@ -18,10 +22,11 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ navigation }) => {
   const { auth, SignIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
   const toast = useToast();
   const useLoginFormState = () => {
-    const [username, setUsername] = useState(null as any);
-    const [password, setPassword] = useState(null as any);
+    const [username, setUsername] = useState<any>("mobymat50@gmail.com");
+    const [password, setPassword] = useState<any>("Sagar@8976");
     const [confirm_password, setConfirmPassword] = useState(null as any);
     const [isUsernameValid, setisUsernameValid] = useState(true);
     const [isPasswordValid, setisPasswordValid] = useState(true);
@@ -89,23 +94,36 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
         case "loadLogin":
           if (!isEmpty(username) && !isEmpty(password)) {
             setIsLoading(true);
-            AuthController.Login(username, password)
-              .then((result) => {
-                console.log("LOGIN", result);
-                if (result?.message) {
-                  toast.show(result?.message, { type: "error" });
-                  setIsLoading(false);
-                  setPassword(null);
-                } else {
-                  setIsLoading(false);
+            ApiInstance.post(apiEndpoint.auth.login, {
+              email: username,
+              password: password,
+            })
+              .then(async (result) => {
+                const data = await handleResponse(result as any, toast);
+                console.log("LOGIN", data?.token);
+                if (data) {
                   SignIn &&
-                    SignIn(result, () => {
-                      toast.show("Login successfully", { type: "success" });
+                    SignIn(data?.token, () => {
                       setPassword(null);
                       setUsername(null);
+                      dispatch(data?.user);
                       // navigation.navigate(routes.dashboard);
                     });
                 }
+                // if (result?.message) {
+                //   toast.show(result?.message, { type: "error" });
+                //   setIsLoading(false);
+                //   setPassword(null);
+                // } else {
+                //   setIsLoading(false);
+                //   SignIn &&
+                //     SignIn(result, () => {
+                //       toast.show("Login successfully", { type: "success" });
+                //       setPassword(null);
+                //       setUsername(null);
+                //       // navigation.navigate(routes.dashboard);
+                //     });
+                // }
               })
               .catch((err) => {
                 toast.show(err, { type: "error" });
@@ -164,13 +182,8 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { username, password, confirm_password, submit } = useLoginFormState();
-  const [loadComponent, setLoadComponent] = useState("profileCheck");
+  const [loadComponent, setLoadComponent] = useState("loadLogin");
 
-  useEffect(() => {
-    setLoadComponent("profileCheck");
-    password.set(null);
-    confirm_password.set(null);
-  }, [username.value]);
   return (
     <>
       <BackgroundWave2 className="w-full absolute" />

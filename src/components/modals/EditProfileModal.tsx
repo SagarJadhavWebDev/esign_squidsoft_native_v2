@@ -8,7 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native-gesture-handler";
-import { isEmpty, isNull } from "lodash";
+import { isEmpty, isNull, omit } from "lodash";
 import WFullInputField from "../atoms/WFullInputField";
 import WFullInputFieldCC from "../atoms/WFullInputFieldCC";
 import useAuth from "../../utils/auth";
@@ -18,6 +18,9 @@ import HttpService from "../../utils/HttpService";
 import apiEndpoints from "../../constants/apiEndpoints";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import IndeterminateProgressBar from "../atoms/IndeterminateProgressBar";
+import { useDispatch } from "react-redux";
+import ProfileService from "../../services/ProfileService";
+import { setUser } from "../../redux/reducers/userSlice";
 interface EditProfileModalProps {
   isOpen: boolean;
   setIsOpen: any;
@@ -35,9 +38,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   //bg-[#00000077]
   const { token, UpdateUser, RefreshUser } = useAuth();
   const [file, setFile] = useState<any>(null);
-  const [userName, setUserName] = useState(user?.name);
-  const [phoneNumber, setPhoneNumber] = useState(null);
-  const [countryCode, setCountryCode] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<any>({
     countryCode: null,
@@ -45,7 +45,27 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     file: null,
     userName: null,
   });
-
+  const [payload, setPayload] = useState<any>({
+    name: user?.name,
+    email: user?.email,
+    phone_number: user?.phone_number ?? "",
+    profile_picture: user?.profile_picture,
+    local_profile_picture: null,
+    country_code: null,
+    isEdit: false,
+  });
+  useEffect(() => {
+    if (user) {
+      setPayload((prev: any) => ({
+        ...prev,
+        name: user?.name,
+        email: user?.email,
+        phone_number: user?.phone_number ?? "",
+        profile_picture: user?.profile_picture,
+        country_code: user?.phone_number_country_code,
+      }));
+    }
+  }, [user]);
   const toast = useToast();
   const handleFileSelect = async () => {
     try {
@@ -69,6 +89,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           size: pickerResult?.size,
         });
         setUserProfilePicture(pickerResult?.uri);
+        setPayload((prev: any) => ({
+          ...prev,
+          local_profile_picture: pickerResult?.uri,
+          profile_picture: pickerResult?.uri,
+        }));
         setErrors((prev: any) => ({
           ...prev,
           file: null,
@@ -79,48 +104,71 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
   };
 
+  // const handleUpdateProfile = () => {
+  //   setIsLoading(true);
+  //   let formData = new FormData();
+  //   formData.append("file", file);
+  //   formData.append("name", userName ?? user?.name);
+  //   formData.append("phone_number", phoneNumber ?? user?.phone_number);
+  //   formData.append("country_code", countryCode ?? user?.country_code);
+  //   HttpService.postFile(apiEndpoints.updateProfile, {
+  //     token: token,
+  //     formData: formData,
+  //   })
+  //     .then((res) => {
+  //       console.log("PROFILE UPDATE ", res);
+  //       const data = CryptoHandler.response(res, token ?? "");
+  //       if (data?.user) {
+  //         setIsLoading(false);
+  //         setUserProfilePicture(
+  //           ApiConfig.FILES_URL +
+  //             "profile-pictures/" +
+  //             user?.id +
+  //             ".jpg?" +
+  //             Date.now()
+  //         );
+  //         UpdateUser &&
+  //           UpdateUser(res, token, () => {
+  //             setIsOpen(false);
+  //             toast.show("Profile updated successfully", { type: "success" });
+  //             RefreshUser && RefreshUser(token);
+  //           });
+  //       } else {
+  //         setIsLoading(false);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       setIsLoading(false);
+  //       console.log("PROFILE UPDATE ERR", err);
+  //     });
+  // };
+
+  const dispatch = useDispatch();
   const handleUpdateProfile = () => {
-    setIsLoading(true);
-    let formData = new FormData();
-    formData.append("file", file);
-    formData.append("name", userName ?? user?.name);
-    formData.append("phone_number", phoneNumber ?? user?.phone_number);
-    formData.append("country_code", countryCode ?? user?.country_code);
-    HttpService.postFile(apiEndpoints.updateProfile, {
-      token: token,
-      formData: formData,
-    })
-      .then((res) => {
-        console.log("PROFILE UPDATE ", res);
-        const data = CryptoHandler.response(res, token ?? "");
-        if (data?.user) {
-          setIsLoading(false);
-          setUserProfilePicture(
-            ApiConfig.FILES_URL +
-              "profile-pictures/" +
-              user?.id +
-              ".jpg?" +
-              Date.now()
-          );
-          UpdateUser &&
-            UpdateUser(res, token, () => {
-              setIsOpen(false);
-              toast.show("Profile updated successfully", { type: "success" });
-              RefreshUser && RefreshUser(token);
-            });
-        } else {
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        console.log("PROFILE UPDATE ERR", err);
-      });
+    const formPayload = new FormData();
+    console.log("STRING", typeof payload?.phone_number?.toString());
+    formPayload.append("name", payload?.name);
+    formPayload.append("phone_number", payload?.phone_number?.toString() ?? "");
+    formPayload.append("country_code", payload?.country_code);
+    if (payload?.local_profile_picture) {
+      formPayload.append("profile_picture", file);
+    }
+    console.log("PAYLOAD", formPayload);
+    ProfileService.handleUpdateProfile(formPayload, (data) => {
+      if (data) {
+        // console.log("DATA:", data);
+        dispatch(setUser(data?.user));
+        setIsOpen(false);
+      } else {
+        // dispatch(setshowEditProfileModal(false));
+      }
+      setIsLoading(false);
+    });
   };
 
   // handle user name changes
   useEffect(() => {
-    if (isEmpty(userName)) {
+    if (isEmpty(payload?.name)) {
       setErrors((prev: any) => ({
         ...prev,
         name: "Please enter user name",
@@ -131,22 +179,22 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         name: null,
       }));
     }
-  }, [userName]);
+  }, [payload?.name]);
 
   // handle phone number changes
-  useEffect(() => {
-    if (isEmpty(phoneNumber)) {
-      setErrors((prev: any) => ({
-        ...prev,
-        phoneNumber: "Please enter valid phone number",
-      }));
-    } else {
-      setErrors((prev: any) => ({
-        ...prev,
-        phoneNumber: null,
-      }));
-    }
-  }, [phoneNumber]);
+  // useEffect(() => {
+  //   if (isEmpty(phoneNumber)) {
+  //     setErrors((prev: any) => ({
+  //       ...prev,
+  //       phoneNumber: "Please enter valid phone number",
+  //     }));
+  //   } else {
+  //     setErrors((prev: any) => ({
+  //       ...prev,
+  //       phoneNumber: null,
+  //     }));
+  //   }
+  // }, [phoneNumber]);
 
   return (
     <>
@@ -247,9 +295,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                         textContentType="emailAddress"
                         placeholder="Enter your name"
                         onChangeText={(e: any) => {
-                          setUserName(e);
+                          setPayload((prev: any) => ({
+                            ...prev,
+                            name: e,
+                          }));
                         }}
-                        value={userName ?? user?.name}
+                        value={payload?.name}
                         className="h-5 text-sm"
                       />
                       {errors?.name ? (
@@ -277,9 +328,19 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                       </Text>
                       <WFullInputFieldCC
                         defaultValue={user.phone_number}
-                        value={phoneNumber ?? ""}
-                        setCountryCode={setCountryCode}
-                        setPhoneNumber={setPhoneNumber}
+                        value={payload?.phone_number ?? ""}
+                        setCountryCode={(e: any) => {
+                          setPayload((prev: any) => ({
+                            ...prev,
+                            country_code: e,
+                          }));
+                        }}
+                        setPhoneNumber={(e: any) => {
+                          setPayload((prev: any) => ({
+                            ...prev,
+                            phone_number: e,
+                          }));
+                        }}
                         setPhoneNumberLength={() => {}}
                         placeholder="Phone Number"
                         className="w-full"

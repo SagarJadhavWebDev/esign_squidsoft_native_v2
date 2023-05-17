@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Router from "./src/screens/Router";
 import { AuthProvider } from "./src/utils/auth";
 import "./ignoreWarnings";
-import { Text, View, ActivityIndicator } from "react-native";
-import AppConfig from "./src/constants/appConfig";
-import { ToastProvider, useToast } from "react-native-toast-notifications";
+import { Text, View } from "react-native";
+import { ToastProvider } from "react-native-toast-notifications";
 import GetSvg from "./src/utils/GetSvg";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import ApiConfig from "./src/constants/ApiConfig";
+import { Provider } from "react-redux";
+import store from "./src/redux/store";
 export default function App() {
   const switchIcon = (type: string) => {
     switch (type) {
@@ -52,6 +53,7 @@ export default function App() {
   
   return (
     <React.Fragment>
+       <Provider store={store}>
       <StripeProvider
         publishableKey={ApiConfig.STRIPE_KEY}
         threeDSecureParams={{
@@ -87,6 +89,7 @@ export default function App() {
           </AuthProvider>
         </ToastProvider>
       </StripeProvider>
+      </Provider>
     </React.Fragment>
   );
 }

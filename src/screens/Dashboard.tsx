@@ -30,6 +30,7 @@ import Manage from "./Manage/Manage";
 import Profile from "./Profile/Profile";
 import Subscriptions from "./Subscriptions/Subscription";
 import Templates from "./Templates/Templates";
+import { useUser } from "../utils/useReduxUtil";
 
 interface DashboardProps {
   navigation: any;
@@ -42,13 +43,10 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
   const [notificationsModal, setNotificationsModal] = useState(false);
   const [notifications, setNotifications] = useState<any>([]);
   const toast = useToast();
+  const user = useUser();
   const { auth, token } = useAuth();
   const [userProfilePicture, setUserProfilePicture] = useState<any>(
-    ApiConfig.FILES_URL +
-      "profile-pictures/" +
-      auth?.user?.id +
-      ".jpg?" +
-      Date.now()
+    user?.profile_picture
   );
 
   // useEffect(() => {
@@ -112,25 +110,19 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
     },
   ];
   useEffect(() => {
-    setUserProfilePicture(
-      ApiConfig.FILES_URL +
-        "profile-pictures/" +
-        auth?.user?.id +
-        ".jpg?" +
-        Date.now()
-    );
-  }, [auth?.user]);
+    setUserProfilePicture(user?.profile_picture);
+  }, [user?.profile_picture]);
   const getNotifications = () => {
-    HttpService.get(apiEndpoints.getNotifications, { token: token ?? "" }).then(
-      (res) => {
-        if (res?.message) {
-          toast.show(res?.message, { type: "error" });
-        } else {
-          const data = CryptoHandler.response(res, token ?? "");
-          setNotifications(data);
-        }
+    HttpService.get(apiEndpoints.notifications.getAllNotifications, {
+      token: token ?? "",
+    }).then((res) => {
+      if (res?.message) {
+        toast.show(res?.message, { type: "error" });
+      } else {
+        const data = CryptoHandler.response(res, token ?? "");
+        setNotifications(data);
       }
-    );
+    });
   };
 
   enum NotificationAction {
@@ -144,7 +136,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
   }, [notificationsModal]);
 
   const handleInviteActions = (type: NotificationAction, id: number) => {
-    HttpService.post(apiEndpoints.notificationAction, {
+    HttpService.post(apiEndpoints.notifications.readAllNotifications, {
       token: token ?? "",
       body: JSON.stringify({
         action: type,
@@ -302,7 +294,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
       )}
-      {notificationsModal && 
+      {notificationsModal && (
         <DraggableModal
           isOpen={notificationsModal}
           setIsOpen={setNotificationsModal}
@@ -478,7 +470,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
           }
           modalType="Notifications"
         />
-      }
+      )}
     </SafeAreaView>
   );
 };
