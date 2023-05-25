@@ -25,6 +25,9 @@ import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
 import apiEndpoints from "../../constants/apiEndpoints";
 import ManageStamps from "./ManageStamps";
+import CredentialsService from "../../services/CredentialsService";
+import { useDispatch } from "react-redux";
+import { setStamps } from "../../redux/reducers/CredentialsSlice";
 interface UploadStampProps {
   modalType: string;
   setIsOpen: any;
@@ -110,7 +113,7 @@ const UploadStamp: React.FC<UploadStampProps> = ({
       onclick: "",
     },
   ];
-
+  const dispatch = useDispatch();
   return (
     <ScrollView className=" text-start  flex flex-col content-center">
       <IndeterminateProgressBar loading={isLoading ?? false} />
@@ -216,6 +219,16 @@ const UploadStamp: React.FC<UploadStampProps> = ({
                       type: "error",
                     });
                   } else {
+                    const payload = {
+                      type: "STAMP",
+                      file: result,
+                      title: stampName,
+                    };
+                    CredentialsService.handleInitialUpload(payload, (data) => {
+                      dispatch(setStamps(Array.from(data)));
+                      // dispatch(showUploadCredentialsModal(false));
+                      // dispatch(setIsLoading(false));
+                    });
                     handleUpload();
                   }
                 }

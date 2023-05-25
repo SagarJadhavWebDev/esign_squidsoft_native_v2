@@ -3,9 +3,9 @@ import ApiInstance from "./ApiInstance";
 import handleResponse from "./handleResponse";
 
 const handleCreateOrganizations = (payload: any, callBack: any) => {
-  ApiInstance.post(apiEndpoint.organizations.createOrganization, payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+  ApiInstance.postForm(apiEndpoint.organizations.createOrganization, payload)
+    .then(async (res) => {
+      const data =  await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {
@@ -15,8 +15,8 @@ const handleCreateOrganizations = (payload: any, callBack: any) => {
 
 const handleGetOrganizations = (callBack: any) => {
   ApiInstance.get(apiEndpoint.organizations.getOrganization)
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {
@@ -25,9 +25,9 @@ const handleGetOrganizations = (callBack: any) => {
 };
 
 const handleUpdateOrganizations = (id: number, payload: any, callBack: any) => {
-  ApiInstance.post(apiEndpoint.organizations.updateOrganization(id), payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+  ApiInstance.postForm(apiEndpoint.organizations.updateOrganization(id), payload)
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {

@@ -13,6 +13,9 @@ const routes = {
   Plans: "Plans",
   Checkout: "Checkout",
   StripeCheckout: "StripeCheckout",
-  ForgotPassword:"ForgotPassword"
+  ForgotPassword: "ForgotPassword",
+  Address: "Address",
+  Teams: "Teams",
+  ViewTeam: "ViewTeam",
 };
 export default routes;

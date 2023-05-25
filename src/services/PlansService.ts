@@ -3,8 +3,8 @@ import ApiInstance from "./ApiInstance";
 import handleResponse from "./handleResponse";
 
 const handleGetPlans = (callback: (data:any) => void) => {
-  ApiInstance.get(apiEndpoint.plans.getPlans).then((res) => {
-    const data = handleResponse(res as any);
+  ApiInstance.get(apiEndpoint.plans.getPlans).then(async (res) => {
+    const data = await handleResponse(res as any);
     console.log("RESPON PLANS", data)
     return callback(data);
   });

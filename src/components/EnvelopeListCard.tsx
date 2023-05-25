@@ -58,11 +58,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         return null;
     }
   };
-  console.log(
-    "COUNTS",
-    envelope?.document_fields?.total,
-    envelope?.document_fields?.completed
-  );
+  
   return (
     <TouchableOpacity
       className=" rounded-lg border my-2 border-gray-200 p-1 bg-white"

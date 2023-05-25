@@ -30,9 +30,9 @@ interface PDFViewSingleSignPageProps {
   pageNumber: number;
   source: any;
   handlePageLoad: any;
-  fields: PageFieldType[];
+  fields: any[];
   setEnvelope?: any;
-  allFields: PageFieldType[];
+  allFields: any[];
 }
 const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   pageNumber,

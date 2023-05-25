@@ -41,13 +41,9 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
     let containerHeight = height + height * (diffPercent / 100);
     return { height: containerHeight, width: containerWidth };
   };
-  console.log("CONTAINER SDFGHJ:", fields);
-  const renderFilledDiv = (
-    type: FILLEDDATATYPE,
-    data: PageFieldType,
-    width?: number
-  ) => {
-    const url = ApiConfig.FILES_URL + data?.image_url;
+  console.log("CONTAINER SDFGHJ:", fields, pageNumber);
+  const renderFilledDiv = (type: FILLEDDATATYPE, data: any, width?: number) => {
+    const value = data?.value;
     switch (type) {
       case "date":
       case "time":
@@ -61,14 +57,14 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
               // borderWidth: 1,
               // borderColor: data?.response_payload?.rgbaColor,
             }}
-            className="justify-center items-start"
+            className="flex justify-center items-start"
           >
             <Text
               numberOfLines={1}
-              style={{ fontSize: (width ?? 0) / 12 }}
+              style={{ fontSize: (width ?? 0) / 10 }}
               className="w-full"
             >
-              {data?.meta_data?.fieldvalue}
+              {value}
             </Text>
           </View>
         );
@@ -80,7 +76,7 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
             className="w-full h-full"
             resizeMode="contain"
             source={{
-              uri: url,
+              uri: value,
             }}
           />
         );
@@ -122,9 +118,8 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
         style={{ height: containerSize?.height, width: containerSize?.width }}
       >
         {fields
-          ? fields?.map((f: PageFieldType) => {
-              const i: FieldPayload = f?.response_payload;
-
+          ? fields?.map((f: any) => {
+              const i: FieldPayload = f?.meta;
               const dpw =
                 ((containerSize.width - Number(i?.dispalypagewidth)) /
                   Number(i?.dispalypagewidth)) *
@@ -140,14 +135,14 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
 
               let fixedFieldFontSize = 0;
               if (width / 3 > height) {
-                fixedFieldFontSize = height / 10;
+                fixedFieldFontSize = height / 12;
               } else {
-                fixedFieldFontSize = width / 14;
+                fixedFieldFontSize = width / 12;
               }
               return (
                 <View
                   className="absolute"
-                  key={i?.id}
+                  key={f?.id}
                   style={{
                     transform: [
                       { translateX: xCord ?? 0 },
@@ -157,8 +152,8 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
                     width: width,
                   }}
                 >
-                  {f?.filled_at ? (
-                    renderFilledDiv(i?.type, f, width)
+                  {f?.value ? (
+                    renderFilledDiv(f?.meta?.type, f, width)
                   ) : (
                     <View
                       style={{
@@ -167,21 +162,21 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
                         // backgroundColor: "blue",
                         borderStyle: "dashed",
                         borderWidth: 1.8,
-                        borderColor: i?.rgbaColor,
+                        borderColor: f?.meta?.rgbaColor,
                         // backgroundColor: i?.rgbaColor+'e1',
                       }}
                       className="relative bg-[#ffffffe1] flex flex-row"
                     >
                       <View className="w-1/4 justify-center items-center">
-                        {i?.type === "text" ? (
-                          <Text className="font-semibold text-base leading-5">
+                        {f?.meta?.type === "text" ? (
+                          <Text className=" text-base leading-5">
                             Aa
                           </Text>
                         ) : (
                           <GetSvg
-                            name={renderFieldIcon(i?.type) ?? ""}
-                            classN="w-5 h-5"
-                            color={i?.rgbaColor}
+                            name={renderFieldIcon(f?.meta?.type) ?? ""}
+                            classN={`"w-${width+"px"} h-${height+"px"}"`}
+                            color={f?.meta?.rgbaColor}
                           />
                         )}
                       </View>
@@ -190,28 +185,28 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
                           style={{
                             fontSize: fixedFieldFontSize * 1.2,
                           }}
-                          className="capitalize font-semibold text-gray-900"
+                          className="capitalize w-full font-semibold text-gray-900"
                           numberOfLines={1}
                         >
-                          {i?.name ?? "name"}
+                          {f?.meta?.name ?? "name"}
                         </Text>
                         <Text
                           style={{
                             fontSize: fixedFieldFontSize,
                           }}
-                          className="capitalize font-semibold text-gray-600"
+                          className="capitalize font-semibold w-full text-gray-600"
                           numberOfLines={1}
                         >
-                          {i?.email ?? "email"}
+                          {f?.meta?.email ?? "email"}
                         </Text>
                         <Text
                           style={{
                             fontSize: fixedFieldFontSize * 0.8,
                           }}
-                          className="capitalize font-medium text-gray-500"
+                          className="capitalize w-full font-medium text-gray-500"
                           numberOfLines={1}
                         >
-                          {i?.type}
+                          {f?.meta?.type}
                         </Text>
                       </View>
                     </View>

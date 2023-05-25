@@ -150,6 +150,8 @@ const useInitial = () => {
     CredentialsService.handleGetCredentials((data) => {
       console.log(
         "CRED123",
+        token,
+        data,
         data?.["initials"]?.[0],
         data?.["signatures"]?.[0],
         data?.["stamps"]
@@ -207,8 +209,8 @@ const useAddresses = () => {
   if (addresses) {
     return addresses;
   } else if (token) {
-    Addressservice.handleGetAddresses((data) => {
-      return dispatch(setAddresses(data));
+    Addressservice.handleGetAddresses(async (data) => {
+      return await dispatch(setAddresses(data));
     });
   }
 };

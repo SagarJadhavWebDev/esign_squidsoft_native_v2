@@ -2,13 +2,15 @@ import React from "react";
 import Router from "./src/screens/Router";
 import { AuthProvider } from "./src/utils/auth";
 import "./ignoreWarnings";
-import { Text, View } from "react-native";
+import { Animated, Text, View, Easing, ActivityIndicator } from "react-native";
 import { ToastProvider } from "react-native-toast-notifications";
 import GetSvg from "./src/utils/GetSvg";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import ApiConfig from "./src/constants/ApiConfig";
 import { Provider } from "react-redux";
 import store from "./src/redux/store";
+import { useIsLoading } from "./src/utils/useReduxUtil";
+import Loading from "./src/components/atoms/Loading";
 export default function App() {
   const switchIcon = (type: string) => {
     switch (type) {
@@ -50,45 +52,46 @@ export default function App() {
         return null;
     }
   };
-  
+
   return (
     <React.Fragment>
-       <Provider store={store}>
-      <StripeProvider
-        publishableKey={ApiConfig.STRIPE_KEY}
-        threeDSecureParams={{
-          backgroundColor: "#d10000",
-        }}
-      >
-        <ToastProvider
-          placement="bottom"
-          duration={2000}
-          animationType="slide-in"
-          successColor="#16a34a"
-          animationDuration={500}
-          swipeEnabled={true}
-          offsetBottom={90}
-          renderToast={(toastOptions) => (
-            <View className="bg-white w-fit max-w-[80%] p-1 -z-50 h-fit rounded-full  border border-gray-200 flex flex-row ">
-              <View className=" max-w-[10%] h-full justify-center items-center">
-                {switchIcon(toastOptions.type ?? "")}
-              </View>
-              <View className="justify-center max-w-[90%] p-1 items-start mx-1 text-center">
-                <Text
-                  className="text-black font-bold text-center font-poppins"
-                  adjustsFontSizeToFit={true}
-                >
-                  {toastOptions.message}{" "}
-                </Text>
-              </View>
-            </View>
-          )}
+      <Provider store={store}>
+        <StripeProvider
+          publishableKey={ApiConfig.STRIPE_KEY}
+          threeDSecureParams={{
+            backgroundColor: "#d10000",
+          }}
         >
-          <AuthProvider>
-            <Router />
-          </AuthProvider>
-        </ToastProvider>
-      </StripeProvider>
+          <ToastProvider
+            placement="bottom"
+            duration={2000}
+            animationType="slide-in"
+            successColor="#16a34a"
+            animationDuration={500}
+            swipeEnabled={true}
+            offsetBottom={90}
+            renderToast={(toastOptions) => (
+              <View className="bg-white w-fit max-w-[80%] p-1 -z-50 h-fit rounded-full  border border-gray-200 flex flex-row ">
+                <View className=" max-w-[10%] h-full justify-center items-center">
+                  {switchIcon(toastOptions.type ?? "")}
+                </View>
+                <View className="justify-center max-w-[90%] p-1 items-start mx-1 text-center">
+                  <Text
+                    className="text-black font-bold text-center font-poppins"
+                    adjustsFontSizeToFit={true}
+                  >
+                    {toastOptions.message}{" "}
+                  </Text>
+                </View>
+              </View>
+            )}
+          >
+            <Loading />
+            <AuthProvider>
+              <Router />
+            </AuthProvider>
+          </ToastProvider>
+        </StripeProvider>
       </Provider>
     </React.Fragment>
   );

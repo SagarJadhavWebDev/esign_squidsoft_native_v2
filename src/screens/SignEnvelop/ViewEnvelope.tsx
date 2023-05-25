@@ -13,7 +13,7 @@ import { useToast } from "react-native-toast-notifications";
 import ConfirmModal from "../../components/modals/ConfirmModal";
 import apiEndpoints from "../../constants/apiEndpoints";
 import routes from "../../constants/routes";
-import { EnvelopeDocument } from "../../types/EnvelopeType";
+import { EnvelopeType } from "../../types/EnvelopeType";
 import { FieldPayload } from "../../types/FieldTypes";
 import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
@@ -21,6 +21,8 @@ import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
 import DocumentDiv from "../CreateEnvelope/PrepareDocumentView/DocumentDiv";
 import ViewDocument from "./ViewDocument";
+import { ViewEnvelopeTypes } from "../../types/ViewEnvelopeTypes";
+import EnvelopeService from "../../services/EnvelopeService";
 
 interface ViewEnvelopeProps {
   route: any;
@@ -28,33 +30,50 @@ interface ViewEnvelopeProps {
 }
 
 const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
-  const { envelope, type } = route?.params;
-  const documents = envelope?.documents;
+  const { envelope: data, type } = route?.params;
+  const envelope: any = data;
   const [downloading, setDownloading] = useState(false);
   const [isCoonfirmModalOpen, setIsCoonfirmModalOpen] = useState(false);
   const [IsLoading, setIsLoading] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<EnvelopeDocument>(
-    documents?.[0]
-  );
+  const [selectedDocument, setSelectedDocument] = useState<any>();
   const { token } = useAuth();
   const toast = useToast();
-  const [envelopeData, setEnvelope] = useState(envelope);
-  const isAlreadyFill = envelopeData?.authFields?.every((f: any) => {
+  const [envelopeData, setEnvelope] = useState<ViewEnvelopeTypes>();
+  const documents = envelopeData?.envelope_documents;
+
+  const isAlreadyFill = envelopeData?.document_fields?.every((f: any) => {
     return !isNull(f?.filled_at) ? true : false;
   });
   const [isAllFilled, setIsAllFilled] = useState(false);
   useEffect(() => {
-    const check = envelopeData?.fields?.every((e: any) => {
-      return e?.meta_data?.fieldvalue !== undefined;
-    });
-    setIsAllFilled(check);
+    if (envelopeData) {
+      const check = envelopeData?.document_fields?.every((e: any) => {
+        return e?.meta_data?.fieldvalue !== undefined;
+      });
+      setIsAllFilled(check);
+    }
   }, [envelopeData]);
 
+  const handleFetchViewEnvelope = () => {
+    const viewToken = envelope?.access_token?.split("view").pop();
+    EnvelopeService.handleFetchViewEnvelope(viewToken, (data) => {
+      if (data) {
+        setEnvelope(data);
+        setSelectedDocument(data?.envelope_documents?.[0]);
+        // dispatch(setViewEnvelope(data));
+        // setSelectedDocuments(data?.envelope_documents?.[0]);
+        // dispatch(setAllTempFields(data?.document_fields));
+        // setTempEnvelope(data?.document_fields);
+      } else {
+        // dispatch(setLoginModal(true));
+      }
+    });
+  };
   const handleSubmit = () => {
     setIsCoonfirmModalOpen(false);
     setIsLoading(true);
-    if (envelopeData?.fields) {
-      const payload = envelopeData?.fields?.map((s: any) => {
+    if (envelopeData?.document_fields) {
+      const payload = envelopeData?.document_fields?.map((s: any) => {
         const id = pick(s, ["id"]);
         const metaData = pick(s?.response_payload, [
           "type",
@@ -67,31 +86,37 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
         const d = { ...id, ...metaData, ...{ value: value?.fieldvalue } };
         return d;
       });
-      HttpService.put(apiEndpoints.signFields(envelopeData?.id), {
-        token: token,
-        body: JSON.stringify({
-          fields: payload,
-        }),
-      }).then((res: any) => {
-        if (res?.message) {
-          toast.show(res?.message, { type: "error" });
+      // HttpService.put(apiEndpoints.signFields(envelopeData?.id), {
+      //   token: token,
+      //   body: JSON.stringify({
+      //     fields: payload,
+      //   }),
+      // }).then((res: any) => {
+      //   if (res?.message) {
+      //     toast.show(res?.message, { type: "error" });
 
-          setIsLoading(false);
-        } else {
-          toast.show("envelope signed successfully", { type: "success" });
-          navigation.navigate(routes.dashboard, {
-            update: Date.now(),
-          });
-          setIsLoading(false);
-        }
-      });
+      //     setIsLoading(false);
+      //   } else {
+      //     toast.show("envelope signed successfully", { type: "success" });
+      //     navigation.navigate(routes.dashboard, {
+      //       update: Date.now(),
+      //     });
+      //     setIsLoading(false);
+      //   }
+      // });
     }
   };
-  console.log("TYPE", type);
+  useEffect(() => {
+    handleFetchViewEnvelope();
+  }, []);
+  console.log("envelopeData", envelopeData);
+  //return null;
   return (
     <SafeAreaView className="w-full h-full flex flex-col justify-start">
       <View className="w-full h-12 flex flex-row justify-between items-center px-3 bg-white">
-        <Text className="text-lg font-normal">Envelope : {envelope?.id}</Text>
+        <Text className="text-lg font-normal">
+          Envelope : {envelopeData?.id + " "}
+        </Text>
         <GetSvg
           name="closeWithoutCircleIcon"
           classN="w-5 h-5"
@@ -112,7 +137,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
           className="border-b border-gray-300 gap-x-2"
           contentContainerStyle={{ paddingHorizontal: 5 }}
         >
-          {documents?.map((doc: any) => {
+          {documents?.map((doc) => {
             const isSelected = doc?.id === selectedDocument?.id;
             return (
               <TouchableOpacity
@@ -120,7 +145,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
                   setSelectedDocument(doc);
                 }}
                 key={doc?.id}
-                className={`${isSelected ? "bg-[#d10000]  " : "bg-gray-200 "}  
+                className={`${isSelected ? "bg-[#d10000]  " : "bg-gray-200 "}
                 border-b-0 px-3 rounded-t-xl justify-center items-center max-w-[100px]`}
               >
                 <Text

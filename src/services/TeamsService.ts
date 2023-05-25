@@ -4,8 +4,8 @@ import handleResponse from "./handleResponse";
 
 const handleCreateTeam = (payload: any, callBack: any) => {
   ApiInstance.post(apiEndpoint.teams.createTeam, payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {
@@ -14,8 +14,8 @@ const handleCreateTeam = (payload: any, callBack: any) => {
 };
 const handleUpdateTeam = (id: number, payload: any, callBack: any) => {
   ApiInstance.put(apiEndpoint.teams.updateTeam(id), payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then( async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {
@@ -23,10 +23,10 @@ const handleUpdateTeam = (id: number, payload: any, callBack: any) => {
     });
 };
 
-const handleAddUser = (payload: any, callBack: any) => {
+const handleAddUser = (payload: any, toast: any, callBack: any) => {
   ApiInstance.post(apiEndpoint.teams.addUser, payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any, toast);
       return callBack(data ?? res);
     })
     .catch((err) => {
@@ -35,8 +35,8 @@ const handleAddUser = (payload: any, callBack: any) => {
 };
 const handleRemoveUser = (payload: any, callBack: any) => {
   ApiInstance.post(apiEndpoint.teams.removeUser, payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {

@@ -41,6 +41,7 @@
     "react-native-dynamically-selected-picker": "^3.0.0",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-gesture-handler": "^2.8.0",
+    "react-native-image-base64": "^0.1.4",
     "react-native-linear-gradient": "^2.6.2",
     "react-native-localize": "^2.2.4",
     "react-native-pdf-light": "^2.3.0",

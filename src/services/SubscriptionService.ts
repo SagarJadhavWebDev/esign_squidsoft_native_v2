@@ -12,8 +12,8 @@ const handleGetSubscription = (callBack: (data: any) => void) => {
 };
 
 const handlegetAllAddons = (callBack: (data: any) => void) => {
-  ApiInstance.get(apiEndpoint.addOns.getAllAddons).then((res) => {
-    const data = handleResponse(res as any);
+  ApiInstance.get(apiEndpoint.addOns.getAllAddons).then(async(res) => {
+    const data = await handleResponse(res as any);
     return callBack(data);
   });
 };

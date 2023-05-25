@@ -11,7 +11,7 @@ import { PdfUtil } from "react-native-pdf-light";
 import { useToast } from "react-native-toast-notifications";
 import RNFetchBlob from "rn-fetch-blob";
 import ApiConfig from "../../constants/ApiConfig";
-import { EnvelopeDocument, EnvelopeType } from "../../types/EnvelopeType";
+import { EnvelopeType } from "../../types/EnvelopeType";
 import { PdfView } from "react-native-pdf-light";
 import { times } from "lodash";
 import PDFViewSinglePage from "./Component/PDFViewSinglePage";
@@ -20,10 +20,11 @@ import ExportDocument from "../../utils/ExportDocuments";
 import useAuth from "../../utils/auth";
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
 import GetSvg from "../../utils/GetSvg";
+import { ViewEnvelopeTypes } from "../../types/ViewEnvelopeTypes";
 
 interface ViewDocumentProps {
-  document: EnvelopeDocument;
-  envelope: EnvelopeType;
+  document: any;
+  envelope: any;
   type: "SIGN" | "VIEW";
   setEnvelope?: any;
   setDownloading?: any;
@@ -45,13 +46,10 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       // path: s,
       fileCache: true,
     })
-      .fetch(
-        "GET",
-        `${ApiConfig.FILES_URL + document?.path + "/" + document?.name}`
-      )
+      .fetch("GET", `${ApiConfig.API_URL + "/" + document?.path}`)
       .then((value) => {
         setSource(value.path());
-        // console.log("RESPONSE FROM RN FECTH BLOB:", value);
+        console.log("RESPONSE FROM RN FECTH BLOB:", value);
       })
       .catch((error) => {
         toast.show(
@@ -85,7 +83,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
     RNFetchBlob.fs
       .readFile(url, "base64")
       .then((res) => {
-        const data = envelope?.fields.filter((f: any) => {
+        const data = envelope?.document_fields?.filter((f: any) => {
           return f?.response_payload?.documentid === document?.id;
         });
         ExportDocument(data, res, document?.name, setDownloading, toast);
@@ -105,19 +103,19 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       >
         {source && totalPages > 0
           ? times(totalPages)?.map((pageNumber: any) => {
-              const fieldsByType =
-                type === "SIGN" ? envelope?.authFields : envelope?.fields;
-              const fields = fieldsByType?.filter(
+              const fieldsByType = envelope?.document_fields;
+              const fields = envelope?.document_fields?.filter(
                 (f: any) =>
-                  f?.response_payload?.documentid === document?.id &&
-                  f?.response_payload?.pageno === pageNumber + 1
+                  f?.page_number === pageNumber+1 &&
+                  document?.id === f?.envelope_document_id
               );
+              console.log("SAGARARARRARA", pageNumber)
               return type === "VIEW" ? (
                 <PDFViewSinglePage
                   handlePageLoad={handlePageLoadComplete}
                   pageNumber={pageNumber}
                   source={source}
-                  key={pageNumber + 1}
+                  key={pageNumber}
                   fields={fields}
                 />
               ) : (

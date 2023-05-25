@@ -24,7 +24,8 @@ import getIpData from "../utils/getIpData";
 import GetSvg from "../utils/GetSvg";
 import HttpService from "../utils/HttpService";
 import store, { revertAll } from "../redux/store";
-import { useUser } from "../utils/useReduxUtil";
+import { useOrganization, useTeams, useUser } from "../utils/useReduxUtil";
+import EditOrganizationModal from "../components/modals/EditOrganizationModal";
 
 interface SettingsProps {
   navigation: any;
@@ -37,6 +38,9 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
   const toast = useToast();
+  const Organization = useOrganization();
+  const teams = useTeams();
+  const [organizationModal, setOrganizationModal] = useState(false);
   const [userProfilePicture, setUserProfilePicture] = useState<any>(
     user?.profile_picture
   );
@@ -47,6 +51,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       onClick: () => {
         setEditProfile(true);
       },
+      show: true,
     },
     {
       name: "Change Password",
@@ -54,16 +59,33 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       onClick: () => {
         setChangePassword(true);
       },
+      show: true,
     },
     {
-      name: "Create Organization",
+      name: `${Organization ? "Manage" : "Create"}  Organization`,
       icon: "organazationIcon",
-      onClick: () => {},
+      onClick: () => {
+        setOrganizationModal(true);
+      },
+      show: true,
     },
     {
       name: "Subscriptions",
       icon: "subscriptionIcon",
       onClick: () => navigation.navigate(routes.Subscriptions),
+      show: true,
+    },
+    {
+      name: "Manage Address",
+      icon: "locationIcon",
+      onClick: () => navigation.navigate(routes.Address),
+      show: true,
+    },
+    {
+      name: "Manage Teams",
+      icon: "teamIcon",
+      onClick: () => navigation.navigate(routes.Teams),
+      show: !isEmpty(teams),
     },
   ];
 
@@ -271,7 +293,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
             <Text className="mx-2 text-sm font-semibold my-0.5">Settings</Text>
           </View>
           <View className="flex flex-col px-5 mt-2">
-            {ProfileMenuList.map((item) => {
+            {ProfileMenuList?.filter((s) => s?.show).map((item) => {
               return (
                 <TouchableOpacity
                   key={item.name}
@@ -349,6 +371,11 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           isOpen={changePassword}
           setIsOpen={setChangePassword}
           user={user}
+        />
+      ) : organizationModal ? (
+        <EditOrganizationModal
+          isOpen={organizationModal}
+          setIsOpen={setOrganizationModal}
         />
       ) : null}
 

@@ -17,6 +17,10 @@ import SignEnvelop from "./SignEnvelop/SignEnvelop";
 import ViewEnvelope from "./SignEnvelop/ViewEnvelope";
 import SplashScreen from "./SplashScreen";
 import TemplateDocumentList from "./Templates/TemplateDocuments";
+import Address from "./Address/Address";
+import ManageAddress from "./Address/Address";
+import ManageTeams from "./Teams/ManageTeams";
+import ViewTeam from "./Teams/ViewTeam";
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
@@ -99,6 +103,21 @@ const Router = () => {
               <Stack.Screen
                 name={routes.Checkout}
                 component={Checkout}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.Address}
+                component={ManageAddress}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.Teams}
+                component={ManageTeams}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.ViewTeam}
+                component={ViewTeam}
                 options={{ headerShown: false }}
               />
             </>

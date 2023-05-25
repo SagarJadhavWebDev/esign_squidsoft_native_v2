@@ -42,7 +42,6 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
       setpasswordError(null);
       setuserNameError(null);
       setConfirmPasswordError(null);
-
       if (!CommonUtils.ValidateEmail(username)) {
         setisUsernameValid(false);
         setuserNameError("Please enter a valid email address");
@@ -100,15 +99,18 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
             })
               .then(async (result) => {
                 const data = await handleResponse(result as any, toast);
-                console.log("LOGIN", data?.token);
+                console.log("LOGIN",result);
                 if (data) {
                   SignIn &&
                     SignIn(data?.token, () => {
                       setPassword(null);
                       setUsername(null);
                       dispatch(data?.user);
+                      setIsLoading(false);
                       // navigation.navigate(routes.dashboard);
                     });
+                } else {
+                  setIsLoading(false);
                 }
                 // if (result?.message) {
                 //   toast.show(result?.message, { type: "error" });
@@ -126,7 +128,6 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                 // }
               })
               .catch((err) => {
-                toast.show(err, { type: "error" });
                 setIsLoading(false);
               });
           }
@@ -202,7 +203,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
           </Text>
         </View>
         <View className=" w-full max-w-sm">
-          {loadComponent === "profileCheck" || loadComponent === "loadLogin" ? (
+          {loadComponent === "loadLogin" ? (
             <>
               <WFullInputField
                 placeholder={"Email"}

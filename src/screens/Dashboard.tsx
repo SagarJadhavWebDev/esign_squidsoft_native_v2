@@ -30,7 +30,10 @@ import Manage from "./Manage/Manage";
 import Profile from "./Profile/Profile";
 import Subscriptions from "./Subscriptions/Subscription";
 import Templates from "./Templates/Templates";
-import { useUser } from "../utils/useReduxUtil";
+import { useNotifications, useUser } from "../utils/useReduxUtil";
+import NotificationsService from "../services/NotificationsService";
+import { useDispatch } from "react-redux";
+import { setNotifications } from "../redux/reducers/NotificationSlice";
 
 interface DashboardProps {
   navigation: any;
@@ -41,6 +44,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
   const Tab = createBottomTabNavigator();
   const [isLoading, setIsLoading] = useState(false);
   const [notificationsModal, setNotificationsModal] = useState(false);
+  //const notifications = useNotifications();
   const [notifications, setNotifications] = useState<any>([]);
   const toast = useToast();
   const user = useUser();
@@ -109,17 +113,13 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
       screenName: "Settings",
     },
   ];
+  const dispatch = useDispatch();
   useEffect(() => {
     setUserProfilePicture(user?.profile_picture);
   }, [user?.profile_picture]);
   const getNotifications = () => {
-    HttpService.get(apiEndpoints.notifications.getAllNotifications, {
-      token: token ?? "",
-    }).then((res) => {
-      if (res?.message) {
-        toast.show(res?.message, { type: "error" });
-      } else {
-        const data = CryptoHandler.response(res, token ?? "");
+    NotificationsService.readAllNotifications((data) => {
+      if (data) {
         setNotifications(data);
       }
     });

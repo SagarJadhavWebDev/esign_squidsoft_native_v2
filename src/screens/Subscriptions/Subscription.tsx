@@ -199,7 +199,6 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
                   key={subscription?.id}
                   type={tabType}
                   navigation={navigation}
-                  handleCancelOrder={handleCancelOrder}
                 />
               );
             })

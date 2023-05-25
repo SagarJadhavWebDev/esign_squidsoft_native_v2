@@ -21,6 +21,9 @@ import IndeterminateProgressBar from "../atoms/IndeterminateProgressBar";
 import { useDispatch } from "react-redux";
 import ProfileService from "../../services/ProfileService";
 import { setUser } from "../../redux/reducers/userSlice";
+import { setIsLoading } from "../../redux/reducers/uiSlice";
+import { useIsLoading } from "../../utils/useReduxUtil";
+import RNFetchBlob from "rn-fetch-blob";
 interface EditProfileModalProps {
   isOpen: boolean;
   setIsOpen: any;
@@ -38,7 +41,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   //bg-[#00000077]
   const { token, UpdateUser, RefreshUser } = useAuth();
   const [file, setFile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  const isLoading = useIsLoading();
   const [errors, setErrors] = useState<any>({
     countryCode: null,
     phoneNumber: null,
@@ -144,25 +148,26 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   // };
 
   const dispatch = useDispatch();
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = async () => {
+    dispatch(setIsLoading(true));
     const formPayload = new FormData();
     console.log("STRING", typeof payload?.phone_number?.toString());
     formPayload.append("name", payload?.name);
     formPayload.append("phone_number", payload?.phone_number?.toString() ?? "");
     formPayload.append("country_code", payload?.country_code);
-    if (payload?.local_profile_picture) {
-      formPayload.append("profile_picture", file);
+    if (!isEmpty(payload?.local_profile_picture)) {
+      formPayload.append("profile_picture", payload?.local_profile_picture);
     }
-    console.log("PAYLOAD", formPayload);
-    ProfileService.handleUpdateProfile(formPayload, (data) => {
+    console.log("PAYLOAD", payload);
+    ProfileService.handleUpdateProfile(formPayload, toast, (data) => {
       if (data) {
         // console.log("DATA:", data);
         dispatch(setUser(data?.user));
         setIsOpen(false);
       } else {
-        // dispatch(setshowEditProfileModal(false));
       }
-      setIsLoading(false);
+      dispatch(setIsLoading(false));
+      // setIsLoading(false);
     });
   };
 
@@ -207,6 +212,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           setIsOpen(false);
         }}
         style={{
+          zIndex: 11,
           position: "absolute",
           alignSelf: "center",
         }}

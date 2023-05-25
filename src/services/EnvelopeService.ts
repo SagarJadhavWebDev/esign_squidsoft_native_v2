@@ -8,7 +8,7 @@ interface CreateEnvelopeTypes {
 const handleUploadDocument = (
   envelopeId: number,
   payload: any,
-  callback: (data:any) => void
+  callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.document.uploadDocument(envelopeId), payload)
     .then((res) => {
@@ -23,7 +23,7 @@ const handleUploadDocument = (
 const handleAddFields = (
   payload: any,
   envelopeId: number,
-  callback: (data:any) => void
+  callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.fields.addFields(envelopeId), payload)
     .then((res: any) => {
@@ -37,7 +37,7 @@ const handleAddFields = (
 
 const handleCreateEnvelope = (
   payload: CreateEnvelopeTypes,
-  callback: (data:any) => void
+  callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.createEnvelope, payload)
     .then((res: any) => {
@@ -51,7 +51,7 @@ const handleCreateEnvelope = (
 const handleAddRecipients = (
   payload: any,
   envelopeId: number,
-  callback: (data:any) => void
+  callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.addRecipients(envelopeId), payload)
     .then((res: any) => {
@@ -62,22 +62,27 @@ const handleAddRecipients = (
       callback(false);
     });
 };
-const handleFetchEnvelope = (envelopeId: any, callback: (data:any) => void) => {
+const handleFetchEnvelope = (
+  envelopeId: any,
+  callback: (data: any) => void
+) => {
   ApiInstance.get(apiEndpoint.envelope.getEnvelope(envelopeId))
     .then((res: any) => {
       const data = handleResponse(res);
       return callback(data);
     })
     .catch((err) => {
-      
       console.log("FETCH ENVELOPE ERR", err);
       callback(false);
     });
 };
-const handleFetchViewEnvelope = (token: string, callback: (data:any) => void) => {
+const handleFetchViewEnvelope = (
+  token: string,
+  callback: (data: any) => void
+) => {
   ApiInstance.get(apiEndpoint.envelope.viewEnvelope + token)
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res);
       return callback(data);
     })
     .catch((err) => {
@@ -87,7 +92,7 @@ const handleFetchViewEnvelope = (token: string, callback: (data:any) => void) =>
 const handleSendEnvelope = (
   envelopeId: any,
   payload: any,
-  callback: (data:any) => void
+  callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.sendEnvelope(envelopeId), payload)
     .then((res: any) => {

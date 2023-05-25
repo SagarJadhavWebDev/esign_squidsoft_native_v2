@@ -10,6 +10,7 @@ import Error from "../atoms/Error";
 import { isEmpty } from "lodash";
 import HttpService from "../../utils/HttpService";
 import apiEndpoints from "../../constants/apiEndpoints";
+import ProfileService from "../../services/ProfileService";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -27,13 +28,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const [showErrorBox, setShowErrorBox] = useState(false);
   const [passwordsValue, setPasswordsValue] = useState({
     old_password: "",
-    new_password: "",
-    confirm_password: "",
+    password: "",
+    password_confirmation: "",
   });
   const [Showpasswords, setShowPasswords] = useState({
     old_password: true,
-    new_password: true,
-    confirm_password: true,
+    password: true,
+    password_confirmation: true,
   });
   const [showPasswordsValidation, setPasswordValidation] = useState({
     oneNumber: true,
@@ -45,13 +46,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   });
   useEffect(() => {
     const c = /^(?=.*[a-z])/;
-    const lowerCase = c.test(passwordsValue?.new_password);
+    const lowerCase = c.test(passwordsValue?.password);
     const d = /^.*(?=.{8,})(?=.*\d)(?=.*[a-zA-Z]).*$/;
-    const eightChar = d.test(passwordsValue?.new_password);
+    const eightChar = d.test(passwordsValue?.password);
     const b = /^(?=.*\W)/;
-    const specialChar = b.test(passwordsValue?.new_password);
+    const specialChar = b.test(passwordsValue?.password);
     const p = /^(?=.*[0-9])/;
-    const oneNumber = p.test(passwordsValue?.new_password);
+    const oneNumber = p.test(passwordsValue?.password);
     setPasswordValidation((prev: any) => ({
       ...prev,
       oneNumber: oneNumber,
@@ -59,41 +60,51 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       lowerCase: lowerCase,
       eightChar: eightChar,
       confirm_password:
-        passwordsValue.confirm_password === passwordsValue.new_password &&
-        !isEmpty(passwordsValue.new_password) &&
-        !isEmpty(passwordsValue.confirm_password),
+        passwordsValue.password_confirmation === passwordsValue.password &&
+        !isEmpty(passwordsValue.password) &&
+        !isEmpty(passwordsValue.password_confirmation),
     }));
-  }, [passwordsValue.new_password, passwordsValue.confirm_password]);
+  }, [passwordsValue.password, passwordsValue.password_confirmation]);
 
   const handleSubmit = () => {
     setIsLoading(true);
     const payload = {
       current_password: passwordsValue.old_password,
-      new_password: passwordsValue.new_password,
-      new_confirm_password: passwordsValue.confirm_password,
+      new_password: passwordsValue.password,
+      new_confirm_password: passwordsValue.password_confirmation,
     };
     console.log("payload", payload);
-    HttpService.post(apiEndpoints.changePassword, {
-      token: token,
-      body: JSON.stringify(payload),
-    })
-      .then((res: any) => {
-        if (res.status == true) {
-          setIsLoading(false);
-          toast.show(res?.message, { type: "success" });
-          setIsOpen(false);
-          RefreshUser && RefreshUser(token);
-        } else {
-          setIsLoading(false);
-          setPasswordValidation((prev: any) => ({
-            ...prev,
-            old_password: res?.message,
-          }));
-        }
-      })
-      .catch((err) => {
-        console.log("CHANGE PASSWORD ERR", err);
-      });
+
+    // HttpService.post(apiEndpoints.changePassword, {
+    //   token: token,
+    //   body: JSON.stringify(payload),
+    // })
+    //   .then((res: any) => {
+    //     if (res.status == true) {
+    //       setIsLoading(false);
+    //       toast.show(res?.message, { type: "success" });
+    //       setIsOpen(false);
+    //       RefreshUser && RefreshUser(token);
+    //     } else {
+    //       setIsLoading(false);
+    //       setPasswordValidation((prev: any) => ({
+    //         ...prev,
+    //         old_password: res?.message,
+    //       }));
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log("CHANGE PASSWORD ERR", err);
+    //   });
+
+    ProfileService.handleChangePassword(passwordsValue, toast, (data) => {
+      if (data) {
+        setIsLoading(false);
+        setIsOpen(false);
+      } else {
+        setIsLoading(false);
+      }
+    });
   };
   return (
     <>
@@ -187,13 +198,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                       onFocus={() => {
                         setShowErrorBox(true);
                       }}
-                      secureTextEntry={Showpasswords.new_password}
+                      secureTextEntry={Showpasswords.password}
                       textContentType="password"
                       placeholder="Enter your new password"
                       onChangeText={(e: any) => {
                         setPasswordsValue((prev: any) => ({
                           ...prev,
-                          new_password: e,
+                          password: e,
                         }));
                       }}
                       className="h-5 text-sm  "
@@ -205,7 +216,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                             console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
-                              new_password: !Showpasswords?.new_password,
+                              password: !Showpasswords?.password,
                             }));
                           }}
                         />
@@ -218,12 +229,12 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                             console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
-                              new_password: !Showpasswords?.new_password,
+                              password: !Showpasswords?.password,
                             }));
                           }}
                         />
                       }
-                      toggleIcon={Showpasswords?.new_password}
+                      toggleIcon={Showpasswords?.password}
                     />
                   </View>
                   <View className="">
@@ -231,13 +242,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                       Confirm password
                     </Text>
                     <WFullInputField
-                      secureTextEntry={Showpasswords.confirm_password}
+                      secureTextEntry={Showpasswords.password_confirmation}
                       textContentType="password"
                       placeholder="Enter your confirm password"
                       onChangeText={(e: any) => {
                         setPasswordsValue((prev: any) => ({
                           ...prev,
-                          confirm_password: e,
+                          password_confirmation: e,
                         }));
                       }}
                       className="h-5 text-sm  "
@@ -249,8 +260,8 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                             console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
-                              confirm_password:
-                                !Showpasswords?.confirm_password,
+                              password_confirmation:
+                                !Showpasswords?.password_confirmation,
                             }));
                           }}
                         />
@@ -263,13 +274,13 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                             console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
-                              confirm_password:
-                                !Showpasswords?.confirm_password,
+                              password_confirmation:
+                                !Showpasswords?.password_confirmation,
                             }));
                           }}
                         />
                       }
-                      toggleIcon={Showpasswords?.confirm_password}
+                      toggleIcon={Showpasswords?.password_confirmation}
                     />
                   </View>
                   {/* ############## PASSWORD INPUTS END ############## */}

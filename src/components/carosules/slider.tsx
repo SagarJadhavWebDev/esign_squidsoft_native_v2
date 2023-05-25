@@ -29,6 +29,8 @@ import CredentialsModal from "../modals/CredentialsModal";
 import UploadCredentials from "../../screens/Credentials/UploadCredentials";
 import useAuth from "../../utils/auth";
 import ApiConfig from "../../constants/ApiConfig";
+import { useInitial, useSignature, useStamps } from "../../utils/useReduxUtil";
+import { Initial, Stamp } from "../../redux/reducers/CredentialsSlice";
 const { height: PAGE_HEIGHT, width: PAGE_WIDTH } = Dimensions.get("window");
 const activeOffsetX = { activeOffsetX: [-10, 10] };
 
@@ -40,12 +42,11 @@ const Slider = () => {
     isOpen: false,
   });
   const { auth } = useAuth();
-  const stamps =
-    auth?.user?.stamps?.filter((s: any) => s?.is_default === 1)?.[0] ??
-    auth?.user?.stamps?.[0];
-  const signature = auth?.user?.signature ?? null;
-  const initial = auth?.user?.initials ?? null;
-
+  const stamps: Stamp[] = useStamps() as any;
+  //auth?.user?.stamps?.filter((s: any) => s?.is_default === 1)?.[0] ??
+  //auth?.user?.stamps?.[0];
+  const signature: Initial = useSignature(); //auth?.user?.signature ?? null;
+  const initial: Initial = useInitial(); //auth?.user?.initials ?? null;
   return (
     <>
       <Carousel
@@ -76,7 +77,6 @@ const Slider = () => {
           // marginHorizontal: "25%",
           padding: 2,
           borderRadius: 20,
-          
         }}
         renderDot={(props) => {
           return (
@@ -127,39 +127,41 @@ const Slider = () => {
                   }}
                   className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
                 >
-                  <Text className="text-xs text-white text-center w-[80px]">Upload Initials</Text>
+                  <Text className="text-xs text-white text-center w-[80px]">
+                    Upload Initials
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>
           ) : (
-            <>
-              <View className="w-full h-3/4 p-3">
-                <Image
-                  className="shadow-2xl w-full h-full"
-                  resizeMode="contain"
-                  source={{
-                    uri:
-                      ApiConfig.FILES_URL +
-                      initial?.image_url +
-                      "?" +
-                      Date.now(),
-                  }}
-                />
-              </View>
-              <View className="w-full h-1/4 flex justify-center items-center ">
-                <TouchableOpacity
-                  onPress={() => {
-                    setuploadInitialModal({
-                      isOpen: true,
-                      type: "initial",
-                    });
-                  }}
-                  className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
-                >
-                  <Text className="text-xs text-white text-center w-[80px] ">Change Initial</Text>
-                </TouchableOpacity>
-              </View>
-            </>
+            !isEmpty(initial) && (
+              <>
+                <View className="w-full h-3/4 p-3">
+                  <Image
+                    className="shadow-2xl w-full h-full"
+                    resizeMode="contain"
+                    source={{
+                      uri: initial?.source?.base64,
+                    }}
+                  />
+                </View>
+                <View className="w-full h-1/4 flex justify-center items-center ">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setuploadInitialModal({
+                        isOpen: true,
+                        type: "initial",
+                      });
+                    }}
+                    className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
+                  >
+                    <Text className="text-xs text-white text-center w-[80px] ">
+                      Change Initial
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )
           )}
         </View>
         <View className="w-5/6 h-3/4  mx-auto my-auto rounded-2xl border border-gray-300">
@@ -180,7 +182,9 @@ const Slider = () => {
                   }}
                   className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
                 >
-                  <Text className="text-xs text-white text-center w-[100px]">Upload Signature</Text>
+                  <Text className="text-xs text-white text-center w-[100px]">
+                    Upload Signature
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -191,11 +195,7 @@ const Slider = () => {
                   className="shadow-2xl w-full h-full"
                   resizeMode="contain"
                   source={{
-                    uri:
-                      ApiConfig.FILES_URL +
-                      signature?.image_url +
-                      "?" +
-                      Date.now(),
+                    uri: signature?.source?.base64,
                   }}
                 />
               </View>
@@ -209,7 +209,9 @@ const Slider = () => {
                   }}
                   className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
                 >
-                  <Text className="text-xs text-white text-center w-[100px]">Change Signature</Text>
+                  <Text className="text-xs text-white text-center w-[100px]">
+                    Change Signature
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -233,7 +235,9 @@ const Slider = () => {
                   }}
                   className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
                 >
-                  <Text className="text-xs text-white text-center w-[85px] ">Upload Stamps</Text>
+                  <Text className="text-xs text-white text-center w-[85px] ">
+                    Upload Stamps
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -244,11 +248,8 @@ const Slider = () => {
                   className="shadow-2xl w-full h-full"
                   resizeMode="contain"
                   source={{
-                    uri:
-                      ApiConfig.FILES_URL +
-                      stamps?.image_url +
-                      "?" +
-                      Date.now(),
+                    uri: stamps?.find((s) => s?.is_default === 1)?.source
+                      ?.base64,
                   }}
                 />
               </View>
@@ -262,7 +263,9 @@ const Slider = () => {
                   }}
                   className=" bg-slate-800 px-3 py-1 rounded-3xl justify-center items-center"
                 >
-                  <Text className="text-xs text-white text-center w-[70px]">Add Stamps</Text>
+                  <Text className="text-xs text-white text-center w-[70px]">
+                    Add Stamps
+                  </Text>
                 </TouchableOpacity>
               </View>
             </>

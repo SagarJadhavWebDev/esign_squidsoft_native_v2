@@ -9,7 +9,7 @@ const handleResponse = async (res: any, toast?: any) => {
   // const userToken = await AsyncStorage.getItem(SP.AUTHTOKEN);
   // const token = userToken ?? ApiConfig.APP_AUTH_TOKEN_KEY;
   const encryption = false; // process.env.REACT_APP_ENCRYPTION;
-  console.log("FROM HANDLE RESPONSE", res?.status);
+  console.log("FROM HANDLE RESPONSE", res);
   if (res?.status === 200) {
     const data = response?.data;
     //  encryption
@@ -27,11 +27,14 @@ const handleResponse = async (res: any, toast?: any) => {
     return false;
   } else {
     if (isObject(response)) {
+      //@ts-ignore
+      toast.show(response?.message, { type: "error" });
       //toast.error(response?.message);
       return false;
     } else {
+      toast.show(response?.message, { type: "error" });
       //toast.error(response?.message);
-      console.error("ERROR", res,response);
+      console.error("ERROR", res, response);
       //toast.error(response?.data?.error ?? response);
     }
   }

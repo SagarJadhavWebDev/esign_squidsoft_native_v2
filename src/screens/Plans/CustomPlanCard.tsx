@@ -61,7 +61,7 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
     });
   };
   return (
-    <View className="w-[80%] my-2  max-h-max  border border-gray-300 rounded-xl  ">
+    <View className="w-[80%] my-2 mx-5  max-h-max  border border-gray-300 rounded-xl  ">
       {querySubmitted ? (
         <View className="px-3 mx-2 w-full items-center justify-center h-56">
           <View className="bg-green-400 rounded-full my-3">

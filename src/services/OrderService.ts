@@ -3,10 +3,14 @@ import ApiInstance from "./ApiInstance";
 import handleResponse from "./handleResponse";
 
 const handleCreateOrder = (payload: any, callBack: (data: any) => void) => {
-  ApiInstance.post(apiEndpoint.order.createOrder, payload).then((res) => {
-    const data = handleResponse(res as any);
-    return callBack(data);
-  });
+  ApiInstance.post(apiEndpoint.order.createOrder, payload)
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
+      return callBack(data);
+    })
+    .catch((err) => {
+      return callBack(null);
+    });
 };
 const handleApplyCoupnCode = (payload: any, callBack: (data: any) => void) => {
   ApiInstance.get(
@@ -16,8 +20,8 @@ const handleApplyCoupnCode = (payload: any, callBack: (data: any) => void) => {
       payload?.type
     )
   )
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {
@@ -34,8 +38,8 @@ const handleVerifyOrder = (payload: any, callBack: (data: any) => void) => {
 };
 const handleCancelOrder = (id: any, callBack: (data: any) => void) => {
   ApiInstance.delete(apiEndpoint.order.cancelOrder(id))
-    .then((res) => {
-      const data = handleResponse(res as any);
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callBack(data);
     })
     .catch((err) => {

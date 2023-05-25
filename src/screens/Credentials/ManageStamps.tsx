@@ -9,6 +9,10 @@ import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
+import { useStamps } from "../../utils/useReduxUtil";
+import CredentialsService from "../../services/CredentialsService";
+import { useDispatch } from "react-redux";
+import { setStamps } from "../../redux/reducers/CredentialsSlice";
 
 // @isSelectStamp used for selecting stamp if multiple stamps availble for sign enevelope
 interface ManageStampsProps {
@@ -29,59 +33,60 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
   const { token, UpdateUser, auth, setIsLoading, isLoading, RefreshUser } =
     useAuth();
   const toast = useToast();
-  const stamps = auth?.user?.stamps;
+  const stamps = useStamps();
   const [viewStamp, setViewStamp] = useState<any>(null);
-  const handleDefaultStamp = async (id: any) => {
-    setIsLoading && setIsLoading(true);
-    await HttpService.put(apiEndpoints.updateStamp(id), { token: token })
-      .then(async (res: any) => {
-        const data = res;
-        if (res?.id) {
-          const data = CryptoHandler.response(res, token ?? "");
-          UpdateUser &&
-            UpdateUser(res, token, () => {
-              setIsOpen({
-                type: null,
-                isOpen: false,
-              });
-              RefreshUser && RefreshUser(token);
-              toast.show(`${modalType} default set successfully`, {
-                type: "success",
-              });
-              setIsLoading && setIsLoading(false);
-            });
-        } else {
-          toast.show("Failed to update stamp", { type: "error" });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  const handleDeleteStamp = async (id: any) => {
-    setIsLoading && setIsLoading(true);
-    await HttpService.delete(apiEndpoints.updateCredentials(id), {
-      token: token ?? "",
-    })
-      .then(async (res: any) => {
-        if (res) {
-          const data = CryptoHandler.response(res, token ?? "");
-          UpdateUser &&
-            UpdateUser(res, token, () => {
-              setIsOpen({
-                type: null,
-                isOpen: false,
-              });
-              RefreshUser && RefreshUser(token);
-              toast.show("Stamp deleted succesfully", { type: "success" });
-              setIsLoading && setIsLoading(false);
-            });
-        }
-      })
-      .catch((err) => {
-        console.log("STAMP DELETE ERR", err);
-      });
-  };
+  // const handleDefaultStamp = async (id: any) => {
+  //   setIsLoading && setIsLoading(true);
+  //   await HttpService.put(apiEndpoints.updateStamp(id), { token: token })
+  //     .then(async (res: any) => {
+  //       const data = res;
+  //       if (res?.id) {
+  //         const data = CryptoHandler.response(res, token ?? "");
+  //         UpdateUser &&
+  //           UpdateUser(res, token, () => {
+  //             setIsOpen({
+  //               type: null,
+  //               isOpen: false,
+  //             });
+  //             RefreshUser && RefreshUser(token);
+  //             toast.show(`${modalType} default set successfully`, {
+  //               type: "success",
+  //             });
+  //             setIsLoading && setIsLoading(false);
+  //           });
+  //       } else {
+  //         toast.show("Failed to update stamp", { type: "error" });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+  // const handleDeleteStamp = async (id: any) => {
+  //   setIsLoading && setIsLoading(true);
+  //   await HttpService.delete(apiEndpoints.updateCredentials(id), {
+  //     token: token ?? "",
+  //   })
+  //     .then(async (res: any) => {
+  //       if (res) {
+  //         const data = CryptoHandler.response(res, token ?? "");
+  //         UpdateUser &&
+  //           UpdateUser(res, token, () => {
+  //             setIsOpen({
+  //               type: null,
+  //               isOpen: false,
+  //             });
+  //             RefreshUser && RefreshUser(token);
+  //             toast.show("Stamp deleted succesfully", { type: "success" });
+  //             setIsLoading && setIsLoading(false);
+  //           });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log("STAMP DELETE ERR", err);
+  //     });
+  // };
+  const dispatch = useDispatch();
   return (
     <>
       <ScrollView
@@ -102,7 +107,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                       className="shadow-2xl w-full h-full"
                       resizeMode="contain"
                       source={{
-                        uri: imgSrc ?? ApiConfig.FILES_URL + s?.image_url,
+                        uri: imgSrc ?? s?.source?.base64,
                       }}
                     />
                   </View>
@@ -113,7 +118,13 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                     <View className="w-1/3 h-10 justify-center items-center flex flex-row ">
                       <TouchableOpacity
                         onPress={() => {
-                          handleDefaultStamp(s?.id);
+                          // handleDefaultStamp(s?.id);
+                          CredentialsService.handleSetDefaultCredentials(
+                            s?.id,
+                            (data) => {
+                              dispatch(setStamps(data?.["stamps"]?.reverse()));
+                            }
+                          );
                         }}
                         className={`w-5 h-5 rounded-full justify-center items-center ${
                           isDefault
@@ -129,7 +140,13 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          handleDeleteStamp(s?.id);
+                          CredentialsService.handleDeleteCredentials(
+                            s?.id,
+                            (data) => {
+                              dispatch(setStamps(data?.["stamps"]?.reverse()));
+                            }
+                          );
+                          //handleDeleteStamp(s?.id);
                         }}
                         className="justify-center items-center"
                       >
@@ -137,7 +154,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          setViewStamp(s);
+                          setViewStamp(s?.source?.base64);
                         }}
                         className=" justify-center items-center"
                       >
@@ -199,7 +216,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                 className="shadow-2xl w-full h-full"
                 resizeMode="contain" //contain need to change
                 source={{
-                  uri: ApiConfig.FILES_URL + viewStamp?.image_url,
+                  uri: viewStamp,
                 }}
               />
             </View>
