@@ -104,7 +104,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
                           email: e,
                         }));
                       }}
-                      className="h-5 text-sm  "
+                      className="h-5 text-sm "
                     />
                   </View>
                 </ScrollView>

@@ -16,10 +16,11 @@ import AddUserModal from "../../components/modals/AddUserModal";
 import TeamsService from "../../services/TeamsService";
 import OrganizationsService from "../../services/OrganizationsService";
 import { setOrganization } from "../../redux/reducers/ListOrganizationSlice";
-import { setTeams } from "../../redux/reducers/TeamsSlice";
+import { setTeams, setselectedUser } from "../../redux/reducers/TeamsSlice";
 import SubscriptionService from "../../services/SubscriptionService";
 import { setSubscription } from "../../redux/reducers/SubscriptionSlice";
 import routes from "../../constants/routes";
+import DeleteUserModal from "../../components/modals/DeleteUserModal";
 
 interface ViewTeamProps {
   route: any;
@@ -48,6 +49,8 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
       action_over_data: actionType,
       transfer_to: transferTo,
     };
+
+    console.log("payload", payload);
     TeamsService.handleRemoveUser(payload, (data: any) => {
       if (data) {
         if (data) {
@@ -65,6 +68,9 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
       }
     });
   };
+  const showRemoveUserModal = useSelector(
+    (state: ApplicationState) => state?.ui?.showRemoveUserModal
+  );
   return (
     <View className="bg-white p-0  w-full flex gap-y-3  items-center">
       <View className="w-full h-12 border-b border-gray-300 justify-between items-center flex flex-row   ">
@@ -224,7 +230,8 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
                             <Text
                               onPress={() => {
                                 setUser(t);
-                                handleRemoveUser("IGNORE", null);
+                                dispatch(setselectedUser(t?.email));
+                                dispatch(setshowRemoveUserModal(true));
                               }}
                               className="text-white p-1 text-center px-2 font-semibold rounded-lg text-[9px] bg-red-500"
                             >
@@ -243,6 +250,9 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
       </View>
       {isOpen ? <CreateTeamModal /> : null}
       {addUserModal ? <AddUserModal team={selectedTeam} /> : null}
+      {showRemoveUserModal ? (
+        <DeleteUserModal callBack={handleRemoveUser} team={team} />
+      ) : null}
       <TouchableOpacity
         onPress={() => {
           dispatch(setAddUserModal(true));
