@@ -10,15 +10,11 @@ import {
 } from "react-native";
 import dayjs from "dayjs";
 
-import useAuth from "../../utils/auth";
 import GetSvg from "../../utils/GetSvg";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import utc from "dayjs/plugin/utc.js";
 import Error from "../../components/atoms/Error";
-import { isEmpty, isNull } from "lodash";
-import HttpService from "../../controllers/HttpService";
-import apiEndpoints from "../../constants/apiEndpoints";
-import routes from "../../constants/routes";
+import { isEmpty } from "lodash";
 import { useToast } from "react-native-toast-notifications";
 import { useDispatch } from "react-redux";
 import {
@@ -44,7 +40,6 @@ interface SendEnvelopeProps {
 }
 const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   const envelope = useEnvelope();
-  const { auth, token } = useAuth();
   const [showDatePicker, setshowDatePicker] = useState(false);
   const [dateValue, setDateValue] = useState<any>(
     dayjs(new Date()).add(1, "day")
@@ -54,11 +49,7 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   const [message, setMessage] = useState<any>(
     "Please eSign in the following documents"
   );
-  // const documents = envelope?.documents;
-  // const recipients = envelope?.recipients;
-  // const recipientsTo = recipients?.filter((e: any) => e.operation == 1);
-  // const recipientsCC = recipients?.filter((e: any) => e.operation == 2);
-  // const recipientsRC = recipients?.filter((e: any) => e.operation == 3);
+
   const toast = useToast();
   const [errors, setErrors] = useState({
     dateError: "",
@@ -67,62 +58,6 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   });
   const user = useUser();
 
-  const handleSendEnvelope3 = () => {
-    let errorFlag = false;
-    if (isEmpty(subject)) {
-      errorFlag = true;
-      setErrors((prev) => ({
-        ...prev,
-        subjectError: "Subject cannot be empty...",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, subjectError: "" }));
-    }
-    if (isEmpty(message)) {
-      errorFlag = true;
-      setErrors((prev) => ({
-        ...prev,
-        messageError: "Message cannot be empty...",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, messageError: "" }));
-    }
-    if (isNull(dateValue)) {
-      errorFlag = true;
-      setErrors((prev) => ({ ...prev, dateError: "Date cannot be empty..." }));
-    } else {
-      setErrors((prev) => ({ ...prev, dateError: "" }));
-    }
-
-    if (!errorFlag) {
-      const payload = {
-        body: message,
-        expire_at: dateValue,
-        subject: subject,
-      };
-      //setIsLoading(true);
-
-      HttpService.put(apiEndpoints.sendEnvelope(envelope?.id), {
-        body: JSON.stringify(payload),
-        token,
-      })
-        .then((response) => {
-          console.log("RESPONSE:", response);
-          if (response?.message) {
-            toast.show(response?.message, { type: "error" });
-            //setIsLoading(false);
-          } else {
-            //setIsLoading(false);
-            navigation.navigate(routes.dashboard, { update: Date.now() });
-            toast.show("envelope sent successfully", { type: "success" });
-          }
-        })
-        .catch((err) => {
-          //setIsLoading(false);
-          console.log("SEND ENEVLOPE ERR", err);
-        });
-    }
-  };
   const [payload, setPayload] = useState({
     subject: "Please sign this document asap.",
     message: "Hi can you please review and sign this document thank you.",
@@ -135,18 +70,7 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
     dispatch(setLoadingModal(true));
     // const re = payload?.reciever_emails?.split(",");
     const recieverEmails: any[] = [];
-    // const na = re?.map((s) => {
-    //   const value = s.trim;
-    //   if (
-    //     s &&
-    //     s.trim() !== "" &&
-    //     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-    //       s.trim()
-    //     )
-    //   ) {
-    //     recieverEmails.push(s.trim());
-    //   }
-    // });
+
     console.log("recieverEmails", envelope?.id, payload);
     EnvelopeService.handleSendEnvelope(
       envelope?.id,
