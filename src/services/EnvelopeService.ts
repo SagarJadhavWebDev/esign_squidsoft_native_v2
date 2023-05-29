@@ -10,9 +10,9 @@ const handleUploadDocument = (
   payload: any,
   callback: (data: any) => void
 ) => {
-  ApiInstance.post(apiEndpoint.document.uploadDocument(envelopeId), payload)
-    .then((res) => {
-      const data = handleResponse(res as any);
+  ApiInstance.postForm(apiEndpoint.document.uploadDocument(envelopeId), payload)
+    .then(async (res) => {
+      const data = await handleResponse(res as any);
       return callback(data);
     })
     .catch((err) => {
@@ -26,8 +26,8 @@ const handleAddFields = (
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.fields.addFields(envelopeId), payload)
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res);
       return callback(data);
     })
     .catch((err) => {
@@ -40,8 +40,8 @@ const handleCreateEnvelope = (
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.createEnvelope, payload)
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res as any);
       return callback(data);
     })
     .catch((err) => {
@@ -54,8 +54,8 @@ const handleAddRecipients = (
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.addRecipients(envelopeId), payload)
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res as any);
       return callback(data);
     })
     .catch((err) => {
@@ -95,8 +95,8 @@ const handleSendEnvelope = (
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.sendEnvelope(envelopeId), payload)
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res);
       return callback(data);
     })
     .catch((err) => {

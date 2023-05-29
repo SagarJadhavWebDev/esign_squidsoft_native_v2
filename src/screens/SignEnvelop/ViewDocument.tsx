@@ -46,10 +46,10 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       // path: s,
       fileCache: true,
     })
-      .fetch("GET", `${ApiConfig.API_URL + "/" + document?.path}`)
+      .fetch("GET", `${ApiConfig.API_URL  + document?.path}`)
       .then((value) => {
         setSource(value.path());
-        console.log("RESPONSE FROM RN FECTH BLOB:", value);
+        console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
       })
       .catch((error) => {
         toast.show(

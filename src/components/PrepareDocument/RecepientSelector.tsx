@@ -16,6 +16,7 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
   selectedRecipient,
   setSelectedRecipient,
 }) => {
+  console.log("SAGARKK", selectedRecipient);
   return (
     // <SelectDropdown
     //   dropdownIconPosition="right"
@@ -89,25 +90,29 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
     <CustomSelector
       dataList={recipients}
       setSelectedValue={setSelectedRecipient}
-      selectedItem={(item,index) => (
+      selectedItem={(item, index) => (
         <View className=" w-full h-full bg-white rounded-xl flex flex-row pr-2">
           <View className="w-[25%] h-full justify-center items-center">
             {/* <GetSvg name="documentIcon" pathStrokeWidth={1} classN="w-6 h-6" /> */}
             <View className="w-10 h-10 justify-center items-center">
-              <Image
-                className="rounded-full bg-gray-300 shadow-2xl"
-                resizeMode="contain"
-                source={{
-                  width: "60%",
-                  height: "60%",
-                  uri:
-                    ApiConfig.FILES_URL +
-                    "profile-pictures/" +
-                    selectedRecipient?.option?.user?.id +
-                    ".jpg?" +
-                    Date.now(),
-                }}
-              />
+              {selectedRecipient?.user?.profile_picture ? (
+                <Image
+                  className="rounded-full bg-gray-300 shadow-2xl"
+                  resizeMode="contain"
+                  source={{
+                    width: "60%",
+                    height: "60%",
+                    uri: selectedRecipient?.user?.profile_picture,
+                  }}
+                />
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: colorList?.[index],
+                  }}
+                  className=" w-3 h-3  rounded-full"
+                ></View>
+              )}
             </View>
           </View>
           <View className="w-[70%]  h-full flex items-start justify-center">
@@ -115,13 +120,13 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
               className="text-black text-[12px] font-semibold capitalize"
               numberOfLines={1}
             >
-              {selectedRecipient?.option?.user?.name}
+              {selectedRecipient?.user?.name}
             </Text>
             <Text
               className="text-gray-500 text-[10px] font-normal"
               numberOfLines={1}
             >
-              {selectedRecipient?.option?.user?.email}
+              {selectedRecipient?.user?.email}
             </Text>
           </View>
           <View className="w-[5%] justify-center items-center">
@@ -145,12 +150,7 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
                 source={{
                   width: "60%",
                   height: "60%",
-                  uri:
-                    ApiConfig.FILES_URL +
-                    "profile-pictures/" +
-                    item?.user?.id +
-                    ".jpg?" +
-                    Date.now(),
+                  uri: item?.user?.profile_picture,
                 }}
               />
             </View>

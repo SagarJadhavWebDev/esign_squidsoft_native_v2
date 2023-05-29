@@ -17,6 +17,7 @@ import AddRecipients from "./AddRecipients";
 import PrepareDocument from "./PrepareDocument";
 import SendEnvelope from "./SendEnvelope";
 import UploadDocuments from "./UploadDocuments";
+import { useEnvelopeStep, useIsLoading } from "../../utils/useReduxUtil";
 
 interface CreateEnvelopeProps {
   navigation: any;
@@ -29,7 +30,8 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
 }) => {
   // const { step, existingEnvelope } = route?.params;
   console.log("STEP:", route?.params?.step, route?.params?.existingEnvelope);
-  const [currentStep, setCurrentStep] = useState<any>(route?.params?.step ?? 0);
+  //const [currentStep, setCurrentStep] = useState<any>(route?.params?.step ?? 0);
+  const currentStep = useEnvelopeStep();
   const steps: any = [
     {
       name: "Upload Documents",
@@ -47,58 +49,36 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   const [envelope, setEnvelope] = useState(
     route?.params?.existingEnvelope ?? null
   );
-  useEffect(() => {
-    if (route?.params?.step) {
-      setCurrentStep(route?.params?.step);
-    }
-  }, [route?.params?.step]);
+  // useEffect(() => {
+  //   if (route?.params?.step) {
+  //     setCurrentStep(route?.params?.step);
+  //   }
+  // }, [route?.params?.step]);
   useEffect(() => {
     if (route?.params?.existingEnvelope) {
       setEnvelope(route?.params?.existingEnvelope);
     }
   }, [route?.params?.existingEnvelope]);
-  const [isloading, setIsLoading] = useState(false);
+  const isloading = useIsLoading();
+  //const [isloading, setIsLoading] = useState(false);
   const renderSteps = () => {
     console.log("STEP:", currentStep);
     switch (currentStep) {
       case 0:
-        return (
-          <UploadDocuments
-            setEnvelope={setEnvelope}
-            envelope={envelope}
-            setCurrentStep={setCurrentStep}
-            navigation={navigation}
-            setIsLoading={setIsLoading}
-          />
-        );
+        return <UploadDocuments navigation={navigation} />;
       case 1:
-        return (
-          <AddRecipients
-            setEnvelope={setEnvelope}
-            envelope={envelope}
-            setCurrentStep={setCurrentStep}
-            setIsLoading={setIsLoading}
-          />
-        );
+        return <AddRecipients navigation={navigation} />;
       case 2:
         return (
           <PrepareDocument
             setEnvelope={setEnvelope}
             envelope={envelope}
-            setCurrentStep={setCurrentStep}
-            setIsLoading={setIsLoading}
+            // setCurrentStep={setCurrentStep}
+            //setIsLoading={setIsLoading}
           />
         );
       case 3:
-        return (
-          <SendEnvelope
-            setEnvelope={setEnvelope}
-            envelope={envelope}
-            setCurrentStep={setCurrentStep}
-            navigation={navigation}
-            setIsLoading={setIsLoading}
-          />
-        );
+        return <SendEnvelope navigation={navigation} />;
       default:
         return null;
     }

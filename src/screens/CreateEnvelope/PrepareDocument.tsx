@@ -17,36 +17,44 @@ import apiEndpoints from "../../constants/apiEndpoints";
 import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import { useToast } from "react-native-toast-notifications";
+import {
+  useDocuments,
+  useEnvelope,
+  usePdfData,
+  useRecipients,
+} from "../../utils/useReduxUtil";
+import { isEmpty } from "lodash";
+import { useDispatch } from "react-redux";
+import {
+  setEnvelopeStep,
+  setLoadingModal,
+  setModalType,
+  setshowEnvelopeUserWarningModal,
+} from "../../redux/reducers/uiSlice";
+import EnvelopeService from "../../services/EnvelopeService";
+import { setRemoteFields } from "../../redux/reducers/PdfSlice";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
-  setCurrentStep: any;
-  setIsLoading: any;
+  // setCurrentStep: any;
+  //setIsLoading: any;
 }
 
 const PrepareDocument: React.FC<PrepareDocumentProps> = ({
-  envelope,
+  //envelope,
   setEnvelope,
-  setCurrentStep,
-  setIsLoading,
+  // setCurrentStep,
+  //setIsLoading,
 }) => {
+  const { currentPage, selfSignFields, fixedFields } = usePdfData();
+  const { recipients, selectedRecipient } = useRecipients();
+  const dispatch = useDispatch();
+  const recipientsList = recipients?.filter((list) => list?.type === "SIGNER");
   const { token } = useAuth();
-  const toast = useToast();
-  const recipients = envelope?.recipients ?? [];
-  console.log("recipients:", recipients);
-  const documents = envelope?.documents ?? [];
-  const [addedFields, setAddedFields] = useState<FieldPayload[]>([]);
-  const [selectedRecepient, setSelectedRecipient] = useState<any>({
-    option: recipients?.filter((r: any) => r.operation === "1")?.[0],
-    index: 0,
-  });
-  const [selectedDocument, setSelectedDocument] = useState<any>({
-    option: documents?.[0],
-    index: 0,
-  });
-
+  const envelope = useEnvelope();
+  const { documents, SelectedDocuments } = useDocuments();
   const [selectedField, setSelectedField] = useState<any>(null);
-
+  const toast = useToast();
   const fieldTypes = [
     {
       name: "Intials",
@@ -98,38 +106,67 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
     },
   ];
 
-  useEffect(() => {
-    if (token && envelope) {
-      HttpService.get(apiEndpoints.getEnvelope(envelope?.id), {
-        token: token ?? "",
-      }).then((res) => {
-        const data = CryptoHandler.response(res, token ?? "");
-        const updatedFields = data.fields?.map((d: any, i: any) => {
-          const v = d?.response_payload;
-          const newData = { ...v, id: d?.id };
-          return newData;
-        });
-        setAddedFields(updatedFields);
-        console.log("ENEV", updatedFields);
-        setEnvelope(data);
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (token && envelope) {
+  //     HttpService.get(apiEndpoints.getEnvelope(envelope?.id), {
+  //       token: token ?? "",
+  //     }).then((res) => {
+  //       const data = CryptoHandler.response(res, token ?? "");
+  //       const updatedFields = data.fields?.map((d: any, i: any) => {
+  //         const v = d?.response_payload;
+  //         const newData = { ...v, id: d?.id };
+  //         return newData;
+  //       });
+  //       //setAddedFields(updatedFields);
+  //       console.log("ENEV", updatedFields);
+  //       setEnvelope(data);
+  //     });
+  //   }
+  // }, []);
 
   const handleSubmitFields = () => {
-    setIsLoading(true);
-    HttpService.put(apiEndpoints.submitEnvelopeFields(envelope?.id), {
-      body: JSON.stringify({ fields: addedFields }),
-      token: token ?? "",
-    }).then((res) => {
-      if (res?.status) {
-        setCurrentStep(3);
-        setIsLoading(false);
-      }
-    });
+    //setIsLoading(true);
+    // HttpService.put(apiEndpoints.submitEnvelopeFields(envelope?.id), {
+    //   body: JSON.stringify({ fields: addedFields }),
+    //   token: token ?? "",
+    // }).then((res) => {
+    //   if (res?.status) {
+    //     //setCurrentStep(3);
+    //     // setIsLoading(false);
+    //   }
+    // });
   };
-  console.log("SLECTED  DOCUMENT:", selectedDocument);
-
+  const handleSubmit = (fields: any) => {
+   // setIsLoading(true);
+    if (!isEmpty(fields)) {
+      dispatch(setshowEnvelopeUserWarningModal(false));
+      dispatch(setModalType("Adding Fields"));
+      dispatch(setLoadingModal(true));
+      EnvelopeService.handleAddFields(
+        {
+          fields: fields,
+        },
+        envelope?.id,
+        (data) => {
+          if (data) {
+            dispatch(setRemoteFields(data));
+            dispatch(setEnvelopeStep(3));
+            dispatch(setModalType(""));
+            dispatch(setLoadingModal(false));
+          } else {
+            dispatch(setModalType(""));
+            dispatch(setLoadingModal(false));
+          }
+        }
+      );
+    } else {
+      toast.show("Please add atleast 1 field to the document", {
+        type: "error",
+      });
+    }
+  };
+  console.log("SLECTED  DOCUMENT:", SelectedDocuments);
+  const { addedFields } = usePdfData();
   return (
     <ScrollView className="w-full h-full bg-white p-2">
       <View className="w-full h-[90%]">
@@ -138,9 +175,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             <Text className="px-2 py-1 text-xs">Select Recipient</Text>
             {recipients && (
               <RecipientSelector
-                recipients={recipients?.filter((r: any) => r.operation === "1")}
-                selectedRecipient={selectedRecepient}
-                setSelectedRecipient={setSelectedRecipient}
+                recipients={recipients}
+                selectedRecipient={selectedRecipient}
+                setSelectedRecipient={() => {}}
               />
             )}
           </View>
@@ -148,8 +185,8 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             <Text className="px-2 py-1 text-xs">Select Document</Text>
             {documents && (
               <DocumentSelector
-                selectedDocument={selectedDocument}
-                setSelectedDocument={setSelectedDocument}
+                selectedDocument={SelectedDocuments}
+                setSelectedDocument={() => {}}
                 documents={documents}
               />
             )}
@@ -172,20 +209,20 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           <DocumentDiv
             envelope={envelope}
             setEnvelope={setEnvelope}
-            setCurrentStep={setCurrentStep}
-            selectedRecipient={selectedRecepient}
-            selectedDocument={selectedDocument}
+            // setCurrentStep={setCurrentStep}
+            selectedRecipient={selectedRecipient}
+            selectedDocument={SelectedDocuments}
             selectedField={selectedField}
             setSelectedField={setSelectedField}
-            addedFields={addedFields}
-            setAddedFields={setAddedFields}
+            addedFields={addedFields ?? []}
+            //setAddedFields={() => {}}
           />
         </View>
       </View>
       <View className=" w-full h-[10%] z-50 flex flex-row justify-between items-center mb-5">
         <TouchableOpacity
           onPress={() => {
-            setCurrentStep(1);
+            // setCurrentStep(1);
           }}
           className=" bg-slate-800 rounded-full p-1.5 px-4"
         >
@@ -193,11 +230,13 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            if (addedFields?.length) {
-              handleSubmitFields();
-            } else {
-              console.log("Pls add atleat 1 field ");
-            }
+            console.log("Pls add atleat 1 field ", addedFields);
+            // if (addedFields?.length) {
+            //   handleSubmitFields();
+            // } else {
+            //   console.log("Pls add atleat 1 field ");
+            // }
+            handleSubmit(addedFields);
           }}
           className={`rounded-full  p-1.5 px-4 ${
             addedFields?.length ? "bg-[#d10000]" : "bg-[#ef9393]"

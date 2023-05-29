@@ -1,4 +1,4 @@
-import { isString, times, uniqBy } from "lodash";
+import { isString, times, uniqBy, upperCase } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -24,55 +24,54 @@ import CryptoHandler from "../../../utils/EncryptDecryptHandler";
 import GetSvg from "../../../utils/GetSvg";
 import HttpService from "../../../utils/HttpService";
 import renderFieldIcon from "../../../utils/renderFieldIcon";
+import { useDocuments, useRecipients } from "../../../utils/useReduxUtil";
+import { useDispatch } from "react-redux";
+import { setAddedFields } from "../../../redux/reducers/PdfSlice";
 
 interface DocumentDivProps {
   envelope: any;
   setEnvelope?: any;
-  setCurrentStep?: any;
+  // setCurrentStep?: any;
   selectedDocument: any;
   selectedRecipient?: any;
   selectedField?: any;
   setSelectedField?: any;
   addedFields: any;
-  setAddedFields?: any;
+  //setAddedFields?: any;
 }
 
 const DocumentDiv: React.FC<DocumentDivProps> = ({
   envelope,
   setEnvelope,
-  setCurrentStep,
+  // setCurrentStep,
   selectedDocument,
   selectedRecipient,
   selectedField,
   addedFields,
   setSelectedField,
-  setAddedFields,
+  //setAddedFields,
 }) => {
   // const source = RNFetchBlob.fs.dirs.DocumentDir + "/" + selectedDocument?.name;
   const [source, setSource] = useState<any>(null);
   const [totalPages, setTotalPages] = useState(0) as any;
+  const { documents, SelectedDocuments } = useDocuments();
   // const [addedFields, setAddedFields] = useState<FieldPayload[]>([]);
   // {"auth": 57, "authFields": [], "body": null, "completed": true, "created_date": "2023-01-10T08:26:30.000000Z", "created_time": "2023-01-10T08:26:30.000000Z", "documents": [{"id": 1050, "name": "T&C.pdf", "pages": [], "path": "userdata/57/Envelopes/857/Documents/1050/unsigned_document"}], "expire_at": null, "expire_time": null, "fields": [], "id": 857, "recipients": [{"id": 1318, "level": 0, "operation": "3", "signed_at": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}, {"id": 1319, "level": 1, "operation": "1", "signed_at": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}], "self_sign": 0, "sent_at": null, "sent_date": null, "sent_time": null, "subject": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}
   const [divPosition, setDivPosition] = useState(null as any);
   const { token } = useAuth();
   const toast = useToast();
-  console.log("selectedDocument?.name", selectedDocument?.option?.name);
+  console.log(
+    "selectedDocument?.name",
+    ApiConfig.API_URL + SelectedDocuments?.path,
+    documents
+  );
   const handleDocumentFetch = async () => {
-    console.log("selectedDocument?.name", selectedDocument?.option?.name);
     // const s = RNFetchBlob.fs.dirs.DocumentDir + "/" + selectedDocument?.option?.name;
     const response = await RNFetchBlob.config({
       // path: s,
       fileCache: true,
     })
-      .fetch(
-        "GET",
-        `${
-          ApiConfig.FILES_URL +
-          selectedDocument?.option?.path +
-          "/" +
-          selectedDocument?.option?.name
-        }`
-      )
+      .fetch("GET", `${ApiConfig.API_URL + SelectedDocuments?.path}`)
       .then((value) => {
         setSource(value.path());
         console.log("RESPONSE FROM RN FECTH BLOB:", value.path());
@@ -285,41 +284,101 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
     // console.log("PanResponder", fieldSize);
     setSavedFieldSize({ x: fieldSize.width, y: fieldSize.height });
   };
+  const dispatch = useDispatch();
+  const PrepareType = "ENVELOPE";
+  const template = null as any;
   const [tempFieldsView, setTempFieldView] = useState<any>(null);
   const handleFix = () => {
     let differencePercentage =
       ((dragContainerSize.width - actualPageSize.width) /
         ((dragContainerSize.width + actualPageSize.width) / 2)) *
       100;
-    const payload = {
-      id: Date.now().toString() + selectedRecipient?.option?.user?.email,
-      envelopeid: envelope?.id,
-      documentid: selectedDocument?.option?.id,
+    // const payload = {
+    //   id: Date.now().toString() + selectedRecipient?.user?.email,
+    //   envelopeid: envelope?.id,
+    //   documentid: selectedDocument?.id,
+    //   pageno: currentPageNumber,
+    //   type: selectedField?.type,
+    //   userid: selectedRecipient?.user?.id,
+    //   email: selectedRecipient?.user?.email,
+    //   data: null,
+    //   name: selectedRecipient?.user?.name,
+    //   xCord: divPosition?.x ?? 0,
+    //   yCord: divPosition?.y ?? 0,
+    //   width: fieldSize?.width,
+    //   height: fieldSize?.height,
+    //   actualpageheight: actualPageSize?.height,
+    //   actualpagewidth: actualPageSize?.width,
+    //   xdifpercentage: differencePercentage,
+    //   ydifpercentage: differencePercentage,
+    //   dispalypagewidth: dragContainerSize?.width,
+    //   displaypageheight: dragContainerSize?.height,
+    //   rgbaColor:
+    //     colorList?.[
+    //       recipients?.findIndex((f) => f?.id === selectedRecipient?.id)
+    //     ],
+    //   uniqueID:
+    //     Date.now().toString() +
+    //     Math.random().toFixed() +
+    //     selectedRecipient?.user?.email,
+    //   iconName: selectedField?.iconName,
+    // };
+    const id = Date.now().toString() + selectedRecipient?.user?.email;
+    const meta = {
+      id,
+      ...(PrepareType === "ENVELOPE"
+        ? { envelopeid: envelope?.id }
+        : { templateid: template?.id }),
+      documentid: SelectedDocuments?.id,
       pageno: currentPageNumber,
-      type: selectedField?.type,
-      userid: selectedRecipient?.option?.user?.id,
-      email: selectedRecipient?.option?.user?.email,
-      data: null,
-      name: selectedRecipient?.option?.user?.name,
+      type: selectedField.type,
+      userid: selectedRecipient?.user?.id,
+      email: selectedRecipient?.user?.email,
+      name: selectedRecipient?.user?.name,
       xCord: divPosition?.x ?? 0,
       yCord: divPosition?.y ?? 0,
       width: fieldSize?.width,
       height: fieldSize?.height,
-      actualpageheight: actualPageSize?.height,
-      actualpagewidth: actualPageSize?.width,
+      actualpageheight: actualPageSize.height,
+      actualpagewidth: actualPageSize.width,
       xdifpercentage: differencePercentage,
       ydifpercentage: differencePercentage,
       dispalypagewidth: dragContainerSize?.width,
       displaypageheight: dragContainerSize?.height,
-      rgbaColor: colorList?.[selectedRecipient?.index],
-      uniqueID:
-        Date.now().toString() +
-        Math.random().toFixed() +
-        selectedRecipient?.option?.user?.email,
-      iconName: selectedField?.iconName,
+      rgbaColor:
+        colorList?.[
+          recipients?.findIndex((f) => f?.id === selectedRecipient?.id)
+        ],
+      uniqueID: id,
     };
+    const payload = {
+      id,
+      ...(PrepareType === "ENVELOPE"
+        ? {
+            envelope_recipient_id: selectedRecipient?.id,
+            envelope_document_id: SelectedDocuments?.id,
+          }
+        : {
+            template_field_set_id: selectedRecipient?.id,
+            template_document_id: SelectedDocuments?.id,
+          }),
+      page_number: currentPageNumber,
+      type: upperCase(selectedField.type),
+      is_mandatory: true,
+      x_coordinate: divPosition?.x ?? 0,
+      y_coordinate: divPosition?.y ?? 0,
+      width: fieldSize?.width,
+      height: fieldSize?.height,
+      filled_at: null,
+      value: null,
+      meta: {
+        ...meta,
+      },
+    };
+
     pan.setOffset({ x: 0, y: 0 });
-    setAddedFields([...addedFields, payload]);
+    dispatch(setAddedFields([...addedFields, payload]));
+    //setAddedFields([...addedFields, payload]);
     setTempFieldView(null);
     setSelectedField(null);
   };
@@ -338,6 +397,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
   useEffect(() => {
     calculateFont(fieldSize.height, fieldSize.width);
   }, [fieldSize.height, fieldSize.width]);
+  const { recipients } = useRecipients();
   useEffect(() => {
     if (selectedField) {
       setTempFieldView(
@@ -358,7 +418,10 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
               // backgroundColor: "blue",
               borderStyle: "dashed",
               borderWidth: 1.8,
-              borderColor: colorList?.[selectedRecipient?.index],
+              borderColor:
+                colorList?.[
+                  recipients?.findIndex((f) => f?.id === selectedRecipient?.id)
+                ],
             }}
             {...panResponder.panHandlers}
             className="relative bg-[#ffffffe1] flex flex-row"
@@ -370,7 +433,13 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                 <GetSvg
                   name={selectedField?.iconName}
                   classN="w-5 h-5"
-                  color={`${colorList?.[selectedRecipient?.index]}`}
+                  color={`${
+                    colorList?.[
+                      recipients?.findIndex(
+                        (f) => f?.id === selectedRecipient?.id
+                      )
+                    ]
+                  }`}
                 />
               )}
             </View>
@@ -437,32 +506,11 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
   useEffect(() => {
     setCurrentPageNumber(1);
   }, [selectedDocument]);
-  const removeAddedField = (id: any) => {
-    if (isString(id)) {
-      if (addedFields) {
-        const filterFileds = addedFields?.filter((s: any) => s?.id !== id);
-        setAddedFields(filterFileds);
-      }
-    } else {
-      HttpService.delete(apiEndpoints.removeEnvelopeField(envelope?.id, id), {
-        token: token ?? "",
-      })
-        .then((res) => {
-          const data = CryptoHandler.response(res, token ?? "");
-          const updatedFields = data?.fields?.map((d: any, i: any) => {
-            const v = d?.response_payload;
-            const newData = { ...v, id: d?.id };
-            return newData;
-          });
-          const filteredFileds = addedFields.filter((f: any) => f.id !== id);
-          setAddedFields(
-            uniqBy([...filteredFileds, ...updatedFields], "uniqueID")
-          );
-        })
-        .catch((err) => {
-          console.log("REMOVE FIELD ERR", err);
-        });
-    }
+  const removeAddedField = (field: any) => {
+    const data = addedFields?.filter(
+      (f: any) => f?.meta?.uniqueID !== field?.meta?.uniqueID
+    );
+    dispatch(setAddedFields(data));
   };
   useEffect(() => {
     if (selectedField) {
@@ -515,25 +563,26 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
         <View className="border absolute z-50 w-full h-full ">
           {addedFields
             .filter(
-              (f: FieldPayload) =>
-                f?.documentid === selectedDocument?.option?.id &&
-                f?.pageno === currentPageNumber
+              (f: any) =>
+                f?.envelope_document_id === selectedDocument?.id &&
+                f?.page_number === currentPageNumber
             )
-            .map((i: FieldPayload) => {
+            .map((i: any) => {
               let fixedFieldFontSize = 0;
               if (i?.width / 3 > i?.height) {
                 fixedFieldFontSize = i?.height / 10;
               } else {
                 fixedFieldFontSize = i?.width / 14;
               }
+              console.log("CORDINATES", i);
               return (
                 <View
                   className="absolute"
                   key={i.id}
                   style={{
                     transform: [
-                      { translateX: i?.xCord ?? 0 },
-                      { translateY: i?.yCord ?? 0 },
+                      { translateX: i?.x_coordinate ?? 0 },
+                      { translateY: i?.y_coordinate ?? 0 },
                     ],
                     height: i.height,
                     width: i.width,
@@ -546,21 +595,21 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                       // backgroundColor: "blue",
                       borderStyle: "dashed",
                       borderWidth: 1.8,
-                      borderColor: i?.rgbaColor,
+                      borderColor: i?.meta?.rgbaColor,
                       // backgroundColor: i?.rgbaColor+'e1',
                     }}
                     className="relative bg-[#ffffffe1] flex flex-row"
                   >
                     <View className="w-1/4 justify-center items-center">
-                      {i?.type === "text" ? (
+                      {i?.type?.toLowerCase() === "text" ? (
                         <Text className="font-semibold text-base leading-5">
                           Aa
                         </Text>
                       ) : (
                         <GetSvg
-                          name={renderFieldIcon(i?.type) ?? ""}
+                          name={renderFieldIcon(i?.type?.toLowerCase()) ?? ""}
                           classN="w-5 h-5"
-                          color={i?.rgbaColor}
+                          color={i?.meta?.rgbaColor}
                         />
                       )}
                     </View>
@@ -596,7 +645,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                     <Pressable
                       onPress={() => {
                         console.log("REMOVE CALLED");
-                        removeAddedField(i.id);
+                        removeAddedField(i);
                       }}
                       className="absolute -top-2 -right-2   rounded-full bg-[#d10000] justify-center items-center p-0.5"
                     >

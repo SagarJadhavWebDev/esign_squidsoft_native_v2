@@ -5,35 +5,27 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import GetSvg from "../../utils/GetSvg";
 import DocumentPicker, { types } from "react-native-document-picker";
 import FormatBytes from "../../utils/FormatBytes";
-import UploadDocumentsController from "../../controllers/UploadDocumentsController";
 import useAuth from "../../utils/auth";
-import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import routes from "../../constants/routes";
 import { useToast } from "react-native-toast-notifications";
+import { useSubscription } from "../../utils/useReduxUtil";
+import SelectEnvelopeTypeModal from "../../components/modals/SelectEnvelopeTypeModal";
+import { useDispatch } from "react-redux";
+import { showEnvelopeTypeModal } from "../../redux/reducers/uiSlice";
 
 interface UploadDocumentsProps {
-  setEnvelope: any;
-  envelope: any;
-  setCurrentStep: any;
   navigation: any;
-  setIsLoading: any;
 }
 
-const UploadDocuments: React.FC<UploadDocumentsProps> = ({
-  setEnvelope,
-  envelope,
-  setCurrentStep,
-  navigation,
-  setIsLoading,
-}) => {
+const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
   const [fileList, setFileList] = useState<any>(null);
-  // const [selectedFileArray, setSelectedFileArray] = useState<any>(null);
   const [fileSize, setFileSize] = useState<any>(null);
   const [progress, setProgress] = useState(0);
   const { token } = useAuth();
   const toast = useToast();
   const allowedFileCount = 4;
   const allowedFileSize = 5;
+  const dispatch = useDispatch();
   const handleSelectedFile = (result: any) => {
     if (result) {
       const existingFileCount = fileList?.length ?? 0;
@@ -100,44 +92,15 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
     console.log("ERRO:", e);
   };
 
-  const handleNext = async () => {
-    if ((fileList?.length ?? 0) > 0) {
-      setIsLoading(true);
-      UploadDocumentsController(fileList, token, (p: any) => {
-        setProgress(Math.round(p * 100));
-      })
-        .then((response: any) => {
-          if (response?.status === 201) {
-            const data = CryptoHandler.response(
-              JSON.parse(response?.body),
-              token ?? ""
-            );
-            setEnvelope(data);
-            setCurrentStep(1);
-            setIsLoading(false);
-          } else {
-            setProgress(0);
-            console.log(response);
-            setIsLoading(false);
-            //toast
-          }
-        })
-        .catch((err) => {
-          toast.show("File upload failed, please try again", {
-            type: "error",
-          });
-          console.log("DOCUMENT UPLOAD ERR", err);
-          setIsLoading(false);
-          setProgress(0);
-        });
-    }
-  };
   useEffect(() => {
     if (fileList?.length > 0) {
       setProgress(0);
     }
   }, [fileList]);
-
+  const allSubscriptions = useSubscription();
+  const isDocumentConversion = allSubscriptions?.some(
+    (s) => s?.subscription_benifit?.document_conversion
+  );
   return (
     <>
       <SafeAreaView className="w-full h-full bg-white p-2 flex flex-col justify-between">
@@ -200,18 +163,20 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
                     onPress={async () => {
                       try {
                         const pickerResult = await DocumentPicker.pickMultiple({
-                          type: [
-                            types.pdf,
-                            types.xls,
-                            types.xlsx,
-                            types.ppt,
-                            types.pptx,
-                            types.doc,
-                            types.docx,
-                            types.plainText,
-                            types.images,
-                            types.csv,
-                          ],
+                          type: isDocumentConversion
+                            ? [
+                                types.pdf,
+                                types.xls,
+                                types.xlsx,
+                                types.ppt,
+                                types.pptx,
+                                types.doc,
+                                types.docx,
+                                types.plainText,
+                                types.images,
+                                types.csv,
+                              ]
+                            : types.pdf,
                           presentationStyle: "fullScreen",
                           copyTo: "cachesDirectory",
                         });
@@ -229,9 +194,14 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
                   </TouchableOpacity>
                 </View>
                 <View className="absolute flex w-full m-auto justify-center items-center  bottom-2 text-xs text-white">
-                  <Text className="text-xs text-gray-400" numberOfLines={1}>
+                  <Text
+                    className="text-[10px] w-[80%] text-center text-gray-400"
+                    //numberOfLines={1}
+                  >
                     {" "}
-                    pdf,csv,docx,doc,xls,xlsx,txt,jpeg,jpg,png,ppt,pptx
+                    {isDocumentConversion
+                      ? "[Supported File Types : csv,docx,doc,xls,xlsx,txt,jpeg,jpg,png,ppt,pptx]"
+                      : "[Supported File Types : pdf]"}
                   </Text>
                 </View>
               </View>
@@ -267,7 +237,10 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
             <Text className="text-white text-xs font-extrabold ">Cancel </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => handleNext()}
+            onPress={() => {
+              // handleNext()
+              dispatch(showEnvelopeTypeModal(true));
+            }}
             className=" bg-[#d10000] rounded-full  p-1.5 px-4"
           >
             <Text className="text-white text-xs font-extrabold">Next </Text>
@@ -275,6 +248,7 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      <SelectEnvelopeTypeModal documents={fileList} navigate={navigation} />
     </>
   );
 };

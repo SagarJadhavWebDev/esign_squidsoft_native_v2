@@ -13,6 +13,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   selectedDocument,
   setSelectedDocument,
 }) => {
+  console.log("setSelectedDocument", selectedDocument);
   return (
     // <SelectDropdown
     //   dropdownIconPosition="right"
@@ -96,13 +97,13 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
               className="text-black text-[12px] font-semibold capitalize"
               numberOfLines={1}
             >
-              {selectedDocument?.option?.name}
+              {selectedDocument?.name}
             </Text>
             <Text
               className=" text-gray-500 text-[10px] font-normal"
               numberOfLines={1}
             >
-              {selectedDocument?.option?.id}
+              {selectedDocument?.id}
             </Text>
           </View>
         </View>
