@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "../../redux/store";
 import {
   setEnvelopeStep,
+  setIsLoading,
   showEnvelopeTypeModal,
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
@@ -28,20 +29,12 @@ const SelectEnvelopeTypeModal: React.FC<SelectEnvelopeTypeModalProps> = ({
   documents,
 }) => {
   const dispatch = useDispatch();
-  const [loading, setIsLoading] = useState<any>({
-    loading: false,
-    type: "",
-  });
+
   //const navigate = useNavigate();
   const isOpen = useSelector(
     (state: ApplicationState) => state.ui.showEnvelopeTypeModal
   );
   const handleDocumentUpload = (envelopeId: number, isSelfSign: boolean) => {
-    setIsLoading({
-      loading: true,
-      type: "Uploading Documents...",
-    });
-
     let payload = new FormData();
     Array.from(documents).forEach((document: any) => {
       payload.append("documents[]", document);
@@ -50,11 +43,7 @@ const SelectEnvelopeTypeModal: React.FC<SelectEnvelopeTypeModalProps> = ({
     if (envelopeId)
       EnvelopeService.handleUploadDocument(envelopeId, payload, (data) => {
         if (data) {
-          setIsLoading({
-            loading: false,
-            type: "Uploading Documents...",
-          });
-
+          dispatch(setIsLoading(false));
           dispatch(setDocuments(data));
           dispatch(showEnvelopeTypeModal(false));
           if (isSelfSign) {
@@ -70,38 +59,26 @@ const SelectEnvelopeTypeModal: React.FC<SelectEnvelopeTypeModalProps> = ({
           }
           navigate.navigate(routes.createEnvelope);
         } else {
-          setIsLoading({
-            loading: false,
-            type: "",
-          });
+          dispatch(setIsLoading(false));
         }
       });
   };
   const handleCreateEnvelope = (isSelfSign: boolean) => {
-    setIsLoading({
-      loading: true,
-      type: "Creating Envelope.....",
-    });
+    dispatch(showEnvelopeTypeModal(false));
+    dispatch(setIsLoading(true));
     const payload = {
       self_sign: isSelfSign,
     };
     dispatch(setRecipients(null));
     EnvelopeService.handleCreateEnvelope(payload, (data) => {
       if (data) {
-        setIsLoading({
-          loading: false,
-          type: "",
-        });
         dispatch(setEnvelope(data));
         if (isSelfSign && data?.envelope_recipients) {
           dispatch(setRecipients(data?.envelope_recipients));
         }
         handleDocumentUpload(data?.id, isSelfSign);
       } else {
-        setIsLoading({
-          loading: false,
-          type: "",
-        });
+        dispatch(setIsLoading(false));
       }
     });
   };

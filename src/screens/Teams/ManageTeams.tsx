@@ -28,7 +28,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const teams: any = useTeams();
   const organization = useOrganization();
-  console.log("TEAMS", teams);
+ // console.log("TEAMS", teams);
   const plans = organization?.meta?.available_subscriptions;
 
   return (
@@ -54,7 +54,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
             <TouchableOpacity className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2">
               <Text
                 onPress={() => {
-                  console.log("MODAL");
+                 // console.log("MODAL");
                   dispatch(setCreateTeamModal(true));
                 }}
                 className="text-white text-xs w-1/2 text-center font-semibold"

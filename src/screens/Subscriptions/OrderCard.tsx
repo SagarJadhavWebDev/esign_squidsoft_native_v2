@@ -87,8 +87,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
   useEffect(() => {
     const existingStripeSheet = async () => {
       const { error, paymentOption } = await presentPaymentSheet();
-      console.log("ERROR:", error?.message, error?.localizedMessage);
-      console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
+      //console.log("ERROR:", error?.message, error?.localizedMessage);
+      //console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
       if (error) {
         Alert.alert("Payment failed!");
       } else {
@@ -148,7 +148,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
                   case "RAZORPAY":
                     return RazorpayCheckout.open(options)
                       .then((res) => {
-                        console.log("RAZORPAY PAYMENT", res);
+                       // console.log("RAZORPAY PAYMENT", res);
                         SubscriptionService.handleGetSubscription((data) => {
                           dispatch(setSubscription(data));
                         });
@@ -159,7 +159,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
                         });
                       })
                       .catch((e) => {
-                        console.log("RAZORPAY PAYMENT", e);
+                        //console.log("RAZORPAY PAYMENT", e);
                       });
 
                   case "STRIPE":

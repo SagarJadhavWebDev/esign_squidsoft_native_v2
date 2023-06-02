@@ -51,15 +51,15 @@ const getIpData = async (setIpData: any) => {
   let data = null as any;
 
   const ipData = await AsyncStorage.getItem(SP.IPDATA);
-  console.log("IPDATA:", ipData);
+  //console.log("IPDATA:", ipData);
 
   if (isNull(ipData)) {
-    console.log("OUTSIDE");
+    //console.log("OUTSIDE");
     enableGPS(async (res: boolean) => {
-      console.log("enable gps", res);
+      //console.log("enable gps", res);
       if (res) {
         const permission = permissionsHandler("ACCESS_FINE_LOCATION");
-        console.log("OUTSIDE2", permission);
+        //console.log("OUTSIDE2", permission);
 
         if (await permission) {
           Geolocation.setRNConfiguration({

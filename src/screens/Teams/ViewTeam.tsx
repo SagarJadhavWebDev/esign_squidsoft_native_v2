@@ -50,7 +50,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
       transfer_to: transferTo,
     };
 
-    console.log("payload", payload);
+    //console.log("payload", payload);
     TeamsService.handleRemoveUser(payload, (data: any) => {
       if (data) {
         if (data) {

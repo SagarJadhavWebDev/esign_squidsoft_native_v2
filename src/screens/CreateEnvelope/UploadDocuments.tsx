@@ -239,7 +239,15 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
           <TouchableOpacity
             onPress={() => {
               // handleNext()
-              dispatch(showEnvelopeTypeModal(true));
+              if (fileList?.length) {
+                dispatch(showEnvelopeTypeModal(true));
+              } else {
+                toast.hide("1");
+                toast.show("please upload atleast 1 document", {
+                  type: "error",
+                  id: "1",
+                });
+              }
             }}
             className=" bg-[#d10000] rounded-full  p-1.5 px-4"
           >

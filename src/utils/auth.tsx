@@ -201,7 +201,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       //   ApiConfig.APP_AUTH_TOKEN_KEY,
       //   ApiConfig.APP_AUTH_TOKEN_KEY
       // );
-      console.log("FROM AUTH", token);
+      //console.log("FROM AUTH", token);
       AsyncStorage.setItem(SP.AUTHTOKEN, token);
       setAuthToken(token);
       // AsyncStorage.setItem(
@@ -232,10 +232,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .then((res) => {
         const data = CryptoHandler.response(res, token);
         UpdateUser(res, token, () => {});
-        console.log("REFRESH USER called", data);
+        //console.log("REFRESH USER called", data);
       })
       .catch((err) => {
-        console.log("REFRESH USER AUTH ERR");
+       // console.log("REFRESH USER AUTH ERR");
       });
   };
   const UpdateUser = (payload: any, updatedToken: any, callback: Function) => {
@@ -252,7 +252,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAuthState(authData);
       callback();
     } catch (error) {
-      console.log("ERROR", error);
+      //console.log("ERROR", error);
       Promise.reject(error);
     }
   };

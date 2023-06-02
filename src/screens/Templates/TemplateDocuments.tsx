@@ -64,7 +64,7 @@ const TemplateDocumentList: React.FC<TemplateDocumentsProps> = ({
         }
       })
       .catch((e) => {
-        console.log("ERROR WHile Fetching Document:", e);
+       // console.log("ERROR WHile Fetching Document:", e);
       });
     setFileData({ fileSize, fileType });
   };

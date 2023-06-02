@@ -23,6 +23,7 @@ import { useEnvelope, useRecipients } from "../../utils/useReduxUtil";
 import { useDispatch } from "react-redux";
 import {
   setEnvelopeStep,
+  setIsLoading,
   setLoadingModal,
   setModalType,
 } from "../../redux/reducers/uiSlice";
@@ -44,8 +45,7 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const [signByOrder, setSignByOrder] = useState(false);
   const handleSubmitRecipient = () => {
-    dispatch(setModalType("Adding Recipients"));
-    dispatch(setLoadingModal(true));
+    dispatch(setIsLoading(true));
     const payloadRecipients = recipients?.map((user: any, index) => {
       const payloadRecipient = {
         name: user?.name ?? user?.user?.name,
@@ -62,15 +62,16 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
     // console.log("DRAG PAYLOAd",payload);
     EnvelopeService.handleAddRecipients(payload, envelope?.id, (data) => {
       if (data) {
+        dispatch(setIsLoading(false));
         dispatch(setFixedFields(data?.document_fields));
         dispatch(setDocuments(data?.envelope_documents));
         dispatch(setRecipients(data?.envelope_recipients));
         dispatch(setEnvelope(data));
         dispatch(setEnvelopeStep(2));
       } else {
-        dispatch(setLoadingModal(false));
+        dispatch(setIsLoading(false));
       }
-      dispatch(setLoadingModal(false));
+      dispatch(setIsLoading(false));
     });
   };
 
@@ -109,7 +110,11 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
             if (recipients?.length) {
               handleSubmitRecipient();
             } else {
-              toast.show("Please add atleast 1 recipients", { type: "error" });
+              toast.hide("recipients");
+              toast.show("Please add atleast 1 recipients", {
+                type: "error",
+                id: "recipients",
+              });
             }
           }}
           className=" bg-[#d10000] rounded-full p-1.5 px-4"

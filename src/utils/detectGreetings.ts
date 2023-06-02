@@ -9,7 +9,7 @@ const getGreetings = () => {
   const greetings = new Date().getHours();
   for (var i = 0; i < data.length; i++) {
     if (greetings >= data[i][0]) {
-      console.log(data[i][1]);
+      //console.log(data[i][1]);
       return data[i][1];
     }
   }

@@ -20,11 +20,12 @@ import GetSvg from "../../../utils/GetSvg";
 import renderFieldIcon from "../../../utils/renderFieldIcon";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import { isNull } from "lodash";
+import { isEmpty, isNull } from "lodash";
 import useAuth from "../../../utils/auth";
 import CredentialsModal from "../../../components/modals/CredentialsModal";
 import UploadCredentials from "../../Credentials/UploadCredentials";
 import SelectStampModal from "../../Credentials/SelectStampModal";
+import { useInitial } from "../../../utils/useReduxUtil";
 
 interface PDFViewSingleSignPageProps {
   pageNumber: number;
@@ -72,12 +73,10 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
 
   const renderFilledDiv = (
     type: FILLEDDATATYPE,
-    data: PageFieldType,
+    data: any,
     height?: number,
     width?: number
   ) => {
-    const url = ApiConfig.FILES_URL + data?.image_url;
-
     switch (type) {
       case "date":
       case "time":
@@ -87,9 +86,9 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             style={{
               width: "100%",
               height: "100%",
-              // borderStyle: "dashed",
-              // borderWidth: 1,
-              // borderColor: data?.response_payload?.rgbaColor,
+              borderStyle: "dashed",
+              borderWidth: 1,
+              borderColor: data?.meta?.rgbaColor,
             }}
             className="justify-center items-start"
           >
@@ -98,7 +97,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               style={{ fontSize: (width ?? 0) / 12 }}
               className="w-full"
             >
-              {data?.meta_data?.fieldvalue}
+              {data?.value}
             </Text>
           </View>
         );
@@ -110,7 +109,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             className="w-full h-full"
             resizeMode="contain"
             source={{
-              uri: url,
+              uri: data?.value,
             }}
           />
         );
@@ -162,14 +161,13 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         break;
     }
   };
-
+  const initial = useInitial();
   const handleFillCredentials = (
     field: PageFieldType,
     type: FILLEDDATATYPE
   ) => {
     switch (type) {
       case "initial":
-        const initial = auth?.user?.initials;
         if (initial) {
           handleUpdateEnvelope(initial?.id, field);
         } else {
@@ -251,7 +249,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               borderStyle: "dashed",
               borderWidth: 1.8,
               borderColor: i?.rgbaColor,
-              // backgroundColor: i?.rgbaColor+'e1',
+              backgroundColor: i?.rgbaColor + "e1",
             }}
             className="relative bg-[#ffffffe1] flex flex-row"
           >
@@ -271,7 +269,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                 style={{
                   fontSize: (fixedFieldFontSize ?? 0) * 1.2,
                 }}
-                className="capitalize font-semibold text-gray-900"
+                className="capitalize w-full font-semibold text-gray-900"
                 numberOfLines={1}
               >
                 {i?.name ?? "name"}
@@ -280,7 +278,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                 style={{
                   fontSize: fixedFieldFontSize,
                 }}
-                className="capitalize font-semibold text-gray-600"
+                className="capitalize w-full font-semibold text-gray-600"
                 numberOfLines={1}
               >
                 {i?.email ?? "email"}
@@ -347,7 +345,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                     style={{
                       fontSize: (fixedFieldFontSize ?? 0) * 1.2,
                     }}
-                    className="capitalize font-semibold text-gray-900"
+                    className="capitalize w-full font-semibold text-gray-900"
                     numberOfLines={1}
                   >
                     {i?.name ?? "name"}
@@ -356,7 +354,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                     style={{
                       fontSize: fixedFieldFontSize,
                     }}
-                    className="capitalize font-semibold text-gray-600"
+                    className="capitalize w-full font-semibold text-gray-600"
                     numberOfLines={1}
                   >
                     {i?.email ?? "email"}
@@ -504,7 +502,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
 
   const handleEditableField = (
     type: FILLEDDATATYPE,
-    data: PageFieldType,
+    data: any,
     height?: number,
     width?: number
   ) => {
@@ -525,7 +523,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             style={{
               borderStyle: "dashed",
               borderWidth: 1,
-              borderColor: data?.response_payload?.rgbaColor,
+              borderColor: data?.meat?.rgbaColor,
             }}
             className="relative bg-[#ffffffe1] justify-center items-center w-full h-full"
           >
@@ -534,7 +532,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               style={{ fontSize: (width ?? 0) / 12 }}
               className="w-full"
             >
-              {data?.meta_data?.fieldvalue}{" "}
+              {data?.value}{" "}
             </Text>
           </TouchableOpacity>
         );
@@ -641,7 +639,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   }, [textValue]);
 
   // ############# HANDLING TEXT FIELDS END ##############
-  console.log("SAGAR", fields?.filter((f) => f?.type === "text")?.length);
+  //console.log("SAGAR", fields?.filter((f) => f?.type === "text")?.length);
   return (
     <View
       key={pageNumber}
@@ -721,8 +719,8 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         style={{ height: containerSize?.height, width: containerSize?.width }}
       >
         {fields
-          ? fields?.map((f: PageFieldType) => {
-              const i: FieldPayload = f?.response_payload;
+          ? fields?.map((f: any) => {
+              const i: FieldPayload = f?.meta;
               const dpw =
                 ((containerSize.width - Number(i?.dispalypagewidth)) /
                   Number(i?.dispalypagewidth)) *
@@ -755,9 +753,9 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                     width: width,
                   }}
                 >
-                  {f?.filled_at
+                  {f?.value
                     ? renderFilledDiv(i?.type, f, height, width)
-                    : f?.meta_data || f?.user_digital_credentials_id
+                    : !isEmpty(f?.value)
                     ? handleEditableField(i?.type, f, height, width)
                     : handleNewClickableField(
                         i?.type,

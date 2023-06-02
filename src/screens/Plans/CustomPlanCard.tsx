@@ -49,7 +49,7 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
         content: customQuery,
       }),
     }).then((res) => {
-      console.log("QUERY ", res);
+      //console.log("QUERY ", res);
       if (res) {
         setIsLoading(false);
         setQuerySubmitted(true);

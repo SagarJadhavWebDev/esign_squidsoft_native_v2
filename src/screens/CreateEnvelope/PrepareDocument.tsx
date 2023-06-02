@@ -27,6 +27,7 @@ import { isEmpty } from "lodash";
 import { useDispatch } from "react-redux";
 import {
   setEnvelopeStep,
+  setIsLoading,
   setLoadingModal,
   setModalType,
   setshowEnvelopeUserWarningModal,
@@ -137,11 +138,10 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
     // });
   };
   const handleSubmit = (fields: any) => {
-   // setIsLoading(true);
+    // setIsLoading(true);
     if (!isEmpty(fields)) {
       dispatch(setshowEnvelopeUserWarningModal(false));
-      dispatch(setModalType("Adding Fields"));
-      dispatch(setLoadingModal(true));
+      dispatch(setIsLoading(true));
       EnvelopeService.handleAddFields(
         {
           fields: fields,
@@ -151,11 +151,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           if (data) {
             dispatch(setRemoteFields(data));
             dispatch(setEnvelopeStep(3));
-            dispatch(setModalType(""));
-            dispatch(setLoadingModal(false));
+            dispatch(setIsLoading(false));
           } else {
-            dispatch(setModalType(""));
-            dispatch(setLoadingModal(false));
+            dispatch(setIsLoading(false));
           }
         }
       );
@@ -230,12 +228,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            console.log("Pls add atleat 1 field ", addedFields);
-            // if (addedFields?.length) {
-            //   handleSubmitFields();
-            // } else {
-            //   console.log("Pls add atleat 1 field ");
-            // }
             handleSubmit(addedFields);
           }}
           className={`rounded-full  p-1.5 px-4 ${

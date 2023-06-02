@@ -53,7 +53,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
     //   }
     // );
     handleGetTemplates(1, 5, (data) => {
-      console.log("TEMPLATES", data);
+      //console.log("TEMPLATES", data);
       if (data) {
         dispatch(setTemplates(data));
         setIsLoading && setIsLoading(false);
@@ -62,8 +62,8 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
       }
     });
   };
-  console.log("seletect", selectedCategory);
-  console.log("tem", templates?.data);
+  // console.log("seletect", selectedCategory);
+  // console.log("tem", templates?.data);
   useEffect(() => {
     getTemplates();
   }, []);
@@ -89,7 +89,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
             allTemplates
               .filter((f: any) => f?.category?.id === selectedCategory?.id)
               .filter((f: any) => {
-                console.log();
+                //console.log();
                 return Object.values(f)
                   .join("")
                   .toLowerCase()

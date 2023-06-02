@@ -144,7 +144,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
       }),
     }).then((res) => {
       if (res) {
-        console.log("NOTIFICTIONS", res);
+        //console.log("NOTIFICTIONS", res);
         toast.show(res?.message, { type: res?.status ? "success" : "error" });
         setNotificationsModal(false);
       }
@@ -153,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
 
   const dimension = useWindowDimensions();
 
-  console.log("HEIGHT:", dimension);
+  //console.log("HEIGHT:", dimension);
 
   return (
     <SafeAreaView className="h-full w-full bg-white">

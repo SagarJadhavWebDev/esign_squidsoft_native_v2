@@ -30,7 +30,7 @@ interface ViewEnvelopeProps {
 }
 
 const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
-  const { envelope: data, type } = route?.params;
+  const { envelope: data, currentTab:type } = route?.params;
   const envelope: any = data;
   const [downloading, setDownloading] = useState(false);
   const [isCoonfirmModalOpen, setIsCoonfirmModalOpen] = useState(false);
@@ -109,7 +109,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
   useEffect(() => {
     handleFetchViewEnvelope();
   }, []);
-  console.log("envelopeData", envelopeData);
+  console.log("envelopeData", type);
   //return null;
   return (
     <SafeAreaView className="w-full h-full flex flex-col justify-start">

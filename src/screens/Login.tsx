@@ -76,7 +76,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
             setIsLoading(true);
             AuthController.ProfileCheck(username)
               .then((result) => {
-                console.log("RESULT", result);
+                //console.log("RESULT", result);
                 if (result?.hasPassword) {
                   setIsLoading(false);
                   callback("loadLogin");
@@ -99,7 +99,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
             })
               .then(async (result) => {
                 const data = await handleResponse(result as any, toast);
-                console.log("LOGIN",result);
+                // console.log("LOGIN",result);
                 if (data) {
                   SignIn &&
                     SignIn(data?.token, () => {
@@ -145,7 +145,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                 setUsername(null);
                 setConfirmPassword(null);
                 setIsLoading(false);
-                console.log(result);
+                //console.log(result);
               })
               .catch((err) => {
                 console.log(err);

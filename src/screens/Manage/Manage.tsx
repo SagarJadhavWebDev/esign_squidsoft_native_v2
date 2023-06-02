@@ -97,7 +97,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
         : "",
       (data: any) => {
         if (data) {
-          console.log("ENVELOPE LIST", data);
+          //console.log("ENVELOPE LIST", data);
           setPage(data?.current_page);
           dispatch(setManageList(data));
           if (data?.total_pages > data?.current_page) {
@@ -237,7 +237,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
         };
     }
   };
-  console.log("FILETR", InBoxFilter, SentBoxFilter);
+ // console.log("FILETR", InBoxFilter, SentBoxFilter);
   return (
     <View className="bg-white justify-center px-2">
       <View className="W-full flex flex-row ">
@@ -397,8 +397,8 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           onEndReachedThreshold={0.7}
           onEndReached={() => {
             if (hasnextpage) {
-              console.log(page);
-              console.log("CURRENT MENU", selectedMenu);
+              //console.log(page);
+              //console.log("CURRENT MENU", selectedMenu);
               setPage(page + 1);
               getEnvelopeList();
             } else {

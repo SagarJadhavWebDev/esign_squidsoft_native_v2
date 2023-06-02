@@ -91,7 +91,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         password: null,
         password_confirmation: null,
       });
-      console.log("Submit");
+      //console.log("Submit");
       let validated = true;
       if (isEmpty(payload.name)) {
         setValidate((prev) => ({
@@ -160,7 +160,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         validated = false;
       }
       if (payload.password !== payload.password_confirmation) {
-        console.log("SETTING FALSE");
+       // console.log("SETTING FALSE");
         setValidate((prev) => ({
           ...prev,
           password_confirmation: false,
@@ -193,10 +193,10 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         validate.phone_number_country_code &&
         validate.phone_number
       ) {
-        console.log("PAYLOAD:", payload);
+        //console.log("PAYLOAD:", payload);
         setIsLoading(true);
         AuthController.Register(payload).then((result) => {
-          console.log("Rgister:", result);
+         // console.log("Rgister:", result);
           setIsLoading(false);
           if (result?.e_payload) {
             SignIn &&
@@ -305,7 +305,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
   const isValidPassword = Object.values(showPasswordsValidation).every(
     (o: any) => o === true
   );
-  console.log("isValidPassword",isValidPassword,showPasswordsValidation)
+  // console.log("isValidPassword",isValidPassword,showPasswordsValidation)
   return (
     <>
       <ScrollView>

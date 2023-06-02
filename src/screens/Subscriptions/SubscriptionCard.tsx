@@ -17,7 +17,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   navigation,
   handleCancelOrder,
 }) => {
-  console.log("subscription?.plan?.for", subscription?.plan);
+  //console.log("subscription?.plan?.for", subscription?.plan);
   return (
     <View className="rounded-xl border w-full border-gray-300 bg-white p-2 px-3 my-1">
       <View className="w-full flex flex-row my-1">

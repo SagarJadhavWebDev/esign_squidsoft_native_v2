@@ -14,7 +14,7 @@ import GetSvg from "../../utils/GetSvg";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import utc from "dayjs/plugin/utc.js";
 import Error from "../../components/atoms/Error";
-import { isEmpty } from "lodash";
+import { isEmpty, times } from "lodash";
 import { useToast } from "react-native-toast-notifications";
 import { useDispatch } from "react-redux";
 import {
@@ -23,7 +23,7 @@ import {
   setModalType,
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
-import { useEnvelope, useUser } from "../../utils/useReduxUtil";
+import { useEnvelope, useRecipients, useUser } from "../../utils/useReduxUtil";
 import AuthService from "../../services/AuthService";
 import { setUser } from "../../redux/reducers/userSlice";
 import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
@@ -34,6 +34,8 @@ import {
 } from "../../redux/reducers/RecipientSlice";
 import { setCurrentTab } from "../../redux/reducers/ManageSlice";
 import { setEnvelope } from "../../redux/reducers/envelopeSlice";
+import WFullInputField from "../../components/atoms/WFullInputField";
+import routes from "../../constants/routes";
 dayjs.extend(utc);
 interface SendEnvelopeProps {
   navigation: any;
@@ -41,15 +43,13 @@ interface SendEnvelopeProps {
 const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   const envelope = useEnvelope();
   const [showDatePicker, setshowDatePicker] = useState(false);
-  const [dateValue, setDateValue] = useState<any>(
-    dayjs(new Date()).add(1, "day")
-  );
+  const [dateValue, setDateValue] = useState<any>(null);
   const dispatch = useDispatch();
   const [subject, setSubject] = useState<any>("Squidsoft eSign Request");
   const [message, setMessage] = useState<any>(
     "Please eSign in the following documents"
   );
-
+  const { recipients } = useRecipients();
   const toast = useToast();
   const [errors, setErrors] = useState({
     dateError: "",
@@ -58,33 +58,35 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   });
   const user = useUser();
 
-  const [payload, setPayload] = useState({
-    subject: "Please sign this document asap.",
-    message: "Hi can you please review and sign this document thank you.",
+  const [payload, setPayload] = useState<any>({
+    subject: subject,
+    message: subject,
     expire_at: null,
     reciever_emails: null,
     save_as_template: false,
   });
   const handleSendEnvelope = () => {
-    dispatch(setModalType("Sending Envelope"));
     dispatch(setLoadingModal(true));
-    // const re = payload?.reciever_emails?.split(",");
-    const recieverEmails: any[] = [];
-
-    console.log("recieverEmails", envelope?.id, payload);
+    const re = payload?.reciever_emails?.split(",");
+    const recieverEmails: any = [];
+    re?.map((s: any) => {
+      if (
+        s &&
+        s.trim() !== "" &&
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+          s.trim()
+        )
+      ) {
+        recieverEmails.push(s.trim());
+      }
+    });
+    console.log("recieverEmails", recieverEmails);
     EnvelopeService.handleSendEnvelope(
       envelope?.id,
-      payload?.expire_at
-        ? { ...payload, reciever_emails: recieverEmails }
-        : {
-            ...payload,
-            reciever_emails: recieverEmails,
-            expire_at: payload?.expire_at
-              ? dayjs(payload?.expire_at).utc(true).add(1, "day").format()
-              : null,
-          },
+      { ...payload, reciever_emails: recieverEmails },
       (data) => {
         if (data) {
+          dispatch(setLoadingModal(false));
           if (user?.user_type === "MEMBER") {
             AuthService.handleGetProfile((data) => {
               dispatch(setUser(data));
@@ -111,7 +113,8 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
             dispatch(setLoadingModal(false));
             dispatch(setCurrentTab("inbox"));
             dispatch(setselectedRecipients(null));
-            // navigate(ProtectedRoutes.DASHBOARD);
+            dispatch(setEnvelopeStep(0));
+            navigation.navigate(routes.dashboard);
           }
           // dispatch(setSelecteDocument(null));
           // dispatch(setFixedFields(null));
@@ -124,7 +127,6 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
           // dispatch(setselectedRecipients(null));
           // console.log("ENVELOPE SEND", envelope?.self_sign);
         } else {
-          dispatch(setModalType(""));
           dispatch(setLoadingModal(false));
         }
       }
@@ -135,25 +137,61 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="h-[90%] bg-white w-full flex flex-col  justify-start items-center">
           <Text className="w-full text-start font-semibold px-1 text-sm">
-            Documents :
-          </Text>
-
-          <Text className="w-full text-start font-semibold px-1 text-sm">
             Recipients :
           </Text>
+          <View className="min-h-16 h-24  max-h-56 flex justify-center my-2 py-2 items-center border border-gray-300 rounded-xl">
+            <ScrollView nestedScrollEnabled={true} className="px-2  ">
+              {recipients?.map((t) => {
+                return (
+                  <View className="w-full   rounded-xl my-1 p-2 border border-gray-300">
+                    <View className="w-full flex flex-row  ">
+                      <Text
+                        className="w-[40%] px-2 text-gray-500"
+                        numberOfLines={1}
+                      >
+                        {t?.user?.name}
+                      </Text>
+                      <Text
+                        className="w-[60%]  text-gray-500 text-end "
+                        numberOfLines={1}
+                      >
+                        {t?.user?.email}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+          <Text className="w-full text-start font-semibold px-1 text-sm">
+            Send a copy to
+          </Text>
+
+          <View className="w-full h-14 flex flex-row  ">
+            <WFullInputField
+              className="h-full w-full text-xs"
+              onChangeText={(e: any) => {
+                setPayload((prev: any) => ({
+                  ...prev,
+                  reciever_emails: e,
+                }));
+              }}
+              placeholder="Enter receiver email and use comma to separate multiple emails "
+            />
+          </View>
 
           <Text className="w-full text-start font-semibold px-1 mt-2 text-sm">
             Envelope Expiry :
           </Text>
           <View
-            style={{
-              borderRadius: 8,
-              width: "100%",
-              borderStyle: "dashed",
-              borderWidth: 1.5,
-              borderColor: "rgba(161,155,183,0.8)",
-            }}
-            className={`p-1 flex flex-row ${
+            // style={{
+            //   borderRadius: 8,
+            //   width: "100%",
+            //   borderStyle: "dashed",
+            //   borderWidth: 1.5,
+            //   borderColor: "rgba(161,155,183,0.8)",
+            // }}
+            className={`p-1 w-full flex flex-row border border-gray-300 rounded-xl ${
               !isEmpty(errors?.dateError) ? "mt-2" : "my-2"
             }`}
           >
@@ -170,7 +208,7 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
                   color: "black",
                 }}
                 className="px-1"
-                value={dayjs(dateValue).format("DD/MM/YYYY , hh:mm a")}
+                value={dayjs(dateValue).format("DD/MM/YYYY hh:mm A")}
                 autoFocus={true}
               ></TextInput>
             </Pressable>
@@ -189,13 +227,16 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
                 mode={"date"}
                 is24Hour={false}
                 onChange={(e, selectedDate) => {
-                  if (
-                    e?.type === "dismissed" ||
-                    e.type === "set" ||
-                    e.type === "neutralButtonPressed"
-                  ) {
-                    selectedDate && setDateValue(selectedDate);
-                    setshowDatePicker(false);
+                  if (e.type === "set") {
+                    console.log("selectedDate", selectedDate);
+                    if (selectedDate) {
+                      setPayload((prev: any) => ({
+                        ...prev,
+                        expire_at: selectedDate,
+                      }));
+                      setDateValue(selectedDate);
+                      setshowDatePicker(false);
+                    }
                   }
                 }}
               />
@@ -209,14 +250,14 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
             Message to Recipients :
           </Text>
           <View
-            style={{
-              borderRadius: 8,
-              width: "100%",
-              borderStyle: "dashed",
-              borderWidth: 1.5,
-              borderColor: "rgba(161,155,183,0.8)",
-            }}
-            className={`p-1 ${
+            // style={{
+            //   borderRadius: 8,
+            //   width: "100%",
+            //   borderStyle: "dashed",
+            //   borderWidth: 1.5,
+            //   borderColor: "rgba(161,155,183,0.8)",
+            // }}
+            className={`p-1 border w-full border-gray-300 rounded-xl ${
               !isEmpty(errors?.subjectError) ? "mt-2" : "my-2"
             }`}
           >
@@ -233,14 +274,14 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
           ) : null}
           <View
             style={{
-              borderRadius: 12,
-              width: "100%",
-              borderStyle: "dashed",
-              borderWidth: 1.5,
-              borderColor: "rgba(161,155,183,0.8)",
+              // borderRadius: 12,
+              // width: "100%",
+              // borderStyle: "dashed",
+              // borderWidth: 1.5,
+              // borderColor: "rgba(161,155,183,0.8)",
               height: 100,
             }}
-            className={`p-1 ${
+            className={`p-1 w-full  border border-gray-300 rounded-xl ${
               !isEmpty(errors?.messageError) ? "mt-2" : "my-2"
             }`}
           >

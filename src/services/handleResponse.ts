@@ -9,7 +9,7 @@ const handleResponse = async (res: any, toast?: any) => {
   // const userToken = await AsyncStorage.getItem(SP.AUTHTOKEN);
   // const token = userToken ?? ApiConfig.APP_AUTH_TOKEN_KEY;
   const encryption = false; // process.env.REACT_APP_ENCRYPTION;
-  console.log("FROM HANDLE RESPONSE", res);
+  //console.log("FROM HANDLE RESPONSE", res);
   if (res?.status === 200) {
     const data = response?.data;
     //  encryption

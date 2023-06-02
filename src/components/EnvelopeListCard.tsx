@@ -58,7 +58,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         return null;
     }
   };
-  
+
   return (
     <TouchableOpacity
       className=" rounded-lg border my-2 border-gray-200 p-1 bg-white"
@@ -74,7 +74,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         elevation: 1,
       }}
       onPress={() => {
-        console.log("TYPE:", typeof currentTab);
+        console.log("TYPE:", currentTab);
         if (currentTab == "draft") {
           navigation.navigate(routes.createEnvelope, {
             step: 1,
@@ -83,7 +83,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         } else {
           navigation.navigate(routes.viewEnvelope, {
             envelope,
-            currentTab: envelope,
+            currentTab: currentTab == "inbox" ? "SIGN" : "VIEW",
           });
         }
       }}

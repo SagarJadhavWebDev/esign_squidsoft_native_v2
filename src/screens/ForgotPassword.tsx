@@ -71,7 +71,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   const handleSendOtp = () => {
     setIsLoading(true);
     AuthController.ForgotPassword(email).then((res) => {
-      console.log("OPT SEND FUN", res);
+      //console.log("OPT SEND FUN", res);
       if (!res?.status) {
         toast.show(res?.message, { type: "error" });
         setIsLoading(false);
@@ -86,7 +86,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
     setIsLoading(true);
     AuthController.ProfileCheck(email)
       .then((result) => {
-        console.log("RESULT", result);
+       // console.log("RESULT", result);
         if (result?.hasPassword) {
           setIsLoading(false);
           handleSendOtp();
@@ -101,10 +101,10 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ navigation }) => {
   };
 
   const handleValidateOtp = () => {
-    console.log("OPT FUN");
+    //console.log("OPT FUN");
     setIsLoading(true);
     AuthController.validateOtp(email, otp).then((res) => {
-      console.log("OPT FUN", res);
+     // console.log("OPT FUN", res);
       if (!res?.status) {
         toast.show(res?.message, { type: "error" });
         setIsLoading(false);

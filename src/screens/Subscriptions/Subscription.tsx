@@ -97,7 +97,7 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
   };
   const mapData: any =
     tabType === "subscription" ? subscriptions : orders?.data?.data;
-  console.log("ORDERS", orders);
+  //console.log("ORDERS", orders);
   return (
     <View className="w-full h-full items-center bg-white ">
       <View className="w-[90%] my-3 h-10 bg-white border border-gray-300 rounded-full items-center justify-center flex flex-row">

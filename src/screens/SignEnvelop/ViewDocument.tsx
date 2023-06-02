@@ -49,7 +49,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       .fetch("GET", `${ApiConfig.API_URL  + document?.path}`)
       .then((value) => {
         setSource(value.path());
-        console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
+       // console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
       })
       .catch((error) => {
         toast.show(
@@ -109,7 +109,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
                   f?.page_number === pageNumber+1 &&
                   document?.id === f?.envelope_document_id
               );
-              console.log("SAGARARARRARA", pageNumber)
+              //console.log("SAGARARARRARA", pageNumber)
               return type === "VIEW" ? (
                 <PDFViewSinglePage
                   handlePageLoad={handlePageLoadComplete}

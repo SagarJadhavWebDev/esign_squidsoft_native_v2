@@ -61,7 +61,7 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
   const getEnvelopeList = () => {
     handleGetEnvelopes(currentTab, 1, 10, "", (data) => {
       if (data) {
-        console.log("ENVELOPE LIST", data);
+       // console.log("ENVELOPE LIST", data);
         dispatch(setManageList(data));
       } else {
       }

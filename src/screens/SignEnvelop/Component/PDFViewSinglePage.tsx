@@ -41,7 +41,7 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
     let containerHeight = height + height * (diffPercent / 100);
     return { height: containerHeight, width: containerWidth };
   };
-  console.log("CONTAINER SDFGHJ:", fields, pageNumber);
+  //console.log("CONTAINER SDFGHJ:", fields, pageNumber);
   const renderFilledDiv = (type: FILLEDDATATYPE, data: any, width?: number) => {
     const value = data?.value;
     switch (type) {
@@ -109,7 +109,7 @@ const PDFViewSinglePage: React.FC<PDFViewSinglePageProps> = ({
               "Failed to open document please try with different document",
               { type: "error" }
             );
-            console.log("Error:", e);
+           // console.log("Error:", e);
           }}
         />
       </View>
