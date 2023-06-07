@@ -1,4 +1,4 @@
-import { capitalize, isEmpty } from "lodash";
+import { capitalize, isEmpty, upperCase } from "lodash";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -28,6 +28,8 @@ import ManageStamps from "./ManageStamps";
 import CredentialsService from "../../services/CredentialsService";
 import { useDispatch } from "react-redux";
 import { setStamps } from "../../redux/reducers/CredentialsSlice";
+import { setTempStamp } from "../../redux/reducers/TempFieldSlice";
+import { Image as ImageCompressor } from "react-native-compressor";
 interface UploadStampProps {
   modalType: string;
   setIsOpen: any;
@@ -65,43 +67,46 @@ const UploadStamp: React.FC<UploadStampProps> = ({
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: "fullScreen",
         copyTo: "cachesDirectory",
+        transitionStyle: "partialCurl",
       });
-      await setResult(pickerResult);
+
+      //console.log("pick", pickerResult);
+      const upresult = await ImageCompressor.compress(pickerResult.uri ?? "", {
+        maxWidth: 320,
+        maxHeight: 180,
+        quality: 0.5,
+      });
+      upresult &&
+        (await setResult({
+          ...pickerResult,
+          fileCopyUri: upresult,
+          uri: upresult,
+        }));
     } catch (e) {
       handleError(e);
     }
   };
   const handleUpload = async () => {
     setIsLoading && setIsLoading(true);
-    UploadCredentialsController(
-      result,
-      capitalize(modalType) as any,
-      stampName,
-      token
-    )
-      .then((res) => {
-        const data = CryptoHandler.response(res, token ?? "");
-        UpdateUser &&
-          UpdateUser(res, token, () => {
-            setIsOpen({
-              type: null,
-              isOpen: false,
-            });
-            toast.show(`${modalType} uploaded successfully`, {
-              type: "success",
-            });
-            callback(data);
-            setIsLoading && setIsLoading(false);
-          });
-      })
-      .catch((err) => {
-        //toast.show(err, { type: "error" });
+    const payload = {
+      type: capitalize(modalType) as any,
+      file: result,
+      title: stampName,
+    };
+    CredentialsService.handleInitialUpload(payload, toast, (data) => {
+      if (data) {
+        console.log("STAMP", data);
+        dispatch(setTempStamp([Array.from(data)?.reverse()]));
+        dispatch(setStamps(Array.from(data)));
         setIsLoading && setIsLoading(false);
-        toast.show(`faild to upload  ${modalType}`, {
-          type: "error",
+        setIsOpen({
+          type: null,
+          isOpen: false,
         });
-        console.log("File Upload Err", err);
-      });
+        // dispatch(showUploadCredentialsModal(false));
+        // dispatch(setIsLoading(false));
+      }
+    });
   };
   const credMenuList = [
     {
@@ -219,16 +224,6 @@ const UploadStamp: React.FC<UploadStampProps> = ({
                       type: "error",
                     });
                   } else {
-                    const payload = {
-                      type: "STAMP",
-                      file: result,
-                      title: stampName,
-                    };
-                    CredentialsService.handleInitialUpload(payload, (data) => {
-                      dispatch(setStamps(Array.from(data)));
-                      // dispatch(showUploadCredentialsModal(false));
-                      // dispatch(setIsLoading(false));
-                    });
                     handleUpload();
                   }
                 }

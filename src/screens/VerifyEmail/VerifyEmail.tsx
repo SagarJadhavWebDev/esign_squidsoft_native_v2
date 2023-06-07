@@ -25,7 +25,7 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({ route }) => {
   const value = verifyToken?.split("/verify/")?.[1];
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log("VERIFY TOKEN",ApiConfig.API_URL+ apiEndpoint.auth.verifyEmail + value);
+    // console.log("VERIFY TOKEN",ApiConfig.API_URL+ apiEndpoint.auth.verifyEmail + value);
     if (!token) {
       ApiInstance.get(apiEndpoint.auth.verifyEmail + value).then((res: any) => {
         if (res?.status === 200) {

@@ -60,11 +60,11 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
   const [divPosition, setDivPosition] = useState(null as any);
   const { token } = useAuth();
   const toast = useToast();
-  console.log(
-    "selectedDocument?.name",
-    ApiConfig.API_URL + SelectedDocuments?.path,
-    documents
-  );
+  // console.log(
+  //   "selectedDocument?.name",
+  //   ApiConfig.API_URL + SelectedDocuments?.path,
+  //   documents
+  // );
   const handleDocumentFetch = async () => {
     // const s = RNFetchBlob.fs.dirs.DocumentDir + "/" + selectedDocument?.option?.name;
     const response = await RNFetchBlob.config({
@@ -74,7 +74,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
       .fetch("GET", `${ApiConfig.API_URL + SelectedDocuments?.path}`)
       .then((value) => {
         setSource(value.path());
-        console.log("RESPONSE FROM RN FECTH BLOB:", value.path());
+        // console.log("RESPONSE FROM RN FECTH BLOB:", value.path());
         // console.log("RESPONSE FROM RN FECTH BLOB:", value);
       })
       .catch((error) => {
@@ -155,10 +155,10 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
       maxPanX <= dragContainerSize.width &&
       maxPanY <= dragContainerSize.height
     ) {
-      console.log("CALLED 1st");
+      // console.log("CALLED 1st");
       setDivPosition({ x: panX, y: panY });
     } else if (panX < 0 && panY >= 0) {
-      console.log("CALLED 2nd");
+      // console.log("CALLED 2nd");
       if (maxPanY > dragContainerSize.height) {
         setDivPosition({
           x: 0,
@@ -168,20 +168,20 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
         setDivPosition({ x: 0, y: panY });
       }
     } else if (panY < 0 && panX >= 0) {
-      console.log("CALLED 3rd");
+      // console.log("CALLED 3rd");
       if (maxPanX > dragContainerSize.width) {
         setDivPosition({ x: dragContainerSize.width - fieldSize.width, y: 0 });
       } else {
         setDivPosition({ x: panX, y: 0 });
       }
     } else if (panX < 0 && panY < 0) {
-      console.log("CALLED 4th");
+      // console.log("CALLED 4th");
       setDivPosition({ x: 0, y: 0 });
     } else if (
       maxPanX > dragContainerSize.width &&
       maxPanY > dragContainerSize.height
     ) {
-      console.log("CALLED 5th");
+      // console.log("CALLED 5th");
       setDivPosition({
         x: dragContainerSize.width - fieldSize.width,
         y: dragContainerSize.height - fieldSize.height,
@@ -190,13 +190,13 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
       maxPanX > dragContainerSize.width &&
       maxPanY <= dragContainerSize.height
     ) {
-      console.log("CALLED 6th");
+      // console.log("CALLED 6th");
       setDivPosition({ x: dragContainerSize.width - fieldSize.width, y: panY });
     } else if (
       maxPanX <= dragContainerSize.width &&
       maxPanY > dragContainerSize.height
     ) {
-      console.log("CALLED 7th");
+      // console.log("CALLED 7th");
       setDivPosition({
         x: panX,
         y: dragContainerSize.height - fieldSize.height,
@@ -574,7 +574,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
               } else {
                 fixedFieldFontSize = i?.width / 14;
               }
-              console.log("CORDINATES", i);
+              // console.log("CORDINATES", i);
               return (
                 <View
                   className="absolute"
@@ -644,7 +644,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                     </View>
                     <Pressable
                       onPress={() => {
-                        console.log("REMOVE CALLED");
+                        // console.log("REMOVE CALLED");
                         removeAddedField(i);
                       }}
                       className="absolute -top-2 -right-2   rounded-full bg-[#d10000] justify-center items-center p-0.5"

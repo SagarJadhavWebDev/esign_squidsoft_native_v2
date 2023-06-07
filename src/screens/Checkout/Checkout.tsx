@@ -68,7 +68,7 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
     Object.values(selectedOptions).every(
       (o: any) => !isNull(o?.value) && !isEmpty(o?.value)
     );
-  console.log("ADDERS PAYLOAD", isPayButtonDisable);
+ // console.log("ADDERS PAYLOAD", isPayButtonDisable);
   // const [stateList, setStateList] = useState([]) as any;
   // const [cityList, setCityList] = useState([]) as any;
   // const [countryOptions, setCountryOptions] = useState([]) as any;

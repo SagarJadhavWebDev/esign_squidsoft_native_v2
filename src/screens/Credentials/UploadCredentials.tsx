@@ -34,6 +34,7 @@ import CredentialsService from "../../services/CredentialsService";
 import { useDispatch } from "react-redux";
 import { setIntial, setSignature } from "../../redux/reducers/CredentialsSlice";
 import { useInitial, useSignature, useStamps } from "../../utils/useReduxUtil";
+import { Image as ImageCompressor } from "react-native-compressor";
 
 interface UploadCredentialsProps {
   modalType: string;
@@ -99,9 +100,18 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
         presentationStyle: "fullScreen",
         copyTo: "cachesDirectory",
       });
-     
 
-      await setResult(pickerResult);
+      const upresult = await ImageCompressor.compress(pickerResult.uri ?? "", {
+        maxWidth: 320,
+        maxHeight: 180,
+        quality: 0.5,
+      });
+      upresult &&
+        (await setResult({
+          ...pickerResult,
+          fileCopyUri: upresult,
+          uri: upresult,
+        }));
     } catch (e) {
       handleError(e);
     }
@@ -132,7 +142,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       })
       .catch((err) => {
         //toast.show(err, { type: "error" });
-        console.log("File Upload Err", err);
+        // console.log("File Upload Err", err);
         setIsLoading && setIsLoading(false);
       });
   };
@@ -169,8 +179,8 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       file: fileBlob,
       title: fileBlob?.name,
     };
-    console.log("UPLOAD", payload);
-    CredentialsService.handleInitialUpload(payload, (data) => {
+    // console.log("UPLOAD", payload);
+    CredentialsService.handleInitialUpload(payload, toast, (data) => {
       if (type === "INITIAL") {
         dispatch(setIntial(data));
       } else {
@@ -308,36 +318,29 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
                 if (tabType === "draw") {
                   drawSignature?.current?.readSignature();
                 } else {
-                  const fileReader = new FileReader();
-                  fileReader.onload = (fileLoadedEvent: any) => {
-                    const base64Image = fileLoadedEvent.target.result;
-                  };
-                  fileReader.readAsDataURL(result?.uri);
-                  setIsLoading && setIsLoading(true);
-                  const type = upperCase(modalType);
-                  const fileBlob = {
-                    name: result?.name,
-                    filename: result?.name,
-                    type: result?.type,
-                    uri: result?.uri, //RNFetchBlob.wrap(result?.uri),
-                  };
                   const payload = {
-                    type: type,
-                    file: fileBlob,
-                    title: fileBlob?.name,
+                    type: capitalize(modalType) as any,
+                    file: result,
+                    title: null,
                   };
-                  console.log("UPLOAD", payload);
-                  // CredentialsService.handleInitialUpload(payload, (data) => {
-                  //   if (data) {
-                  //     if (type === "INITIAL") {
-                  //       dispatch(setIntial(data));
-                  //     } else {
-                  //       dispatch(setSignature(data));
-                  //     }
-                  //   }
-                  //   setIsOpen(false);
-                  //   setIsLoading && setIsLoading(false);
-                  // });
+                  CredentialsService.handleInitialUpload(
+                    payload,
+                    toast,
+                    (data) => {
+                      if (data) {
+                        if (upperCase(modalType) === "INITIAL") {
+                          dispatch(setIntial(data));
+                        } else {
+                          dispatch(setSignature(data));
+                        }
+                      }
+                      setIsOpen({
+                        isOpen: false,
+                        type: "",
+                      });
+                      setIsLoading && setIsLoading(false);
+                    }
+                  );
                 }
               }}
               className=" bg-[#d10000] px-3 my-2 py-0.5 rounded-full justify-center items-center"

@@ -31,7 +31,7 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
       dispatch(setAddresses(addresses));
     });
   };
-  console.log("address", address);
+  //console.log("address", address);
   useEffect(() => {
     handleGetAddress();
   }, []);

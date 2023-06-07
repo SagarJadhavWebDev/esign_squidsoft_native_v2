@@ -74,7 +74,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         elevation: 1,
       }}
       onPress={() => {
-        console.log("TYPE:", currentTab);
+       // console.log("TYPE:", currentTab);
         if (currentTab == "draft") {
           navigation.navigate(routes.createEnvelope, {
             step: 1,

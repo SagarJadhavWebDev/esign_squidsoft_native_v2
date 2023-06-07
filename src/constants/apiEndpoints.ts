@@ -37,7 +37,7 @@ const plans = {
   getPlans: "/plans",
 };
 const credentials = {
-  uploadCredentials: `/user-credentials`,
+  uploadCredentials: `user-credentials`,
   getCredentials: `/user-credentials`,
   setDefaultStamp: (id: number) => `/user-credentials/set-default/${id}`,
   deleteCredentials: (id: number) => `/user-credentials/${id}`,

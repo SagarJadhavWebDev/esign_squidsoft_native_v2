@@ -41,7 +41,7 @@ const VerifyEmailModal: React.FC<VerifyEmailModalProps> = ({
       body: JSON.stringify(payload),
     })
       .then((res) => {
-        console.log("SUBMIT OTP", res, payload);
+        //console.log("SUBMIT OTP", res, payload);
         setIsLoading(false);
         RefreshUser && RefreshUser(token);
         setIsOpen(false);
@@ -51,7 +51,7 @@ const VerifyEmailModal: React.FC<VerifyEmailModalProps> = ({
         }
       })
       .catch((err) => {
-        console.log("VERIFY EMAIL ERR", err);
+        //console.log("VERIFY EMAIL ERR", err);
         setOtpValue(null);
       });
   };

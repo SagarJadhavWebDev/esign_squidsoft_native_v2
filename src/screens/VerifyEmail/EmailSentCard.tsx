@@ -43,14 +43,14 @@ const EmailSentCard: React.FC<EmailSentCardProps> = ({ route }) => {
                   if (type === "VERIFY_EMAIL") {
                     AuthService.ResendVerifyLink(email, toast, (data: any) => {
                       if (data) {
-                        console.log("DATA0", data);
+                        // console.log("DATA0", data);
                         dispatch(setIsLoading(false));
                       }
                     });
                   } else {
                     AuthService.handleSendResetLink(email, toast, (data) => {
                       if (data) {
-                        console.log("DATA0", data);
+                        // console.log("DATA0", data);
                         dispatch(setIsLoading(false));
                       }
                     });

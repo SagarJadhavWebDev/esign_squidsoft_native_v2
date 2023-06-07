@@ -102,7 +102,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
         }
       });
     } else {
-      console.log("Please add address before checkout");
+     // console.log("Please add address before checkout");
     }
   };
   const [errors, setErrors] = useState<any>(null);
@@ -161,8 +161,8 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
   useEffect(() => {
     const existingStripeSheet = async () => {
       const { error, paymentOption } = await presentPaymentSheet();
-      console.log("ERROR:", error?.message, error?.localizedMessage);
-      console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
+      // console.log("ERROR:", error?.message, error?.localizedMessage);
+      // console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
       if (error) {
         Alert.alert("Payment failed!");
       } else {
@@ -192,15 +192,15 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
     const validate = !isEmpty(couponCode?.gstin)
       ? isEmpty(couponCode?.gstin) && isEmpty(couponCode?.company_name)
       : true;
-    console.log("payload", payload, validate);
+    // console.log("payload", payload, validate);
     if (validate) {
       console.log("payload", payload);
       OrderService.handleCreateOrder(payload, async (data) => {
         setOrder(data);
         seCheckouttLoadiing(false);
-        console.log("data", data);
+        // console.log("data", data);
         if (data && user) {
-          console.log("RAZR PAY PAYMENT ERR", data);
+          // console.log("RAZR PAY PAYMENT ERR", data);
           seCheckouttLoadiing(false);
           setIntent(data?.payment_intent_id);
           const options: any = {
@@ -220,7 +220,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
             case "RAZORPAY":
               return RazorpayCheckout.open(options)
                 .then((res) => {
-                  console.log("RAZORPAY PAYMENT", res);
+                  // console.log("RAZORPAY PAYMENT", res);
                   SubscriptionService.handleGetSubscription((data) => {
                     dispatch(setSubscription(data));
                   });

@@ -5,6 +5,7 @@ import upperCase from "lodash/upperCase";
 //import CompressedImage from "../utils/";
 const handleInitialUpload = async (
   payload: any,
+  toast: any,
   callback: (data: any) => void
 ) => {
   const payloadData = new FormData();
@@ -15,15 +16,18 @@ const handleInitialUpload = async (
   ApiInstance.postForm(apiEndpoint.credentials.uploadCredentials, payloadData)
     .then(async (res) => {
       const data = await handleResponse(res);
-      console.log("SAGAR0", payloadData);
       const type =
-        payload?.type === "STAMP"
+        upperCase(payload?.type) === "STAMP"
           ? "stamps"
-          : payload?.type === "INITIAL"
+          : upperCase(payload?.type) === "INITIAL"
           ? "initials"
           : "signatures";
       return data
-        ? callback(payload?.type === "STAMP" ? data?.[type] : data?.[type]?.[0])
+        ? callback(
+            upperCase(payload?.type) === "STAMP"
+              ? data?.[type]
+              : data?.[type]?.[0]
+          )
         : false;
     })
     .catch((err) => {

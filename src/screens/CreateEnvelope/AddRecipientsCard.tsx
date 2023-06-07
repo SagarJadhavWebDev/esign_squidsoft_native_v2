@@ -59,7 +59,7 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
       name: currentRecipient?.email?.split("@")?.[0],
     }));
   }, [currentRecipient?.email]);
-  console.log(currentRecipient);
+  // console.log(currentRecipient);
   useEffect(() => {
     if (
       currentRecipient?.name?.length &&
@@ -69,7 +69,7 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
       setShowSearchList(true);
     }
   }, [currentRecipient?.name]);
-  console.log(recipients);
+  // console.log(recipients);
   return (
     <React.Fragment>
       {recipients?.map((s: any) => {
@@ -95,7 +95,7 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
                     return user?.order !== s?.order;
                   }
                 });
-                console.log("DATA", data);
+                // console.log("DATA", data);
                 dispatch(setRecipients(data));
               }}
               className="w-[20%] rounded-xl flex p-2 flex-row  my-1 bg-red-500  "

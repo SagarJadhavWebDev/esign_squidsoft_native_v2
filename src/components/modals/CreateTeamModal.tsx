@@ -47,7 +47,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
       }
     });
   };
-  console.log("plans", organization);
+  //console.log("plans", organization);
   return (
     <>
       <Modal
@@ -112,7 +112,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                       })}
                       onSelect={(e: any) => {
                         const selectedState = e?.option;
-                        console.log("selectedState", selectedState);
+                       // console.log("selectedState", selectedState);
 
                         setPayload((prev) => ({
                           ...prev,

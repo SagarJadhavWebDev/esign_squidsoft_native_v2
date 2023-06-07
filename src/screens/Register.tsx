@@ -118,7 +118,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         ApiInstance.post(apiEndpoint.auth.register, payload)
           .then(async (response) => {
             const data = await handleResponse(response, toast);
-            console.log("PAYLOAD REGSIERT:", payload, data);
+           // console.log("PAYLOAD REGSIERT:", payload, data);
             if (response?.status === 200) {
               navigation.navigate(routes.emailSent, {
                 email: payload?.email,
@@ -128,7 +128,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             setIsLoading(false);
           })
           .catch(async (res) => {
-            console.log("PAYLOAD: REGSIERT", payload);
+           // console.log("PAYLOAD: REGSIERT", payload);
             const data = await handleResponse(res, toast);
             setIsLoading(false);
             // callBack(res?.response?.status === 200);

@@ -39,7 +39,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
 
   const handleSubmit = () => {
     setLoading(true);
-    console.log("CLICKED", payload);
+   // console.log("CLICKED", payload);
     TeamsService.handleAddUser(payload,toast, (data: any) => {
       if (data) {
         // dispatch(setOrganization(data));

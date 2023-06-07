@@ -104,11 +104,11 @@ const WFullInputFieldCC: React.FC<WFullInputFieldProps> = ({
           // defaultCode="IN"
           layout="first"
           onChangeText={(text) => {
-            console.log(text);
+           // console.log(text);
             setValue(text);
           }}
           onChangeFormattedText={(text) => {
-            console.log(text);
+           // console.log(text);
           }}
           // {...props}
           flagButtonStyle={{ backgroundColor: "transparent" }}

@@ -40,7 +40,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
     .map((u: any) => {
       return u?.email;
     });
-  console.log("teamLIST", [...userList, admin?.email]);
+  //console.log("teamLIST", [...userList, admin?.email]);
 
   return (
     <>
@@ -133,7 +133,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
                       )}
                       onSelect={(e: any) => {
                         // const selectedState = e?.option;
-                        console.log("selectedState", e);
+                        //console.log("selectedState", e);
                         setTransferUser(e?.option?.value);
                       }}
                       selectedValue={{ label: transferUser ?? "Select user" }}

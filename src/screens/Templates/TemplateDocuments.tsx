@@ -77,7 +77,7 @@ const TemplateDocumentList: React.FC<TemplateDocumentsProps> = ({
     }
   }, [selectedDocument]);
 
-  console.log("DoCUMENTS:", route?.params?.template);
+  // console.log("DoCUMENTS:", route?.params?.template);
   return (
     <View className="bg-white w-full h-full flex flex-col">
       <View className="w-full h-12 border-b border-gray-300 justify-between items-center flex flex-row   ">

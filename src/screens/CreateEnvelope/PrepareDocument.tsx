@@ -163,7 +163,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
       });
     }
   };
-  console.log("SLECTED  DOCUMENT:", SelectedDocuments);
+  // console.log("SLECTED  DOCUMENT:", SelectedDocuments);
   const { addedFields } = usePdfData();
   return (
     <ScrollView className="w-full h-full bg-white p-2">

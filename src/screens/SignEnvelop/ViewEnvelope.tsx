@@ -79,12 +79,12 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
         fields: envelopeData?.document_fields,
       };
       //console.log("SIGN TOKEN",envelopeData?.sign_token?.replace("/api", ""))
-      console.log("PAYLOAD", envelopeData?.sign_token?.replace("/api", ""));
+      // console.log("PAYLOAD", envelopeData?.sign_token?.replace("/api", ""));
       setIsLoading(false);
       ApiInstance.post(envelopeData?.sign_token?.replace("/api", ""), payload)
         .then(async (res) => {
           const data = await handleResponse(res as any, toast);
-          console.log("ENVELOPE SUBMIT", data);
+          // console.log("ENVELOPE SUBMIT", data);
           if (data) {
             // dispatch(setIsFullScreen(false));
             // dispatch(setModalType(""));
@@ -105,14 +105,14 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
         })
         .catch((err) => {
           setIsLoading(false);
-          console.log("SUBMIT ENVELOPE ERR", err?.message);
+          // console.log("SUBMIT ENVELOPE ERR", err?.message);
         });
     }
   };
   useEffect(() => {
     handleFetchViewEnvelope();
   }, []);
-  console.log("envelopeData", type);
+  // console.log("envelopeData", type);
   //return null;
   return (
     <SafeAreaView className="w-full h-full flex flex-col justify-start">

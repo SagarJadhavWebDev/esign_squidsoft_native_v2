@@ -13,7 +13,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   selectedDocument,
   setSelectedDocument,
 }) => {
-  console.log("setSelectedDocument", selectedDocument);
+  //console.log("setSelectedDocument", selectedDocument);
   return (
     // <SelectDropdown
     //   dropdownIconPosition="right"

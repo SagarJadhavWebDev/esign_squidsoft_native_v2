@@ -73,7 +73,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       new_password: passwordsValue.password,
       new_confirm_password: passwordsValue.password_confirmation,
     };
-    console.log("payload", payload);
+    //console.log("payload", payload);
 
     // HttpService.post(apiEndpoints.changePassword, {
     //   token: token,
@@ -166,7 +166,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeCloseIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                           // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               old_password: !Showpasswords?.old_password,
@@ -179,7 +179,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeOpenIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                            //console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               old_password: !Showpasswords?.old_password,
@@ -213,7 +213,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeCloseIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                           // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password: !Showpasswords?.password,
@@ -226,7 +226,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeOpenIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                           // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password: !Showpasswords?.password,
@@ -257,7 +257,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeCloseIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                            //console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password_confirmation:
@@ -271,7 +271,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeOpenIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                            console.log("SAGAR");
+                            //console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password_confirmation:

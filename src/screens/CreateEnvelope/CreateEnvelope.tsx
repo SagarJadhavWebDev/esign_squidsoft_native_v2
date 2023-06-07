@@ -29,7 +29,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   route,
 }) => {
   // const { step, existingEnvelope } = route?.params;
-  console.log("STEP:", route?.params?.step, route?.params?.existingEnvelope);
+  // console.log("STEP:", route?.params?.step, route?.params?.existingEnvelope);
   //const [currentStep, setCurrentStep] = useState<any>(route?.params?.step ?? 0);
   const currentStep = useEnvelopeStep();
   const steps: any = [
@@ -62,7 +62,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   const isloading = useIsLoading();
   //const [isloading, setIsLoading] = useState(false);
   const renderSteps = () => {
-    console.log("STEP:", currentStep);
+    // console.log("STEP:", currentStep);
     switch (currentStep) {
       case 0:
         return <UploadDocuments navigation={navigation} />;

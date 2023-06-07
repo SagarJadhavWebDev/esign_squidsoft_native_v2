@@ -1,3 +1,5 @@
+import ApiConfig from "../constants/ApiConfig";
+import apiEndpoint from "../constants/apiEndpoints";
 import apiEndpoints from "../constants/apiEndpoints";
 import {
   UploadCredentialsFileType,
@@ -22,13 +24,16 @@ const UploadCredentialsController = async (
   };
   console.log("FILEBLOBL", fileBlob);
   const formData = new FormData();
-  formData.append("file", fileBlob);
-  formData.append("type", type ?? "Signature");
-  formData.append("name", name ?? "Signature");
-  const response = await HttpService.postFile(apiEndpoints.uploadCredentials, {
-    token,
-    formData,
-  });
+  formData.append("source", fileBlob);
+  formData.append("type", type);
+  formData.append("title", name);
+  const response = await HttpService.postFile(
+    apiEndpoint.credentials.uploadCredentials,
+    {
+      token,
+      formData,
+    }
+  );
   return response;
 };
 

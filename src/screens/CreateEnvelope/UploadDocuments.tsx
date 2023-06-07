@@ -35,18 +35,18 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
         toast.show(`Max ${allowedFileCount}  Documents allowed per Envelope`, {
           type: "error",
         });
-        console.log(
-          "Max " + allowedFileCount + " Documents allowed per Envelope"
-        );
+        // console.log(
+        //   "Max " + allowedFileCount + " Documents allowed per Envelope"
+        // );
         return;
       }
       if (existingFileCount + upComingFileCount > allowedFileCount) {
         toast.show(`Max ${allowedFileCount} Documents allowed per Envelope`, {
           type: "error",
         });
-        console.log(
-          "Max " + allowedFileCount + " Documents allowed per Envelope"
-        );
+        // console.log(
+        //   "Max " + allowedFileCount + " Documents allowed per Envelope"
+        // );
         return;
       }
       Array.from(result).forEach((f: any) => {
@@ -59,9 +59,9 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
         toast.show(`Envelope Size Cannot be more than ${allowedFileSize}  MB`, {
           type: "error",
         });
-        console.log(
-          "Envelope Size Cannot be more than " + allowedFileSize + " MB"
-        );
+        // console.log(
+        //   "Envelope Size Cannot be more than " + allowedFileSize + " MB"
+        // );
         return;
       }
       setFileSize(existingFileSize);
@@ -81,7 +81,7 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
   };
 
   const handleRemoveFile = (file: any) => {
-    console.log("FILE SIZE:", file);
+    // console.log("FILE SIZE:", file);
     const filter = fileList.filter((f: any) => f.uri !== file?.uri);
     setFileSize(fileSize - file?.Size);
     setFileList(filter);

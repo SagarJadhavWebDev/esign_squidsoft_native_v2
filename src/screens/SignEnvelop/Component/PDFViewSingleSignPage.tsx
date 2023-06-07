@@ -139,7 +139,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     };
     let f = allFields;
     f[foundIndex] = updatedField as any;
-    console.log("NEW ENVELOPE", f);
+    // console.log("NEW ENVELOPE", f);
     setEnvelope((prev: any) => ({
       ...prev,
       document_fields: f,
@@ -147,7 +147,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   };
 
   const handleCallback = (data: any) => {
-    console.log("STAMP DATA", selectedField?.type);
+    // console.log("STAMP DATA", selectedField?.type);
     switch (selectedField?.type?.toLowerCase()) {
       case "stamp":
         handleUpdateEnvelope(data?.source?.base64, selectedField);
@@ -635,7 +635,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   }, [textValue]);
 
   // ############# HANDLING TEXT FIELDS END ##############
-  console.log("textValue",textValue,selectedField?.id);
+  // console.log("textValue",textValue,selectedField?.id);
   return (
     <View
       key={pageNumber}

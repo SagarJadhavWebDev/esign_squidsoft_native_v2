@@ -148,14 +148,6 @@ const useInitial = () => {
     return initial;
   } else if (token) {
     CredentialsService.handleGetCredentials((data) => {
-      console.log(
-        "CRED123",
-        token,
-        data,
-        data?.["initials"]?.[0],
-        data?.["signatures"]?.[0],
-        data?.["stamps"]
-      );
       dispatch(setIntial(data?.["initials"]?.[0]));
       dispatch(setSignature(data?.["signatures"]?.[0]));
       dispatch(setStamps(data?.["stamps"]));

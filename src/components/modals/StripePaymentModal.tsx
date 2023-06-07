@@ -69,7 +69,7 @@ const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
         customFlow: true,
         style: "automatic",
       }).then((res) => {
-        console.log("ERROR:", res.paymentOption?.image);
+        //console.log("ERROR:", res.paymentOption?.image);
       });
     })();
   }, []);

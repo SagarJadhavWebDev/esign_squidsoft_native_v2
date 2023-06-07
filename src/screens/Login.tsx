@@ -15,6 +15,7 @@ import ApiInstance from "../services/ApiInstance";
 import apiEndpoint from "../constants/apiEndpoints";
 import handleResponse from "../services/handleResponse";
 import { useDispatch } from "react-redux";
+import { setUser } from "../redux/reducers/userSlice";
 interface LoginProps {
   navigation: any;
 }
@@ -105,7 +106,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                     SignIn(data?.token, () => {
                       setPassword(null);
                       setUsername(null);
-                      dispatch(data?.user);
+                      dispatch(setUser(data?.user));
                       setIsLoading(false);
                       // navigation.navigate(routes.dashboard);
                     });

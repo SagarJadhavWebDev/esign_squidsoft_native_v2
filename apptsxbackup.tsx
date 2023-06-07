@@ -238,7 +238,7 @@ export default function App() {
       })).current;
 
       FieldPanResponder.panHandlers.onResponderGrant = (e:any)=>{
-        console.log("PanResponder", fieldSize);
+        //console.log("PanResponder", fieldSize);
         setSavedFieldSize({ x: fieldSize.width, y: fieldSize.height });
       }
 

@@ -37,7 +37,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const dispatch = useDispatch();
   const teams: any = useTeams();
-  console.log("TEAMS2", team);
+  // console.log("TEAMS2", team);
   const [user, setUser] = useState<any>(null);
   const handleRemoveUser = (
     actionType: "MIGRATE" | "IGNORE",

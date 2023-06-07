@@ -122,7 +122,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                           CredentialsService.handleSetDefaultCredentials(
                             s?.id,
                             (data) => {
-                              dispatch(setStamps(data?.["stamps"]?.reverse()));
+                              dispatch(setStamps(data?.["stamps"]));
                             }
                           );
                         }}
@@ -143,7 +143,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                           CredentialsService.handleDeleteCredentials(
                             s?.id,
                             (data) => {
-                              dispatch(setStamps(data?.["stamps"]?.reverse()));
+                              dispatch(setStamps(data?.["stamps"]));
                             }
                           );
                           //handleDeleteStamp(s?.id);

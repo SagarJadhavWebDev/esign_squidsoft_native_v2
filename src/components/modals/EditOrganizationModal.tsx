@@ -127,7 +127,7 @@ const EditOrganizationModal: React.FC<EditOrganizationModalProps> = ({
   };
   const handleSubmit = () => {
     setIsLoading(true);
-    console.log("SAGAR", payload);
+    //console.log("SAGAR", payload);
     if (!isEmpty(Organization)) {
       const formPayload = new FormData();
       formPayload.append("name", payload?.name);
@@ -431,7 +431,7 @@ const EditOrganizationModal: React.FC<EditOrganizationModalProps> = ({
                         })}
                         onSelect={(e: any) => {
                           const selectedState = e?.option;
-                          console.log("selectedState", selectedState);
+                          //console.log("selectedState", selectedState);
                           handleCityChange(
                             payload?.country_code ?? "",
                             selectedState?.value
@@ -468,7 +468,7 @@ const EditOrganizationModal: React.FC<EditOrganizationModalProps> = ({
                         })}
                         onSelect={(e: any) => {
                           const selectedState = e?.option;
-                          console.log("selectedState", selectedState);
+                         // console.log("selectedState", selectedState);
 
                           setPayload((prev: any) => ({
                             ...prev,

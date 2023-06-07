@@ -72,7 +72,7 @@ const CustomSelector: React.FC<CustomSelectorProps> = ({
         setIsOpen(false);
       }}
       onSelect={(e, index) => {
-        console.log(e, index);
+        //console.log(e, index);
         setSelectedValue({ option: e, index: index });
       }}
       dropdownStyle={{

@@ -101,7 +101,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     textContentType="fullStreetAddress"
                     placeholder="Enter your Address Line"
                     onChangeText={(e: any) => {
-                      console.log("SAGAR", e);
+                     // console.log("SAGAR", e);
                       setPayload((prev) => ({
                         ...prev,
                         address_line: e,
@@ -195,7 +195,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     })}
                     onSelect={(e: any) => {
                       const selectedState = e?.option;
-                      console.log("selectedState", selectedState);
+                     // console.log("selectedState", selectedState);
                       handleCityChange(
                         payload?.country_code ?? "",
                         selectedState?.value
@@ -227,7 +227,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     })}
                     onSelect={(e: any) => {
                       const selectedState = e?.option;
-                      console.log("selectedState", selectedState);
+                      //console.log("selectedState", selectedState);
 
                       setPayload((prev) => ({
                         ...prev,
@@ -281,7 +281,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                         //dispatch(setIsLoading(false));
                       }
                     });
-                    console.log("SAGAR", payload);
+                    //console.log("SAGAR", payload);
                   }}
                   className="p-2 bg-[#d10000] w-24 text-center text-xs text-white rounded-full mx-5"
                 >

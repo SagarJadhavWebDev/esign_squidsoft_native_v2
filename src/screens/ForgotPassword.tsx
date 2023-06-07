@@ -111,7 +111,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   const handleResetPassword = () => {
     if (validated) {
       setIsLoading(true);
-      console.log("passwordsValue",passwordsValue)
+     // console.log("passwordsValue",passwordsValue)
       // AuthController.ResetPassword(
       //   email,
       //   passwordsValue.password,
@@ -133,7 +133,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
       });
     } else {
       toast.show("Please enter password in given format", { type: "error" });
-      console.log(showPasswordsValidation);
+     // console.log(showPasswordsValidation);
     }
   };
   useEffect(() => {

@@ -151,14 +151,14 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const handleUpdateProfile = async () => {
     dispatch(setIsLoading(true));
     const formPayload = new FormData();
-    console.log("STRING", typeof payload?.phone_number?.toString());
+   // console.log("STRING", typeof payload?.phone_number?.toString());
     formPayload.append("name", payload?.name);
     formPayload.append("phone_number", payload?.phone_number?.toString() ?? "");
     formPayload.append("country_code", payload?.country_code);
     if (!isEmpty(payload?.local_profile_picture)) {
       formPayload.append("profile_picture", payload?.local_profile_picture);
     }
-    console.log("PAYLOAD", payload);
+   // console.log("PAYLOAD", payload);
     ProfileService.handleUpdateProfile(formPayload, toast, (data) => {
       if (data) {
         // console.log("DATA:", data);
