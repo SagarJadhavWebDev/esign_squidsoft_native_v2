@@ -1,4 +1,4 @@
-import { chain, isEmpty, isNull, omit, pick, result } from "lodash";
+import { chain, isEmpty, isNull, omit, pick, result, uniqBy } from "lodash";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,6 +23,8 @@ import DocumentDiv from "../CreateEnvelope/PrepareDocumentView/DocumentDiv";
 import ViewDocument from "./ViewDocument";
 import { ViewEnvelopeTypes } from "../../types/ViewEnvelopeTypes";
 import EnvelopeService from "../../services/EnvelopeService";
+import ApiInstance from "../../services/ApiInstance";
+import handleResponse from "../../services/handleResponse";
 
 interface ViewEnvelopeProps {
   route: any;
@@ -30,7 +32,7 @@ interface ViewEnvelopeProps {
 }
 
 const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
-  const { envelope: data, currentTab:type } = route?.params;
+  const { envelope: data, currentTab: type } = route?.params;
   const envelope: any = data;
   const [downloading, setDownloading] = useState(false);
   const [isCoonfirmModalOpen, setIsCoonfirmModalOpen] = useState(false);
@@ -48,7 +50,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
   useEffect(() => {
     if (envelopeData) {
       const check = envelopeData?.document_fields?.every((e: any) => {
-        return e?.meta_data?.fieldvalue !== undefined;
+        return e?.value !== undefined;
       });
       setIsAllFilled(check);
     }
@@ -73,37 +75,38 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
     setIsCoonfirmModalOpen(false);
     setIsLoading(true);
     if (envelopeData?.document_fields) {
-      const payload = envelopeData?.document_fields?.map((s: any) => {
-        const id = pick(s, ["id"]);
-        const metaData = pick(s?.response_payload, [
-          "type",
-          "width",
-          "height",
-          "xCord",
-          "yCord",
-        ]);
-        const value = pick(s?.meta_data, ["fieldvalue"]);
-        const d = { ...id, ...metaData, ...{ value: value?.fieldvalue } };
-        return d;
-      });
-      // HttpService.put(apiEndpoints.signFields(envelopeData?.id), {
-      //   token: token,
-      //   body: JSON.stringify({
-      //     fields: payload,
-      //   }),
-      // }).then((res: any) => {
-      //   if (res?.message) {
-      //     toast.show(res?.message, { type: "error" });
-
-      //     setIsLoading(false);
-      //   } else {
-      //     toast.show("envelope signed successfully", { type: "success" });
-      //     navigation.navigate(routes.dashboard, {
-      //       update: Date.now(),
-      //     });
-      //     setIsLoading(false);
-      //   }
-      // });
+      const payload = {
+        fields: envelopeData?.document_fields,
+      };
+      //console.log("SIGN TOKEN",envelopeData?.sign_token?.replace("/api", ""))
+      console.log("PAYLOAD", envelopeData?.sign_token?.replace("/api", ""));
+      setIsLoading(false);
+      ApiInstance.post(envelopeData?.sign_token?.replace("/api", ""), payload)
+        .then(async (res) => {
+          const data = await handleResponse(res as any, toast);
+          console.log("ENVELOPE SUBMIT", data);
+          if (data) {
+            // dispatch(setIsFullScreen(false));
+            // dispatch(setModalType(""));
+            // dispatch(setLoadingModal(false));
+            // dispatch(setEnvelopeStep(0));
+            // navigate(ProtectedRoutes.DASHBOARD);
+            navigation.navigate(routes.dashboard, {
+              update: Date.now(),
+            });
+          } else {
+            //toast.show(res?.message, { type: "error" });
+            setIsLoading(false);
+            // dispatch(setModalType(""));
+            // dispatch(setLoadingModal(false));
+            // dispatch(setEnvelopeStep(0));
+            // dispatch(setIsFullScreen(false));
+          }
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          console.log("SUBMIT ENVELOPE ERR", err?.message);
+        });
     }
   };
   useEffect(() => {

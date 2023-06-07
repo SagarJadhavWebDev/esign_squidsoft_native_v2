@@ -29,6 +29,18 @@
         <category android:name="android.intent.category.LAUNCHER"/>
         <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
       </intent-filter>
+      <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+     <!-- Accepts URIs that begin with "hhttps://esign.squidsoft.tech/” -->
+        <data android:scheme="https"
+              android:host="esign.squidsoft.tech"
+              android:pathPrefix="" />
+              <data android:scheme="esign"
+               />
+        <!-- note that the leading "/" is required for pathPrefix-->
+  </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
   </application>

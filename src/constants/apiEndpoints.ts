@@ -2,7 +2,7 @@ const auth = {
   register: "/users/signup",
   login: "/users/signin",
   resendEmail: "/users/resend",
-  verifyEmail: "/email/verify/",
+  verifyEmail: "email/verify/",
   logout: "/users/logout",
   sendForgotLink: "/users/reset-password-link",
   forgotPassword: "/users/forget-password",
@@ -18,7 +18,7 @@ const envelope = {
   addRecipients: (envelopeId: number) =>
     `/envelopes/recipients/add/${envelopeId}`,
   sendEnvelope: (id: number) => `envelopes/send/${id}`,
-  viewEnvelope: `/envelope/view`,
+  viewEnvelope: `envelope/view`,
   voidEnvelope: (envelopeId: number) => `/envelopes/void/${envelopeId}`,
   searchRecipients: (q: string) => `/envelopes/recipients/search?q=${q}`,
 };

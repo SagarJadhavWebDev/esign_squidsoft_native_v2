@@ -2,10 +2,10 @@ import ApiInstance from "./ApiInstance";
 import apiEndpoint from "../constants/apiEndpoints";
 import handleResponse from "./handleResponse";
 
-const ResendVerifyLink = async (email: string, callback: any) => {
+const ResendVerifyLink = async (email: string, toast: any, callback: any) => {
   ApiInstance.post(apiEndpoint.auth.resendEmail, { email })
-    .then((response: any) => {
-      const data = handleResponse(response as any);
+    .then(async (response: any) => {
+      const data = await handleResponse(response as any, toast);
       return callback(data);
     })
     .catch((err: any) => {
@@ -13,23 +13,28 @@ const ResendVerifyLink = async (email: string, callback: any) => {
     });
 };
 
-const handleSendResetLink = (email: string, callback: (data: any) => void) => {
+const handleSendResetLink = (
+  email: string,
+  toast: any,
+  callback: (data: any) => void
+) => {
   ApiInstance.post(apiEndpoint.auth.sendForgotLink, {
     email,
   })
-    .then((res: any) => {
-      const data = handleResponse(res as any);
+    .then(async (res: any) => {
+      const data = await handleResponse(res as any, toast);
       return callback(data);
     })
-    .catch((err: any) => {
+    .catch(async (err: any) => {
+      const data = await handleResponse(err as any, toast);
       return callback(false);
     });
 };
 
 const handeleResetPassword = (payload: any, callback: (data: any) => void) => {
   ApiInstance.post(apiEndpoint.auth.forgotPassword, payload)
-    .then((res: any) => {
-      const data = handleResponse(res as any);
+    .then(async (res: any) => {
+      const data = await handleResponse(res as any);
       return callback(data);
     })
     .catch((err: any) => {

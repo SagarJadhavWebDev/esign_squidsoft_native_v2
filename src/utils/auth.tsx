@@ -9,6 +9,8 @@ import CryptoHandler from "./EncryptDecryptHandler";
 import EncryptDecrypt from "./EncryptionDecryption";
 import HttpService from "./HttpService";
 import Storage from "./StorageHandler";
+import ApiInstance from "../services/ApiInstance";
+import apiEndpoint from "../constants/apiEndpoints";
 
 // type UserType = {
 //   [x: string]: any;
@@ -223,7 +225,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await AsyncStorage.clear();
     setAuthState({});
     setAuthToken(null);
-    callback();
+    ApiInstance.delete(apiEndpoint.auth.logout).then((res) => {
+      callback();
+    });
   };
   const RefreshUser = async (token: any) => {
     await HttpService.get(HttpService.getHostName() + "/user/refreshuser", {
@@ -235,7 +239,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         //console.log("REFRESH USER called", data);
       })
       .catch((err) => {
-       // console.log("REFRESH USER AUTH ERR");
+        // console.log("REFRESH USER AUTH ERR");
       });
   };
   const UpdateUser = (payload: any, updatedToken: any, callback: Function) => {

@@ -17,5 +17,7 @@ const routes = {
   Address: "Address",
   Teams: "Teams",
   ViewTeam: "ViewTeam",
+  verifyEmail: "verifyEmail",
+  emailSent:"emailSent"
 };
 export default routes;

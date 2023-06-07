@@ -1,7 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { isEmpty, isNull, isString } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import routes from "../constants/routes";
 import useAuth from "../utils/auth";
 import Checkout from "./Checkout/Checkout";
@@ -21,6 +21,9 @@ import Address from "./Address/Address";
 import ManageAddress from "./Address/Address";
 import ManageTeams from "./Teams/ManageTeams";
 import ViewTeam from "./Teams/ViewTeam";
+import { Linking } from "react-native";
+import VerifyEmail from "./VerifyEmail/VerifyEmail";
+import EmailSentCard from "./VerifyEmail/EmailSentCard";
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
@@ -32,11 +35,31 @@ const Router = () => {
       setShowSplashScreen(false);
     }, 800);
   }, []);
-  console.log("TOKEN:", token);
+
+  const navigationRef = useRef<any>();
+  Linking.addEventListener("url", (e) => {
+    //console.log("FROM LINKING", e.url);
+    const url: any = e.url;
+    if (url.includes("/envelope/view?")) {
+      const envelope = { access_token: url };
+      navigationRef?.current?.navigate(routes.viewEnvelope, {
+        envelope,
+        currentTab: "SIGN",
+      });
+    } else if (url?.includes("/email/verify/")) {
+      navigationRef?.current?.navigate(routes.verifyEmail, {
+        token: url,
+      });
+    } else if (url?.includes("/forgot-password?")) {
+      navigationRef?.current?.navigate(routes.ForgotPassword, {
+        token: url,
+      });
+    }
+  });
 
   return (
     <React.Fragment>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator initialRouteName={routes.splash}>
           {showSplashScreen ? (
             <Stack.Screen
@@ -60,6 +83,16 @@ const Router = () => {
               <Stack.Screen
                 name={routes.ForgotPassword}
                 component={ForgotPassword}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.verifyEmail}
+                component={VerifyEmail}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name={routes.emailSent}
+                component={EmailSentCard}
                 options={{ headerShown: false }}
               />
             </>

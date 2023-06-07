@@ -5,21 +5,20 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useToast } from "react-native-toast-notifications";
-import Toast from "react-native-toast-notifications/lib/typescript/toast";
 import BackgroundWave from "../assets/svg/BackgroundWave";
 import IndeterminateProgressBar from "../components/atoms/IndeterminateProgressBar";
 import WFullInputField from "../components/atoms/WFullInputField";
-import WFullInputFieldCC from "../components/atoms/WFullInputFieldCC";
 import WFullBlackButton from "../components/molecules/WFullBlackButton";
 import routes from "../constants/routes";
-import AuthController from "../controllers/AuthController";
 import useAuth from "../utils/auth";
 import GetSvg from "../utils/GetSvg";
+import ApiInstance from "../services/ApiInstance";
+import apiEndpoint from "../constants/apiEndpoints";
+import handleResponse from "../services/handleResponse";
 
 interface RegisterProps {
   navigation: any;
@@ -27,19 +26,14 @@ interface RegisterProps {
 export interface RegisterPayLoad {
   name: string | null;
   email: string | null;
-  phone_number_country_code: string | null;
-  phone_number: string | null;
   password: string | null;
-  password_confirmation: string | null;
+  terms_accepted?: boolean;
 }
 
 interface RegisterPayLoadValidation {
   name: boolean;
   email: boolean;
-  phone_number_country_code: boolean;
-  phone_number: boolean;
   password: boolean;
-  password_confirmation: boolean;
 }
 
 const Register: React.FC<RegisterProps> = ({ navigation }) => {
@@ -50,46 +44,32 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     const [payload, setPayload] = useState<RegisterPayLoad>({
       name: null,
       email: null,
-      phone_number_country_code: null,
-      phone_number: null,
       password: null,
-      password_confirmation: null,
+      terms_accepted: true,
     });
 
     const [validate, setValidate] = useState<RegisterPayLoadValidation>({
       name: true,
       email: true,
-      phone_number_country_code: true,
-      phone_number: true,
       password: true,
-      password_confirmation: true,
     });
 
     const [error, setError] = useState<RegisterPayLoad>({
       name: null,
       email: null,
-      phone_number_country_code: null,
-      phone_number: null,
       password: null,
-      password_confirmation: null,
     });
 
     const handleErrorValidation = () => {
       setValidate({
         name: true,
         email: true,
-        phone_number_country_code: true,
-        phone_number: true,
         password: true,
-        password_confirmation: true,
       });
       setError({
         name: null,
         email: null,
-        phone_number_country_code: null,
-        phone_number: null,
         password: null,
-        password_confirmation: null,
       });
       //console.log("Submit");
       let validated = true;
@@ -115,28 +95,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         }));
         validated = false;
       }
-      if (isEmpty(payload.phone_number)) {
-        setValidate((prev) => ({
-          ...prev,
-          phone_number: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          phone_number: "Phone Number is Required",
-        }));
-        validated = false;
-      }
-      if (isEmpty(payload.phone_number_country_code)) {
-        setValidate((prev) => ({
-          ...prev,
-          phone_number_country_code: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          phone_number_country_code: "Country Code is Required",
-        }));
-        validated = false;
-      }
+
       if (isEmpty(payload.password)) {
         setValidate((prev) => ({
           ...prev,
@@ -148,66 +107,48 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         }));
         validated = false;
       }
-      if (isEmpty(payload.password_confirmation)) {
-        setValidate((prev) => ({
-          ...prev,
-          password_confirmation: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          password_confirmation: "Confirm Password is Required",
-        }));
-        validated = false;
-      }
-      if (payload.password !== payload.password_confirmation) {
-       // console.log("SETTING FALSE");
-        setValidate((prev) => ({
-          ...prev,
-          password_confirmation: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          password_confirmation: "Password should match confirm password",
-        }));
-        setValidate((prev) => ({
-          ...prev,
-          password: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          password: "Password should match confirm password",
-        }));
-        validated = false;
-      }
+
       return validated;
     };
 
     const handleSubmit = () => {
       const v = handleErrorValidation();
-      if (
-        v &&
-        validate.name &&
-        validate.email &&
-        validate.password &&
-        validate.password_confirmation &&
-        validate.phone_number_country_code &&
-        validate.phone_number
-      ) {
-        //console.log("PAYLOAD:", payload);
+      if (v && validate.name && validate.email && validate.password) {
         setIsLoading(true);
-        AuthController.Register(payload).then((result) => {
-         // console.log("Rgister:", result);
-          setIsLoading(false);
-          if (result?.e_payload) {
-            SignIn &&
-              SignIn(result, () => {
-                toast.show("register successfully", { type: "success" });
+        ApiInstance.post(apiEndpoint.auth.register, payload)
+          .then(async (response) => {
+            const data = await handleResponse(response, toast);
+            console.log("PAYLOAD REGSIERT:", payload, data);
+            if (response?.status === 200) {
+              navigation.navigate(routes.emailSent, {
+                email: payload?.email,
+                type: "VERIFY_EMAIL",
               });
-            //navigation.navigate(routes.dashboard);
-          } else {
-            toast.show(result?.message, { type: "error" });
-          }
-        });
+            }
+            setIsLoading(false);
+          })
+          .catch(async (res) => {
+            console.log("PAYLOAD: REGSIERT", payload);
+            const data = await handleResponse(res, toast);
+            setIsLoading(false);
+            // callBack(res?.response?.status === 200);
+            // not handling user token storage here because of we need to verify email by link
+            // const data = handleResponse(res.response);
+          });
+        //setIsLoading(true);
+        // AuthController.Register(payload).then((result) => {
+        //   // console.log("Rgister:", result);
+        //   setIsLoading(false);
+        //   if (result?.e_payload) {
+        //     SignIn &&
+        //       SignIn(result, () => {
+        //         toast.show("register successfully", { type: "success" });
+        //       });
+        //     //navigation.navigate(routes.dashboard);
+        //   } else {
+        //     toast.show(result?.message, { type: "error" });
+        //   }
+        // });
       }
     };
 
@@ -226,20 +167,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         valid: validate.email,
         error: error.email,
       },
-      phone_number_country_code: {
-        value: payload.phone_number_country_code,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, phone_number_country_code: value })),
-        valid: validate.phone_number_country_code,
-        error: error.phone_number_country_code,
-      },
-      phone_number: {
-        value: payload.phone_number,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, phone_number: value })),
-        valid: validate.phone_number,
-        error: error.phone_number,
-      },
+
       password: {
         value: payload.password,
         set: (value: string) =>
@@ -247,13 +175,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
         valid: validate.password,
         error: error.password,
       },
-      password_confirmation: {
-        value: payload.password_confirmation,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, password_confirmation: value })),
-        valid: validate.password_confirmation,
-        error: error.password_confirmation,
-      },
+
       submit: handleSubmit,
     };
   };
@@ -261,9 +183,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     email,
     name,
     password,
-    password_confirmation,
-    phone_number,
-    phone_number_country_code,
+
     submit,
   } = useRegisterFormState();
   const [showPassword, setShowPassword] = useState(false);
@@ -279,7 +199,6 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     specialChar: false,
     lowerCase: false,
     eightChar: false,
-    confirm_password: false,
   });
   useEffect(() => {
     const c = /^(?=.*[a-z])/;
@@ -296,12 +215,8 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
       specialChar: specialChar,
       lowerCase: lowerCase,
       eightChar: eightChar,
-      confirm_password:
-        passwordsValue.confirm_password === passwordsValue.new_password &&
-        !isEmpty(passwordsValue.new_password) &&
-        !isEmpty(passwordsValue.confirm_password),
     }));
-  }, [passwordsValue.new_password, passwordsValue.confirm_password]);
+  }, [passwordsValue.new_password]);
   const isValidPassword = Object.values(showPasswordsValidation).every(
     (o: any) => o === true
   );
@@ -371,17 +286,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                 </Svg>
               }
             />
-            <WFullInputFieldCC
-              value={phone_number.value ?? ""}
-              error={!phone_number.valid ? phone_number.error : null}
-              setCountryCode={phone_number_country_code.set}
-              setPhoneNumber={phone_number.set}
-              setPhoneNumberLength={() => {}}
-              phoneCodeFontSize={16}
-              className="text-base"
-              placeholder="Phone Number"
-              svgIcon1={<GetSvg name="phoneIcon" classN="w-5 h-5 m-auto" />}
-            />
+
             <WFullInputField
               secureTextEntry={!showPassword}
               onChangeText={(e) => {
@@ -415,39 +320,6 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
               }
             />
 
-            <WFullInputField
-              className="text-base"
-              secureTextEntry={!showConfirmPassword}
-              onChangeText={(e) => {
-                password_confirmation.set(e);
-                setPasswordsValue((prev: any) => ({
-                  ...prev,
-                  confirm_password: e,
-                }));
-              }}
-              value={password_confirmation.value ?? ""}
-              error={
-                !password_confirmation.valid
-                  ? password_confirmation.error
-                  : null
-              }
-              placeholder="Confirm Password"
-              toggleIcon={!showConfirmPassword}
-              svgIcon1={
-                <GetSvg
-                  name="eyeOpenIcon"
-                  callBack={() => setShowConfirmPassword(!showConfirmPassword)}
-                  classN="w-5 h-5 m-auto"
-                />
-              }
-              svgIcon2={
-                <GetSvg
-                  name="eyeCloseIcon"
-                  callBack={() => setShowConfirmPassword(!showConfirmPassword)}
-                  classN="w-5 h-5 m-auto"
-                />
-              }
-            />
             {showErrorBox ? (
               <View className="w-full">
                 <View className="h-8 flex flex-row w-full items-center ">
@@ -522,33 +394,12 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                     Password should be in minimum 8 characters
                   </Text>
                 </View>
-                <View className="h-8 flex flex-row w-full items-center ">
-                  {showPasswordsValidation?.confirm_password ? (
-                    <GetSvg
-                      name="tickIconRounded"
-                      classN="w-5 h-5 "
-                      color="#67DAA3"
-                    />
-                  ) : (
-                    <GetSvg
-                      name="closeIcon"
-                      color="#d10000"
-                      classN="w-5 h-5 "
-                    />
-                  )}
-                  <Text className="mx-2  text-xs text-gray-500 w-full">
-                    Confirm password should match new password
-                  </Text>
-                </View>
-                
               </View>
             ) : null}
             <WFullBlackButton
               text="Sign Up"
               className={
-                isValidPassword
-                  ? "uppercase text-base"
-                  : "uppercase text-base "
+                isValidPassword ? "uppercase text-base" : "uppercase text-base "
               }
               onPress={() => {
                 if (isValidPassword) {

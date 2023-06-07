@@ -73,7 +73,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
       : checkoutData?.price -
         checkoutData?.price * (checkoutData?.discount / 100);
   const handleApplyCouponCode = () => {
-    console.log("CJECKOUT");
+    //console.log("CJECKOUT");
     if (defaultAddress) {
       setLoadiing(true);
       const payload = {
@@ -81,7 +81,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
         id: Plan?.id,
         couponCode: couponCode?.coupon_code,
       };
-      console.log("COUPON CODE", payload);
+      //console.log("COUPON CODE", payload);
       OrderService.handleApplyCoupnCode(payload, (data) => {
         if (data) {
           setCouponCode((prev: any) => ({
@@ -193,7 +193,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
       ? isEmpty(couponCode?.gstin) && isEmpty(couponCode?.company_name)
       : true;
     console.log("payload", payload, validate);
-    if (!validate) {
+    if (validate) {
       console.log("payload", payload);
       OrderService.handleCreateOrder(payload, async (data) => {
         setOrder(data);
@@ -294,7 +294,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
     //       });
     //   }
   };
-  console.log("COUPON ", discountPrice - couponCode?.final_amount);
   const amount = (theform: any) => {
     let with2Decimals = theform?.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
     return with2Decimals;
@@ -327,7 +326,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
     }
   }, [isPaymentSuccess]);
   const addressList = useAddresses();
-  console.log("addressList", addressList);
+  //console.log("addressList", addressList);
   return (
     <React.Fragment>
       <View className="w-[90%] mt-3 h-fit rounded-xl bg-gray-100 p-3 flex ">

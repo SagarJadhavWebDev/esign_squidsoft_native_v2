@@ -25,7 +25,11 @@ import useAuth from "../../../utils/auth";
 import CredentialsModal from "../../../components/modals/CredentialsModal";
 import UploadCredentials from "../../Credentials/UploadCredentials";
 import SelectStampModal from "../../Credentials/SelectStampModal";
-import { useInitial } from "../../../utils/useReduxUtil";
+import {
+  useInitial,
+  useSignature,
+  useStamps,
+} from "../../../utils/useReduxUtil";
 
 interface PDFViewSingleSignPageProps {
   pageNumber: number;
@@ -47,6 +51,13 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     height: Dimensions.get("screen").height * 2,
     width: Dimensions.get("screen").width * 2,
   });
+  const initial = useInitial();
+  const signature = useSignature();
+  const stamps = useStamps();
+  const [defaultStamp, setDefaultStamp] = useState(
+    stamps?.find((s) => s?.is_default === 1)?.source?.base64
+  );
+  //const defaultStamp = stamps?.find((s) => s?.is_default === 1)?.source?.base64;
   const [uploadInitialModal, setuploadInitialModal] = useState({
     type: "initial",
     isOpen: false,
@@ -124,44 +135,38 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     ) as number;
     const updatedField = {
       ...field,
-      meta_data: { fieldvalue: value },
-      user_digital_credentials_id: value,
+      value: value,
     };
     let f = allFields;
     f[foundIndex] = updatedField as any;
+    console.log("NEW ENVELOPE", f);
     setEnvelope((prev: any) => ({
       ...prev,
-      fields: f,
+      document_fields: f,
     }));
   };
 
   const handleCallback = (data: any) => {
-    switch (selectedField?.type) {
+    console.log("STAMP DATA", selectedField?.type);
+    switch (selectedField?.type?.toLowerCase()) {
       case "stamp":
-        const stamps = data?.user?.stamps;
-        if (stamps) {
-          handleUpdateEnvelope(stamps?.[0]?.id, selectedField);
-        } else {
-          handleUpdateEnvelope(data?.id, selectedField);
-        }
+        handleUpdateEnvelope(data?.source?.base64, selectedField);
         break;
       case "signature":
-        const signature = data?.user?.signature;
         if (signature) {
-          handleUpdateEnvelope(signature?.id, selectedField);
+          handleUpdateEnvelope(signature?.source?.base64, selectedField);
         }
         break;
       case "initial":
-        const intial = data?.user?.initials;
-        if (intial) {
-          handleUpdateEnvelope(intial?.id, selectedField);
+        if (initial) {
+          handleUpdateEnvelope(initial?.source?.base64, selectedField);
         }
         break;
       default:
         break;
     }
   };
-  const initial = useInitial();
+
   const handleFillCredentials = (
     field: PageFieldType,
     type: FILLEDDATATYPE
@@ -169,7 +174,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     switch (type) {
       case "initial":
         if (initial) {
-          handleUpdateEnvelope(initial?.id, field);
+          handleUpdateEnvelope(initial?.source?.base64, field);
         } else {
           setuploadInitialModal({
             isOpen: true,
@@ -178,9 +183,8 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         }
         break;
       case "signature":
-        const signature = auth?.user?.signature;
         if (signature) {
-          handleUpdateEnvelope(signature?.id, field);
+          handleUpdateEnvelope(signature?.source?.base64, field);
         } else {
           setuploadInitialModal({
             isOpen: true,
@@ -189,10 +193,9 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
         }
         break;
       case "stamp":
-        const stamps = auth?.user?.stamps;
-        if (stamps.length === 1) {
-          handleUpdateEnvelope(stamps?.[0]?.id, field);
-        } else if (stamps.length > 1) {
+        if (stamps?.length === 1) {
+          handleUpdateEnvelope(defaultStamp, field);
+        } else if (stamps && stamps?.length > 1) {
           setselectStampModal({
             isOpen: true,
             type: "stamp",
@@ -208,10 +211,6 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
       default:
         break;
     }
-
-    const signature = auth?.user?.signature;
-
-    const stamps = auth?.user?.stamps;
   };
 
   // ############# HANDLING NEW CLICKABLE FILLING FIELDS START ##############
@@ -226,13 +225,12 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
 
   const handleNewClickableField = (
     type: FILLEDDATATYPE,
-    data: PageFieldType,
+    data: any,
     height?: number,
     width?: number,
     fixedFieldFontSize?: number
   ) => {
-    const url = ApiConfig.FILES_URL + data?.image_url;
-    const i = data?.response_payload;
+    const i = data?.meta;
     switch (type) {
       case "date":
       case "time":
@@ -249,7 +247,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               borderStyle: "dashed",
               borderWidth: 1.8,
               borderColor: i?.rgbaColor,
-              backgroundColor: i?.rgbaColor + "e1",
+              //backgroundColor: i?.rgbaColor + "e1",
             }}
             className="relative bg-[#ffffffe1] flex flex-row"
           >
@@ -506,11 +504,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     height?: number,
     width?: number
   ) => {
-    const url =
-      ApiConfig.FILES_URL +
-      "user-digital-credentials/" +
-      data?.meta_data?.fieldvalue +
-      ".png";
+    const url = data?.value;
     switch (type) {
       case "time":
       case "date":
@@ -523,7 +517,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             style={{
               borderStyle: "dashed",
               borderWidth: 1,
-              borderColor: data?.meat?.rgbaColor,
+              borderColor: data?.meta?.rgbaColor,
             }}
             className="relative bg-[#ffffffe1] justify-center items-center w-full h-full"
           >
@@ -547,13 +541,15 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               height: "100%",
               borderStyle: "dashed",
               borderWidth: 1,
-              borderColor: data?.response_payload?.rgbaColor,
+              borderColor: data?.meta?.rgbaColor,
             }}
             className="relative bg-[#ffffffe1] flex flex-row"
           >
             <TextInput
-              value={data?.meta_data?.fieldvalue ?? ""}
-              onChangeText={setTextValue}
+              value={data?.value ?? ""}
+              onChangeText={(e) => {
+                setTextValue(e);
+              }}
               style={{ fontSize: (width ?? 0) / 12 }}
               className=""
             ></TextInput>
@@ -571,9 +567,9 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
             style={{
               width: "100%",
               height: "100%",
-              // borderStyle: "dashed",
-              // borderWidth: 1,
-              // borderColor: data?.response_payload?.rgbaColor,
+              borderStyle: "dashed",
+              borderWidth: 1,
+              borderColor: data?.meta?.rgbaColor,
             }}
             className="relative bg-[#ffffffe1]"
           >
@@ -607,13 +603,13 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
       ) as number;
       const updatedField = {
         ...selectedField,
-        meta_data: { fieldvalue: value },
+        value: value,
       };
       let f = allFields;
       f[foundIndex] = updatedField as any;
       setEnvelope((prev: any) => ({
         ...prev,
-        fields: f,
+        document_fields: f,
       }));
     }
   }, [dateValue]);
@@ -628,18 +624,18 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     ) as number;
     const updatedField = {
       ...selectedField,
-      meta_data: { fieldvalue: textValue },
+      value: textValue,
     };
     let f = allFields;
     f[foundIndex] = updatedField as any;
     setEnvelope((prev: any) => ({
       ...prev,
-      fields: f,
+      document_fields: f,
     }));
   }, [textValue]);
 
   // ############# HANDLING TEXT FIELDS END ##############
-  //console.log("SAGAR", fields?.filter((f) => f?.type === "text")?.length);
+  console.log("textValue",textValue,selectedField?.id);
   return (
     <View
       key={pageNumber}
@@ -753,7 +749,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
                     width: width,
                   }}
                 >
-                  {f?.value
+                  {!isEmpty(f?.filled_at)
                     ? renderFilledDiv(i?.type, f, height, width)
                     : !isEmpty(f?.value)
                     ? handleEditableField(i?.type, f, height, width)
