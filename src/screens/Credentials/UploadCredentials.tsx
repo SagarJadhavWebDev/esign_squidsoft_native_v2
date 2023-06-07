@@ -186,6 +186,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       } else {
         dispatch(setSignature(data));
       }
+      callback(data);
       setIsOpen(false);
       setIsLoading && setIsLoading(false);
     });
@@ -334,6 +335,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
                           dispatch(setSignature(data));
                         }
                       }
+                      callback(data);
                       setIsOpen({
                         isOpen: false,
                         type: "",

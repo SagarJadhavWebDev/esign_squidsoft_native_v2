@@ -15,6 +15,15 @@ import React from "react";
 import getLocalDate from "../utils/getLocalDate";
 import { useManageList } from "../utils/useReduxUtil";
 import { ENVELOPELIST } from "../types/ManageListTypes";
+import EnvelopeService from "../services/EnvelopeService";
+import { useDispatch } from "react-redux";
+import { setSelfSignFields } from "../redux/reducers/TempFieldSlice";
+import { setEnvelopeStep } from "../redux/reducers/uiSlice";
+import { setRecipients } from "../redux/reducers/RecipientSlice";
+import {
+  setDocuments,
+  setSelecteDocument,
+} from "../redux/reducers/documentsSlice";
 
 interface EnvelopeListCardProps {
   envelope: ENVELOPELIST;
@@ -26,6 +35,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
   navigation,
 }) => {
   const { auth } = useAuth();
+  const dispatch = useDispatch();
   const { list, currentTab } = useManageList();
   const getBadge = (type: string) => {
     switch (type) {
@@ -74,11 +84,23 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         elevation: 1,
       }}
       onPress={() => {
-       // console.log("TYPE:", currentTab);
+        // console.log("TYPE:", currentTab);
         if (currentTab == "draft") {
-          navigation.navigate(routes.createEnvelope, {
-            step: 1,
-            existingEnvelope: envelope,
+          EnvelopeService.handleFetchEnvelope(envelope?.id, (data) => {
+            if (data) {
+              console.log("fetch envelope data", data);
+              if (data?.self_sign) {
+                dispatch(setSelfSignFields(data?.document_fields));
+              }
+              dispatch(setDocuments(data?.envelope_documents));
+              dispatch(setRecipients(data?.envelope_recipients));
+              dispatch(setSelecteDocument(data?.envelope_documents?.[0]));
+              dispatch(setEnvelopeStep(2));
+              navigation.navigate(routes.createEnvelope, {
+                existingEnvelope: envelope,
+              });
+              //navigate(ProtectedRoutes?.createEnvelope);
+            }
           });
         } else {
           navigation.navigate(routes.viewEnvelope, {

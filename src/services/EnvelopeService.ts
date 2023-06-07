@@ -67,8 +67,8 @@ const handleFetchEnvelope = (
   callback: (data: any) => void
 ) => {
   ApiInstance.get(apiEndpoint.envelope.getEnvelope(envelopeId))
-    .then((res: any) => {
-      const data = handleResponse(res);
+    .then(async (res: any) => {
+      const data = await handleResponse(res);
       return callback(data);
     })
     .catch((err) => {

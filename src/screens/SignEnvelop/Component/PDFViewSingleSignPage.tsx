@@ -54,9 +54,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   const initial = useInitial();
   const signature = useSignature();
   const stamps = useStamps();
-  const [defaultStamp, setDefaultStamp] = useState(
-    stamps?.find((s) => s?.is_default === 1)?.source?.base64
-  );
+  const [defaultStamp, setDefaultStamp] = useState<any>();
   //const defaultStamp = stamps?.find((s) => s?.is_default === 1)?.source?.base64;
   const [uploadInitialModal, setuploadInitialModal] = useState({
     type: "initial",
@@ -147,19 +145,21 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   };
 
   const handleCallback = (data: any) => {
-    // console.log("STAMP DATA", selectedField?.type);
+    //console.log("STAMP DATA", data?.source?.base64);
     switch (selectedField?.type?.toLowerCase()) {
       case "stamp":
-        handleUpdateEnvelope(data?.source?.base64, selectedField);
+        const value = data?.find((s: any) => s?.is_default === 1)?.source
+          ?.base64;
+        handleUpdateEnvelope(value, selectedField);
         break;
       case "signature":
-        if (signature) {
-          handleUpdateEnvelope(signature?.source?.base64, selectedField);
+        if (data?.source?.base64) {
+          handleUpdateEnvelope(data?.source?.base64, selectedField);
         }
         break;
       case "initial":
-        if (initial) {
-          handleUpdateEnvelope(initial?.source?.base64, selectedField);
+        if (data?.source?.base64) {
+          handleUpdateEnvelope(data?.source?.base64, selectedField);
         }
         break;
       default:
@@ -595,7 +595,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
   useEffect(() => {
     if (dateValue) {
       const value =
-        selectedField?.type === "date"
+        selectedField?.type.toLowerCase() === "date"
           ? dayjs(dateValue).format("YYYY-MM-DD")
           : dayjs(dateValue).format("h:mm A");
       const foundIndex = allFields.findIndex(
@@ -636,6 +636,12 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
 
   // ############# HANDLING TEXT FIELDS END ##############
   // console.log("textValue",textValue,selectedField?.id);
+
+  useEffect(() => {
+    if (stamps) {
+      setDefaultStamp(stamps?.find((s) => s?.is_default === 1)?.source?.base64);
+    }
+  }, [stamps]);
   return (
     <View
       key={pageNumber}

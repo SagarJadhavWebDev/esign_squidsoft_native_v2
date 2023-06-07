@@ -521,6 +521,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
     }
   }, [selectedField]);
 
+  //console.log("siishuishjs", ApiConfig.API_URL + SelectedDocuments?.path);
   return (
     <>
       <View

@@ -99,12 +99,18 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         dispatch(setTempStamp([Array.from(data)?.reverse()]));
         dispatch(setStamps(Array.from(data)));
         setIsLoading && setIsLoading(false);
+        callback(Array.from(data));
         setIsOpen({
           type: null,
           isOpen: false,
         });
         // dispatch(showUploadCredentialsModal(false));
         // dispatch(setIsLoading(false));
+      } else {
+        setIsOpen({
+          type: null,
+          isOpen: false,
+        });
       }
     });
   };
