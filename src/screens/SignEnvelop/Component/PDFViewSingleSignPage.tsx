@@ -98,6 +98,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
               borderStyle: "dashed",
               borderWidth: 1,
               borderColor: data?.meta?.rgbaColor,
+              // backgroundColor:data?.meta?.rgbaColor+"0C"
             }}
             className="justify-center items-start"
           >
@@ -114,13 +115,22 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
       case "stamp":
       case "signature":
         return (
-          <Image
-            className="w-full h-full"
-            resizeMode="contain"
-            source={{
-              uri: data?.value,
+          <View
+            style={{
+              borderStyle: "dashed",
+              borderWidth: 1,
+              borderColor: data?.meta?.rgbaColor,
             }}
-          />
+            className="justify-center items-start"
+          >
+            <Image
+              className="w-full h-full"
+              resizeMode="contain"
+              source={{
+                uri: data?.value,
+              }}
+            />
+          </View>
         );
     }
   };
@@ -597,7 +607,7 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
       const value =
         selectedField?.type.toLowerCase() === "date"
           ? dayjs(dateValue).format("YYYY-MM-DD")
-          : dayjs(dateValue).format("h:mm A");
+          : dayjs(dateValue).format("hh:mm:ss");
       const foundIndex = allFields.findIndex(
         (f: any) => f?.id === selectedField?.id
       ) as number;
@@ -679,15 +689,17 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
           testID="dateTimePicker"
           value={dateValue ?? new Date()}
           mode={showPicker.toLowerCase() as any}
-          is24Hour={false}
+          is24Hour={true}
           onChange={(e, selectedDate) => {
             if (
               e?.type === "dismissed" ||
               e.type === "set" ||
               e.type === "neutralButtonPressed"
             ) {
-              selectedDate && setDateValue(selectedDate);
-              setShowPicker(null);
+              if (selectedDate) {
+                setDateValue(selectedDate);
+                setShowPicker(null);
+              }
             }
           }}
         />

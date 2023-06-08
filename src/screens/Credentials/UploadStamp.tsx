@@ -71,17 +71,29 @@ const UploadStamp: React.FC<UploadStampProps> = ({
       });
 
       //console.log("pick", pickerResult);
-      const upresult = await ImageCompressor.compress(pickerResult.uri ?? "", {
-        maxWidth: 320,
-        maxHeight: 180,
-        quality: 0.5,
-      });
-      upresult &&
-        (await setResult({
-          ...pickerResult,
-          fileCopyUri: upresult,
-          uri: upresult,
-        }));
+      if (pickerResult) {
+        const upresult = await ImageCompressor.compress(
+          pickerResult.uri ?? "",
+          {
+            maxWidth: 320,
+            maxHeight: 180,
+            quality: 0.5,
+          }
+        )
+          .then((res) => {
+            console.log("upresult", res);
+            if (res) {
+              setResult({
+                ...pickerResult,
+                fileCopyUri: res,
+                uri: res,
+              });
+            }
+          })
+          .catch((err) => {
+            toast.show(err, { type: "error" });
+          });
+      }
     } catch (e) {
       handleError(e);
     }
@@ -99,7 +111,9 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         dispatch(setTempStamp([Array.from(data)?.reverse()]));
         dispatch(setStamps(Array.from(data)));
         setIsLoading && setIsLoading(false);
-        callback(Array.from(data));
+        if (callback) {
+          callback(Array.from(data));
+        }
         setIsOpen({
           type: null,
           isOpen: false,

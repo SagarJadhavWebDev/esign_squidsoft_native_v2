@@ -101,17 +101,24 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
         copyTo: "cachesDirectory",
       });
 
-      const upresult = await ImageCompressor.compress(pickerResult.uri ?? "", {
-        maxWidth: 320,
-        maxHeight: 180,
-        quality: 0.5,
-      });
-      upresult &&
-        (await setResult({
-          ...pickerResult,
-          fileCopyUri: upresult,
-          uri: upresult,
-        }));
+      if (pickerResult) {
+        await ImageCompressor.compress(pickerResult.uri ?? "", {
+          maxWidth: 320,
+          maxHeight: 180,
+          quality: 0.5,
+        })
+          .then((res) => {
+            res &&
+              setResult({
+                ...pickerResult,
+                fileCopyUri: res,
+                uri: res,
+              });
+          })
+          .catch((err) => {
+            toast.show(err, { type: "error" });
+          });
+      }
     } catch (e) {
       handleError(e);
     }
@@ -186,7 +193,9 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       } else {
         dispatch(setSignature(data));
       }
-      callback(data);
+      if (callback) {
+        callback(data);
+      }
       setIsOpen(false);
       setIsLoading && setIsLoading(false);
     });
@@ -335,7 +344,9 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
                           dispatch(setSignature(data));
                         }
                       }
-                      callback(data);
+                      if (callback) {
+                        callback(data);
+                      }
                       setIsOpen({
                         isOpen: false,
                         type: "",
