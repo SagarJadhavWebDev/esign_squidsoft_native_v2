@@ -31,7 +31,7 @@ const document = {
     `/envelopes/documents/remove/${envelopeId}`,
 };
 const fields = {
-  addFields: (envelopeId: number) => `/envelopes/fields/add/${envelopeId}`,
+  addFields: (envelopeId: number) => `envelopes/fields/add/${envelopeId}`,
 };
 const plans = {
   getPlans: "/plans",

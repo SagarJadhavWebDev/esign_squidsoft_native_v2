@@ -60,7 +60,7 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
       sign_by_order: signByOrder,
     };
     // console.log("DRAG PAYLOAd",payload);
-    EnvelopeService.handleAddRecipients(payload, envelope?.id, (data) => {
+    EnvelopeService.handleAddRecipients(payload, envelope?.id,toast, (data) => {
       if (data) {
         dispatch(setIsLoading(false));
         dispatch(setFixedFields(data?.document_fields));

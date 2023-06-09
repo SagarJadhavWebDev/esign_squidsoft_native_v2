@@ -16,7 +16,6 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
   selectedRecipient,
   setSelectedRecipient,
 }) => {
-  console.log("SAGARKK", selectedRecipient);
   return (
     // <SelectDropdown
     //   dropdownIconPosition="right"
@@ -102,7 +101,7 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
                   source={{
                     width: "60%",
                     height: "60%",
-                    uri: selectedRecipient?.user?.profile_picture,
+                    uri: selectedRecipient?.user?.profile_picture as any,
                   }}
                 />
               ) : (

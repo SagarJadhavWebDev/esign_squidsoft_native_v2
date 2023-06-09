@@ -1,4 +1,4 @@
-import { capitalize, isEmpty, upperCase } from "lodash";
+import { capitalize, isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -12,24 +12,15 @@ import {
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
 import ApiConfig from "../../constants/ApiConfig";
 import useAuth from "../../utils/auth";
-import DocumentPicker, {
-  DirectoryPickerResponse,
-  DocumentPickerResponse,
-  isInProgress,
-  types,
-} from "react-native-document-picker";
+import DocumentPicker, { isInProgress } from "react-native-document-picker";
 import { useToast } from "react-native-toast-notifications";
-import UploadCredentialsController from "../../controllers/UploadCredentialsController";
-import CryptoHandler from "../../utils/EncryptDecryptHandler";
-import GetSvg from "../../utils/GetSvg";
-import HttpService from "../../utils/HttpService";
-import apiEndpoints from "../../constants/apiEndpoints";
 import ManageStamps from "./ManageStamps";
 import CredentialsService from "../../services/CredentialsService";
 import { useDispatch } from "react-redux";
 import { setStamps } from "../../redux/reducers/CredentialsSlice";
 import { setTempStamp } from "../../redux/reducers/TempFieldSlice";
-import { Image as ImageCompressor } from "react-native-compressor";
+import ImageResizer from "react-native-image-resizer";
+
 interface UploadStampProps {
   modalType: string;
   setIsOpen: any;
@@ -70,28 +61,20 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         transitionStyle: "partialCurl",
       });
 
-      //console.log("pick", pickerResult);
-      if (pickerResult) {
-        const upresult = await ImageCompressor.compress(
-          pickerResult.uri ?? "",
-          {
-            maxWidth: 320,
-            maxHeight: 180,
-            quality: 0.5,
-          }
-        )
-          .then((res) => {
-            console.log("upresult", res);
-            if (res) {
-              setResult({
-                ...pickerResult,
-                fileCopyUri: res,
-                uri: res,
-              });
-            }
+      if (!isEmpty(pickerResult)) {
+        ImageResizer.createResizedImage(pickerResult.uri, 320, 180, "JPEG", 90)
+          .then((response: any) => {
+            console.log("FILE", response);
+            setResult({
+              ...pickerResult,
+              fileCopyUri: response.uri,
+              uri: response.uri,
+            });
           })
-          .catch((err) => {
-            toast.show(err, { type: "error" });
+          .catch((err: any) => {
+            console.log("FILE ERR", err);
+            // Oops, something went wrong. Check that the filename is correct and
+            // inspect err to get more details.
           });
       }
     } catch (e) {

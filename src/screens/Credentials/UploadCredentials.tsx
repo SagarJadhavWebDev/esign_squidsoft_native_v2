@@ -9,32 +9,22 @@ import {
   ScrollView,
   PermissionsAndroid,
   Alert,
-  NativeModules,
 } from "react-native";
-import { Buffer } from "buffer";
 import DocumentPicker, {
-  DirectoryPickerResponse,
-  DocumentPickerResponse,
   isInProgress,
-  types,
 } from "react-native-document-picker";
 import { useToast } from "react-native-toast-notifications";
-import RNFetchBlob, { RNFetchBlobFile } from "rn-fetch-blob";
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
-import ApiConfig from "../../constants/ApiConfig";
-import apiEndpoints from "../../constants/apiEndpoints";
 import UploadCredentialsController from "../../controllers/UploadCredentialsController";
 import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
-import HttpService from "../../utils/HttpService";
 import UploadStamp from "./UploadStamp";
 import SignatureScreen from "react-native-signature-canvas";
-import ReactNativeBlobUtil from "react-native-blob-util";
 import CredentialsService from "../../services/CredentialsService";
 import { useDispatch } from "react-redux";
 import { setIntial, setSignature } from "../../redux/reducers/CredentialsSlice";
 import { useInitial, useSignature, useStamps } from "../../utils/useReduxUtil";
-import { Image as ImageCompressor } from "react-native-compressor";
+import ImageResizer from "react-native-image-resizer";
 
 interface UploadCredentialsProps {
   modalType: string;
@@ -101,22 +91,24 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
         copyTo: "cachesDirectory",
       });
 
-      if (pickerResult) {
-        await ImageCompressor.compress(pickerResult.uri ?? "", {
-          maxWidth: 320,
-          maxHeight: 180,
-          quality: 0.5,
-        })
-          .then((res) => {
-            res &&
-              setResult({
-                ...pickerResult,
-                fileCopyUri: res,
-                uri: res,
-              });
+      if (!isEmpty(pickerResult)) {
+        ImageResizer.createResizedImage(pickerResult.uri, 320, 180, "JPEG", 90)
+          .then((response: any) => {
+            console.log("FILE", response);
+            setResult({
+              ...pickerResult,
+              fileCopyUri: response.uri,
+              uri: response.uri,
+            });
+            // response.uri is the URI of the new image that can now be displayed, uploaded...
+            // response.path is the path of the new image
+            // response.name is the name of the new image with the extension
+            // response.size is the size of the new image
           })
-          .catch((err) => {
-            toast.show(err, { type: "error" });
+          .catch((err: any) => {
+            console.log("FILE ERR", err);
+            // Oops, something went wrong. Check that the filename is correct and
+            // inspect err to get more details.
           });
       }
     } catch (e) {

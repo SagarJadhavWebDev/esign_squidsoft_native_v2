@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Pressable,
   SafeAreaView,
@@ -19,15 +19,21 @@ import { useToast } from "react-native-toast-notifications";
 import { useDispatch } from "react-redux";
 import {
   setEnvelopeStep,
+  setIsLoading,
   setLoadingModal,
   setModalType,
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
-import { useEnvelope, useRecipients, useUser } from "../../utils/useReduxUtil";
+import {
+  useEnvelope,
+  useRecipients,
+  useToken,
+  useUser,
+} from "../../utils/useReduxUtil";
 import AuthService from "../../services/AuthService";
 import { setUser } from "../../redux/reducers/userSlice";
 import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
-import { setFixedFields } from "../../redux/reducers/PdfSlice";
+import { setAddedFields, setFixedFields } from "../../redux/reducers/PdfSlice";
 import {
   setRecipients,
   setselectedRecipients,
@@ -36,6 +42,9 @@ import { setCurrentTab } from "../../redux/reducers/ManageSlice";
 import { setEnvelope } from "../../redux/reducers/envelopeSlice";
 import WFullInputField from "../../components/atoms/WFullInputField";
 import routes from "../../constants/routes";
+import HttpService from "../../controllers/HttpService";
+import apiEndpoint from "../../constants/apiEndpoints";
+import EnvelopeController from "../../controllers/EnvelopeController";
 dayjs.extend(utc);
 interface SendEnvelopeProps {
   navigation: any;
@@ -57,16 +66,16 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
     messageError: "",
   });
   const user = useUser();
-
+  const token = useToken();
   const [payload, setPayload] = useState<any>({
-    subject: subject,
-    message: subject,
+    subject: "Squidsoft eSign Request",
+    message: "Please eSign in the following documents",
     expire_at: null,
     reciever_emails: null,
     save_as_template: false,
   });
   const handleSendEnvelope = () => {
-    dispatch(setLoadingModal(true));
+    dispatch(setIsLoading(true));
     const re = payload?.reciever_emails?.split(",");
     const recieverEmails: any = [];
     re?.map((s: any) => {
@@ -80,31 +89,39 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
         recieverEmails.push(s.trim());
       }
     });
-    console.log("recieverEmails", recieverEmails);
-    EnvelopeService.handleSendEnvelope(
-      envelope?.id,
-      { ...payload, reciever_emails: recieverEmails },
-      (data) => {
-        if (data) {
-          dispatch(setLoadingModal(false));
+
+    const data = {
+      ...payload,
+      reciever_emails: recieverEmails,
+    };
+
+    EnvelopeController.manageRecipient(envelope?.id, data, token).then(
+      (res) => {
+        console.log("RESKNKN", res);
+        if (!res?.success) {
+          dispatch(setIsLoading(false));
+          toast.show(res?.message, { type: "error" });
+        } else {
+          dispatch(setIsLoading(false));
+          toast.show(res?.message, { type: "success" });
           if (user?.user_type === "MEMBER") {
             AuthService.handleGetProfile((data) => {
               dispatch(setUser(data));
             });
           }
           if (envelope?.self_sign) {
-            //setDownloadData(data);
-            // dispatch(setshowDownloadEnvelopeModal(true));
-            // dispatch(setEnvelope(null));
-            // dispatch(setSelecteDocument(null));
-            // dispatch(setFixedFields(null));
-            // dispatch(setRecipients(null));
-            // dispatch(setModalType(""));
-            // dispatch(setLoadingModal(false));
-            // dispatch(setCurrentTab("inbox"));
-            // dispatch(setselectedRecipients(null));
+            dispatch(setEnvelope(null));
+            dispatch(setSelecteDocument(null));
+            dispatch(setFixedFields(null));
+            dispatch(setRecipients(null));
+            dispatch(setModalType(""));
+            dispatch(setLoadingModal(false));
+            dispatch(setCurrentTab("inbox"));
+            dispatch(setselectedRecipients(null));
+            dispatch(setEnvelopeStep(0));
+            dispatch(setAddedFields(null));
+            navigation.navigate(routes.dashboard);
           } else {
-            // dispatch(setshowDownloadEnvelopeModal(true));
             dispatch(setEnvelope(null));
             dispatch(setSelecteDocument(null));
             dispatch(setFixedFields(null));
@@ -116,22 +133,13 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
             dispatch(setEnvelopeStep(0));
             navigation.navigate(routes.dashboard);
           }
-          // dispatch(setSelecteDocument(null));
-          // dispatch(setFixedFields(null));
-          // dispatch(setDocuments(null));
-          // dispatch(setRecipients(null));
-          // dispatch(setEnvelopeStep(0));
-          // dispatch(setModalType(""));
-          // dispatch(setLoadingModal(false));
-          // dispatch(setCurrentTab("inbox"));
-          // dispatch(setselectedRecipients(null));
-          // console.log("ENVELOPE SEND", envelope?.self_sign);
-        } else {
-          dispatch(setLoadingModal(false));
         }
       }
     );
   };
+  // useEffect(() => {
+  //   dispatch(setIsLoading(false));
+  // }, []);
   return (
     <SafeAreaView className="w-full h-full bg-white p-2 flex flex-col justify-between max-w-sm mx-auto">
       <ScrollView showsVerticalScrollIndicator={false}>

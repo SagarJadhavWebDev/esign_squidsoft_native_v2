@@ -51,11 +51,12 @@ const handleCreateEnvelope = (
 const handleAddRecipients = (
   payload: any,
   envelopeId: number,
+  toast:any,
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.addRecipients(envelopeId), payload)
     .then(async (res: any) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callback(data);
     })
     .catch((err) => {
@@ -92,14 +93,17 @@ const handleFetchViewEnvelope = (
 const handleSendEnvelope = (
   envelopeId: any,
   payload: any,
+  toast: any,
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.sendEnvelope(envelopeId), payload)
     .then(async (res: any) => {
-      const data = await handleResponse(res);
+      console.log("response", await res);
+      const data = await handleResponse(res, toast);
       return callback(data);
     })
     .catch((err) => {
+      
       callback(false);
     });
 };

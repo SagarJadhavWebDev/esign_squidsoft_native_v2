@@ -24,6 +24,7 @@ import {
   setDocuments,
   setSelecteDocument,
 } from "../redux/reducers/documentsSlice";
+import { setEnvelope } from "../redux/reducers/envelopeSlice";
 
 interface EnvelopeListCardProps {
   envelope: ENVELOPELIST;
@@ -90,12 +91,16 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             if (data) {
               console.log("fetch envelope data", data);
               if (data?.self_sign) {
+                dispatch(setEnvelope(data));
+                dispatch(setEnvelopeStep(2));
                 dispatch(setSelfSignFields(data?.document_fields));
+              } else {
+                dispatch(setEnvelopeStep(1));
               }
               dispatch(setDocuments(data?.envelope_documents));
               dispatch(setRecipients(data?.envelope_recipients));
               dispatch(setSelecteDocument(data?.envelope_documents?.[0]));
-              dispatch(setEnvelopeStep(2));
+
               navigation.navigate(routes.createEnvelope, {
                 existingEnvelope: envelope,
               });

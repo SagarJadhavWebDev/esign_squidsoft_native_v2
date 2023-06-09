@@ -17,7 +17,25 @@ import AddRecipients from "./AddRecipients";
 import PrepareDocument from "./PrepareDocument";
 import SendEnvelope from "./SendEnvelope";
 import UploadDocuments from "./UploadDocuments";
-import { useEnvelopeStep, useIsLoading } from "../../utils/useReduxUtil";
+import {
+  useEnvelope,
+  useEnvelopeStep,
+  useIsLoading,
+} from "../../utils/useReduxUtil";
+import { useDispatch } from "react-redux";
+import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
+import { setAddedFields, setFixedFields } from "../../redux/reducers/PdfSlice";
+import {
+  setRecipients,
+  setselectedRecipients,
+} from "../../redux/reducers/RecipientSlice";
+import {
+  setEnvelopeStep,
+  setLoadingModal,
+  setModalType,
+} from "../../redux/reducers/uiSlice";
+import { setCurrentTab } from "../../redux/reducers/ManageSlice";
+import { setEnvelope } from "../../redux/reducers/envelopeSlice";
 
 interface CreateEnvelopeProps {
   navigation: any;
@@ -46,9 +64,10 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
       name: "Review and Send",
     },
   ];
-  const [envelope, setEnvelope] = useState(
-    route?.params?.existingEnvelope ?? null
-  );
+  const envelope = useEnvelope();
+  // const [envelope, setEnvelope] = useState(
+  //   route?.params?.existingEnvelope ?? null
+  // );
   // useEffect(() => {
   //   if (route?.params?.step) {
   //     setCurrentStep(route?.params?.step);
@@ -56,7 +75,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   // }, [route?.params?.step]);
   useEffect(() => {
     if (route?.params?.existingEnvelope) {
-      setEnvelope(route?.params?.existingEnvelope);
+      dispatch(setEnvelope(route?.params?.existingEnvelope));
     }
   }, [route?.params?.existingEnvelope]);
   const isloading = useIsLoading();
@@ -83,6 +102,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
         return null;
     }
   };
+  const dispatch = useDispatch();
   return (
     <>
       <SafeAreaView className="w-full h-full bg-white">
@@ -98,6 +118,16 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
                 name="closeWithoutCircleIcon"
                 classN="w-6 h-6"
                 callBack={() => {
+                  dispatch(setEnvelope(null));
+                  dispatch(setSelecteDocument(null));
+                  dispatch(setFixedFields(null));
+                  dispatch(setRecipients(null));
+                  dispatch(setModalType(""));
+                  dispatch(setLoadingModal(false));
+                  dispatch(setCurrentTab("inbox"));
+                  dispatch(setselectedRecipients(null));
+                  dispatch(setEnvelopeStep(0));
+                  dispatch(setAddedFields(null));
                   navigation.push(routes.dashboard);
                 }}
               />

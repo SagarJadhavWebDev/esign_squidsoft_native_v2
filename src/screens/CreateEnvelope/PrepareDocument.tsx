@@ -34,6 +34,7 @@ import {
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
 import { setRemoteFields } from "../../redux/reducers/PdfSlice";
+import apiEndpoint from "../../constants/apiEndpoints";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
@@ -137,26 +138,40 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
     //   }
     // });
   };
-  const handleSubmit = (fields: any) => {
+  const handleSubmit = async (fields: any) => {
     // setIsLoading(true);
     if (!isEmpty(fields)) {
       dispatch(setshowEnvelopeUserWarningModal(false));
       dispatch(setIsLoading(true));
-      EnvelopeService.handleAddFields(
-        {
+      await HttpService.post(apiEndpoint.fields.addFields(envelope?.id), {
+        token: token,
+        body: JSON.stringify({
           fields: fields,
-        },
-        envelope?.id,
-        (data) => {
-          if (data) {
-            dispatch(setRemoteFields(data));
+        }),
+      })
+        .then((res) => {
+          console.log("RES ADDED FIELDS", res);
+          if (res?.success) {
+            toast.show(res?.message, { type: "success" });
+            dispatch(setRemoteFields(res?.data));
             dispatch(setEnvelopeStep(3));
             dispatch(setIsLoading(false));
           } else {
+            toast.show(res?.message, { type: "error" });
             dispatch(setIsLoading(false));
           }
-        }
-      );
+        })
+        .catch((err) => {
+          console.log("RES ADDED FIELDS ERR", err);
+        });
+
+      // if (response) {
+      //   dispatch(setRemoteFields(data));
+      //   dispatch(setEnvelopeStep(3));
+      //   dispatch(setIsLoading(false));
+      // } else {
+      //   dispatch(setIsLoading(false));
+      // }
     } else {
       toast.show("Please add atleast 1 field to the document", {
         type: "error",
@@ -165,6 +180,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   };
   // console.log("SLECTED  DOCUMENT:", SelectedDocuments);
   const { addedFields } = usePdfData();
+  // useEffect(() => {
+  //   dispatch(setIsLoading(false));
+  // }, []);
   return (
     <ScrollView className="w-full h-full bg-white p-2">
       <View className="w-full h-[90%]">

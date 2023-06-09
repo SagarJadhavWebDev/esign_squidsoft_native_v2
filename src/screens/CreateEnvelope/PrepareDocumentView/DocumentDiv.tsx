@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   PanResponder,
   Pressable,
   ScrollView,
@@ -24,9 +25,14 @@ import CryptoHandler from "../../../utils/EncryptDecryptHandler";
 import GetSvg from "../../../utils/GetSvg";
 import HttpService from "../../../utils/HttpService";
 import renderFieldIcon from "../../../utils/renderFieldIcon";
-import { useDocuments, useRecipients } from "../../../utils/useReduxUtil";
+import {
+  useDocuments,
+  useRecipients,
+  useSignature,
+} from "../../../utils/useReduxUtil";
 import { useDispatch } from "react-redux";
 import { setAddedFields } from "../../../redux/reducers/PdfSlice";
+import EachField from "./EachField";
 
 interface DocumentDivProps {
   envelope: any;
@@ -520,8 +526,8 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
       });
     }
   }, [selectedField]);
-
-  //console.log("siishuishjs", ApiConfig.API_URL + SelectedDocuments?.path);
+  const signature = useSignature();
+  //console.log("siishuishjs", envelope);
   return (
     <>
       <View
@@ -569,97 +575,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                 f?.page_number === currentPageNumber
             )
             .map((i: any) => {
-              let fixedFieldFontSize = 0;
-              if (i?.width / 3 > i?.height) {
-                fixedFieldFontSize = i?.height / 10;
-              } else {
-                fixedFieldFontSize = i?.width / 14;
-              }
-              // console.log("CORDINATES", i);
-              return (
-                <View
-                  className="absolute"
-                  key={i.id}
-                  style={{
-                    transform: [
-                      { translateX: i?.x_coordinate ?? 0 },
-                      { translateY: i?.y_coordinate ?? 0 },
-                    ],
-                    height: i.height,
-                    width: i.width,
-                  }}
-                >
-                  <View
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      // backgroundColor: "blue",
-                      borderStyle: "dashed",
-                      borderWidth: 1.8,
-                      borderColor: i?.meta?.rgbaColor,
-                      // backgroundColor: i?.rgbaColor+'e1',
-                    }}
-                    className="relative bg-[#ffffffe1] flex flex-row"
-                  >
-                    <View className="w-1/4 justify-center items-center">
-                      {i?.type?.toLowerCase() === "text" ? (
-                        <Text className="font-semibold text-base leading-5">
-                          Aa
-                        </Text>
-                      ) : (
-                        <GetSvg
-                          name={renderFieldIcon(i?.type?.toLowerCase()) ?? ""}
-                          classN="w-5 h-5"
-                          color={i?.meta?.rgbaColor}
-                        />
-                      )}
-                    </View>
-                    <View className="w-3/4 items-start justify-center">
-                      <Text
-                        style={{
-                          fontSize: fixedFieldFontSize * 1.2,
-                        }}
-                        className="capitalize font-semibold w-full text-gray-900"
-                        numberOfLines={1}
-                      >
-                        {i?.name ?? "name"}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: fixedFieldFontSize,
-                        }}
-                        className="capitalize font-semibold w-full text-gray-600"
-                        numberOfLines={1}
-                      >
-                        {i?.email ?? "email"}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: fixedFieldFontSize * 0.8,
-                        }}
-                        className="capitalize font-medium w-full text-gray-500"
-                        numberOfLines={1}
-                      >
-                        {i?.type}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() => {
-                        // console.log("REMOVE CALLED");
-                        removeAddedField(i);
-                      }}
-                      className="absolute -top-2 -right-2   rounded-full bg-[#d10000] justify-center items-center p-0.5"
-                    >
-                      <GetSvg
-                        name="closeWithoutCircleIcon"
-                        classN=" w-3 h-3   "
-                        color="white"
-                        strokeWidth={2}
-                      />
-                    </Pressable>
-                  </View>
-                </View>
-              );
+              return <EachField key={i?.id} i={i} />;
             })}
         </View>
         {selectedField ? (

@@ -29,12 +29,12 @@ const handleResponse = async (res: any, toast?: any) => {
     if (isObject(response)) {
       //@ts-ignore
       toast.show(response?.message, { type: "error" });
-      //toast.error(response?.message);
+      console.log("response123", res);
       return false;
     } else {
       toast.show(response?.message, { type: "error" });
       //toast.error(response?.message);
-      console.error("ERROR", res, response);
+      console.log("response123", res);
       //toast.error(response?.data?.error ?? response);
     }
   }
