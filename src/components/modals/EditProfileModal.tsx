@@ -24,6 +24,7 @@ import { setUser } from "../../redux/reducers/userSlice";
 import { setIsLoading } from "../../redux/reducers/uiSlice";
 import { useIsLoading } from "../../utils/useReduxUtil";
 import RNFetchBlob from "rn-fetch-blob";
+import apiEndpoint from "../../constants/apiEndpoints";
 interface EditProfileModalProps {
   isOpen: boolean;
   setIsOpen: any;
@@ -151,24 +152,41 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const handleUpdateProfile = async () => {
     dispatch(setIsLoading(true));
     const formPayload = new FormData();
-   // console.log("STRING", typeof payload?.phone_number?.toString());
+    console.log("STRING", typeof payload?.phone_number?.toString());
     formPayload.append("name", payload?.name);
-    formPayload.append("phone_number", payload?.phone_number?.toString() ?? "");
-    formPayload.append("country_code", payload?.country_code);
-    if (!isEmpty(payload?.local_profile_picture)) {
-      formPayload.append("profile_picture", payload?.local_profile_picture);
+    if (!isEmpty(payload?.phone_number)) {
+      formPayload.append(
+        "phone_number",
+        payload?.phone_number?.toString() ?? ""
+      );
+      formPayload.append("country_code", payload?.country_code);
     }
-   // console.log("PAYLOAD", payload);
-    ProfileService.handleUpdateProfile(formPayload, toast, (data) => {
-      if (data) {
-        // console.log("DATA:", data);
-        dispatch(setUser(data?.user));
-        setIsOpen(false);
-      } else {
-      }
+
+    if (payload?.local_profile_picture) {
+      formPayload.append("profile_picture", file);
+    }
+
+    HttpService.postFile(apiEndpoint.profile.updateProfile, {
+      token: token,
+      formData: formPayload,
+    }).then((res) => {
+      console.log("DATA:", res);
+      toast.show(res?.message, { type: res?.success ? "success" : "error" });
+      setIsLoading(false);
+      dispatch(setUser(res?.data?.user));
       dispatch(setIsLoading(false));
-      // setIsLoading(false);
+      setIsOpen(false);
     });
+    // ProfileService.handleUpdateProfile(formPayload, toast, (data) => {
+    //   if (data) {
+    //     // console.log("DATA:", data);
+    //     dispatch(setUser(data?.user));
+    //     setIsOpen(false);
+    //   } else {
+    //   }
+    //   dispatch(setIsLoading(false));
+    //   // setIsLoading(false);
+    // });
   };
 
   // handle user name changes
@@ -333,7 +351,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                         Phone number *
                       </Text>
                       <WFullInputFieldCC
-                        defaultValue={user.phone_number}
+                        defaultValue={user?.phone_number}
                         value={payload?.phone_number ?? ""}
                         setCountryCode={(e: any) => {
                           setPayload((prev: any) => ({
@@ -372,6 +390,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   <Text
                     onPress={() => {
                       setIsOpen(false);
+                      dispatch(setIsLoading(false));
                     }}
                     className=" bg-slate-800  p-2 w-24 text-center text-xs text-white rounded-full "
                   >
@@ -379,7 +398,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   </Text>
                   <Text
                     onPress={() => {
-                      if (isNull(errors?.name && isNull(errors?.phoneNumber))) {
+                      if (
+                        isNull(errors?.name && isNull(errors?.phoneNumber)) &&
+                        !isLoading
+                      ) {
                         handleUpdateProfile();
                       }
                     }}

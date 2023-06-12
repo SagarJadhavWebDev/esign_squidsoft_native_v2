@@ -248,6 +248,7 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
               if (selectedDate) {
                 setDateValue(selectedDate);
               }
+              
             }
           }}
         />
@@ -271,35 +272,35 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
                 if (initial) {
                   handleUpdateEnvelope(initial?.source?.base64, i);
                 } else {
-                  // setuploadInitialModal({
-                  //   isOpen: true,
-                  //   type: "initial",
-                  // });
+                  setuploadInitialModal({
+                    isOpen: true,
+                    type: "initial",
+                  });
                 }
                 break;
               case "signature":
                 if (signature) {
                   handleUpdateEnvelope(signature?.source?.base64, i);
                 } else {
-                  // setuploadInitialModal({
-                  //   isOpen: true,
-                  //   type: "signature",
-                  // });
+                  setuploadInitialModal({
+                    isOpen: true,
+                    type: "signature",
+                  });
                 }
                 break;
               case "stamp":
                 if (stamps?.length === 1) {
                   handleUpdateEnvelope(defaultStamp, i);
                 } else if (stamps && stamps?.length > 1) {
-                  //   setselectStampModal({
-                  //     isOpen: true,
-                  //     type: "stamp",
-                  //   });
+                    setselectStampModal({
+                      isOpen: true,
+                      type: "stamp",
+                    });
                 } else {
-                  //   setuploadInitialModal({
-                  //     isOpen: true,
-                  //     type: "stamp",
-                  //   });
+                    setuploadInitialModal({
+                      isOpen: true,
+                      type: "stamp",
+                    });
                   //MODAL OPEN TO UPLOAD STAMP
                 }
                 break;

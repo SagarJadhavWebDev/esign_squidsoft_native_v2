@@ -46,10 +46,10 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       // path: s,
       fileCache: true,
     })
-      .fetch("GET", `${ApiConfig.API_URL  + document?.path}`)
+      .fetch("GET", `${ApiConfig.API_URL + document?.path}`)
       .then((value) => {
         setSource(value.path());
-       // console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
+        // console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
       })
       .catch((error) => {
         toast.show(
@@ -106,7 +106,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
               const fieldsByType = envelope?.document_fields;
               const fields = envelope?.document_fields?.filter(
                 (f: any) =>
-                  f?.page_number === pageNumber+1 &&
+                  f?.page_number === pageNumber + 1 &&
                   document?.id === f?.envelope_document_id
               );
               //console.log("SAGARARARRARA", pageNumber)
@@ -132,10 +132,32 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
             })
           : null}
       </ScrollView>
-      {type === "VIEW" && document?.name ? (
+      {envelope?.download ? (
         <TouchableOpacity
           onPress={() => {
-            handleExport(source);
+            const downloadToken = envelope?.download?.split("api/").pop();
+            const { config, fs } = RNFetchBlob;
+            const { DownloadDir } = fs.dirs; // You can check the available directories in the wiki.
+            const options = {
+              fileCache: true,
+              addAndroidDownloads: {
+                useDownloadManager: true, // true will use native manager and be shown on notification bar.
+                notification: true,
+                path: `${DownloadDir}/${"eSignDocuments_" + envelope?.id}.zip`,
+                description: "Downloading.",
+              },
+            };
+            config(options)
+              .fetch("GET", ApiConfig.API_URL + downloadToken, {
+                Authorization: `Bearer ${token}`,
+              })
+              .then((res) => {
+                toast.show(`Please wait downloading ${document?.name}`, {
+                  type: "success",
+                  duration: 3000,
+                });
+                // console.log("do some magic in here");
+              });
           }}
           className="rounded-xl justify-between items-center absolute bg-[#d10000] right-8 bottom-24  flex flex-row w-40 h-8 px-5 "
         >

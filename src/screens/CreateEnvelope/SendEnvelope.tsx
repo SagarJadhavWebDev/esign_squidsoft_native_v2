@@ -207,18 +207,22 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
               onPress={() => {
                 setshowDatePicker(true);
               }}
-              className="w-11/12 "
+              className="w-11/12  flex flex-row items-center "
             >
-              <TextInput
-                placeholder="Select Date & Time"
-                editable={false}
+              <Text
+                //placeholder="Select Date & Time"
+                //editable={false}
                 style={{
                   color: "black",
                 }}
-                className="px-1"
-                value={dayjs(dateValue).format("DD/MM/YYYY hh:mm A")}
-                autoFocus={true}
-              ></TextInput>
+                className="px-1 place-items-center "
+                //value={dayjs(dateValue).format("DD/MM/YYYY hh:mm A") ?? null}
+                //autoFocus={true}
+              >
+                {dateValue
+                  ? dayjs(dateValue).format("DD/MM/YYYY hh:mm A")
+                  : "dd-mm-yyyy"}
+              </Text>
             </Pressable>
             <Pressable
               onPress={() => {
@@ -322,6 +326,7 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            dispatch(setIsLoading(true));
             handleSendEnvelope();
           }}
           className="bg-[#d10000] rounded-full p-1.5 px-4"

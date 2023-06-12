@@ -11,6 +11,8 @@ import { isEmpty } from "lodash";
 import HttpService from "../../utils/HttpService";
 import apiEndpoints from "../../constants/apiEndpoints";
 import ProfileService from "../../services/ProfileService";
+import ApiConfig from "../../constants/ApiConfig";
+import apiEndpoint from "../../constants/apiEndpoints";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -97,6 +99,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     //     console.log("CHANGE PASSWORD ERR", err);
     //   });
 
+    console.log(
+      "CHNAGE PASSWORD",
+      ApiConfig.API_URL + apiEndpoint.profile.changePassword
+    );
+
     ProfileService.handleChangePassword(passwordsValue, toast, (data) => {
       if (data) {
         setIsLoading(false);
@@ -166,7 +173,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeCloseIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                           // console.log("SAGAR");
+                            // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               old_password: !Showpasswords?.old_password,
@@ -213,7 +220,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeCloseIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                           // console.log("SAGAR");
+                            // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password: !Showpasswords?.password,
@@ -226,7 +233,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                           name="eyeOpenIcon"
                           classN="h-5 w-5 "
                           callBack={() => {
-                           // console.log("SAGAR");
+                            // console.log("SAGAR");
                             setShowPasswords((prev: any) => ({
                               ...prev,
                               password: !Showpasswords?.password,

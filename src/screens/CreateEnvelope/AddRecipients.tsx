@@ -60,19 +60,24 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
       sign_by_order: signByOrder,
     };
     // console.log("DRAG PAYLOAd",payload);
-    EnvelopeService.handleAddRecipients(payload, envelope?.id,toast, (data) => {
-      if (data) {
-        dispatch(setIsLoading(false));
-        dispatch(setFixedFields(data?.document_fields));
-        dispatch(setDocuments(data?.envelope_documents));
-        dispatch(setRecipients(data?.envelope_recipients));
-        dispatch(setEnvelope(data));
-        dispatch(setEnvelopeStep(2));
-      } else {
+    EnvelopeService.handleAddRecipients(
+      payload,
+      envelope?.id,
+      toast,
+      (data) => {
+        if (data) {
+          dispatch(setIsLoading(false));
+          dispatch(setFixedFields(data?.document_fields));
+          dispatch(setDocuments(data?.envelope_documents));
+          dispatch(setRecipients(data?.envelope_recipients));
+          dispatch(setEnvelope(data));
+          dispatch(setEnvelopeStep(2));
+        } else {
+          dispatch(setIsLoading(false));
+        }
         dispatch(setIsLoading(false));
       }
-      dispatch(setIsLoading(false));
-    });
+    );
   };
 
   // const reorder = (list, startIndex, endIndex) => {
@@ -99,6 +104,7 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
         <TouchableOpacity
           onPress={() => {
             // setCurrentStep(0);
+            dispatch(setEnvelopeStep(0));
           }}
           className=" bg-slate-800  rounded-full p-1.5 px-4"
         >

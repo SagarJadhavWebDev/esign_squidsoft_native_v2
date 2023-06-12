@@ -35,14 +35,15 @@ import {
   setManageList,
 } from "../../redux/reducers/ManageSlice";
 interface HomeProps {
-  setIsLoading: any;
   navigation: any;
   route: any;
 }
-const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
+const Home: React.FC<HomeProps> = ({ navigation, route }) => {
   const router = route?.params;
   const greetings = getGreetings();
-  const { currentTab, list } = useManageList();
+  //const { currentTab, list } = useManageList();
+  const [list, setList] = useState<any>(null);
+  const currentTab = "inbox";
   const counts = useEnvelopesCount();
   const user = useUser();
   const widthAndHeight = 150;
@@ -61,8 +62,9 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
   const getEnvelopeList = () => {
     handleGetEnvelopes(currentTab, 1, 10, "", (data) => {
       if (data) {
-       // console.log("ENVELOPE LIST", data);
-        dispatch(setManageList(data));
+        // console.log("ENVELOPE LIST", data);
+        //dispatch(setManageList(data));
+        setList(data?.data);
       } else {
       }
     });
@@ -77,6 +79,8 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
     getQuickView();
     getEnvelopeList();
   }, []);
+
+  //return null;
   return (
     <SafeAreaView className=" h-full w-full bg-white px-2">
       <ScrollView
@@ -176,10 +180,9 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
           <View className="border-l-[3px] border-[#d10000] mt-3">
             <Text className="mx-2 text-sm font-semibold my-0.5">Inbox</Text>
           </View>
-          <ScrollView nestedScrollEnabled={true} className="px-2">
-            {!isEmpty(list) ? (
-              //@ts-ignore
-              list?.map((envelope: any, key: any) => {
+          {!isEmpty(list) ? (
+            <ScrollView nestedScrollEnabled={true} className="px-2">
+              {list?.map((envelope: any, key: any) => {
                 return (
                   <EnvelopeListCard
                     key={envelope?.id}
@@ -187,25 +190,25 @@ const Home: React.FC<HomeProps> = ({ setIsLoading, navigation, route }) => {
                     navigation={navigation}
                   />
                 );
-              })
-            ) : isEmpty(list) ? (
-              <View
-                style={{
-                  //paddingHorizontal: 8,
-                  width: Dimensions.get("window").width,
-                  height: Dimensions.get("window").height * 0.2,
-                }}
-                className="justify-center  items-center -mx-2 "
-              >
-                <NoDataFound
-                  width={100}
-                  height={100}
-                  title={"No inbox envelopes yet! "}
-                  subTitle={"Anything you receives will show here. "}
-                />
-              </View>
-            ) : null}
-          </ScrollView>
+              })}
+            </ScrollView>
+          ) : (
+            <View
+              style={{
+                //paddingHorizontal: 8,
+                width: Dimensions.get("window").width,
+                height: Dimensions.get("window").height * 0.2,
+              }}
+              className="justify-center  items-center -mx-2 "
+            >
+              <NoDataFound
+                width={100}
+                height={100}
+                title={"No inbox envelopes yet! "}
+                subTitle={"Anything you receives will show here. "}
+              />
+            </View>
+          )}
         </View>
         {/* ################ INBOX SECTION END ############### */}
       </ScrollView>

@@ -9,8 +9,8 @@ const auth = {
 };
 const profile = {
   getProfile: "/users/me",
-  updateProfile: "/users/update-profile",
-  changePassword: "/users/change-password",
+  updateProfile: "users/update-profile",
+  changePassword: "users/change-password",
 };
 const envelope = {
   createEnvelope: "/envelopes",

@@ -239,6 +239,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         <TouchableOpacity
           onPress={() => {
             // setCurrentStep(1);
+            dispatch(setEnvelopeStep(1));
           }}
           className=" bg-slate-800 rounded-full p-1.5 px-4"
         >

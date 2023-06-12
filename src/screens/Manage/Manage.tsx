@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { isEmpty, isNull } from "lodash";
+import { capitalize, isEmpty, isNull } from "lodash";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -41,11 +41,11 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   const [currentMenu, setCurrentMenu] = useState("Inbox");
   const [selectedMenu, setSelectedMenu] = useState("inbox");
   const [loading, setLoading] = useState(false);
-  const { currentTab, list } = useManageList();
+  const { currentTab, list, meta } = useManageList();
   const [envelopeList, setEnvelopeList] = useState<EnvelopeType[]>([]);
   const [listloading, setListLoading] = useState(false);
-  const [page, setPage] = useState<number>(0);
-  const [hasnextpage, setHasNextPage] = useState(true);
+  const [page, setPage] = useState<number>(1);
+  const [hasnextpage, setHasNextPage] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [listIsEmpty, setListIsEmpty] = useState(false);
   const dispatch = useDispatch();
@@ -73,7 +73,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
       title: "Expiring soon",
       value: "expiring_soon",
     },
-    ,
+
     { title: "Waiting on others", value: "waiting_on_others" },
     { title: "completed", value: "completed" },
     {
@@ -97,24 +97,14 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
         : "",
       (data: any) => {
         if (data) {
-          //console.log("ENVELOPE LIST", data);
-          setPage(data?.current_page);
-          dispatch(setManageList(data));
-          if (data?.total_pages > data?.current_page) {
-            setHasNextPage(true);
+          if (page > 1) {
+            const newData = [...list, ...new Set(data?.data)];
+            const b = { ...data, data: newData };
+            console.log("OUTPUT", typeof data, newData?.length);
+            dispatch(setManageList(b));
           } else {
-            setHasNextPage(false);
+            dispatch(setManageList(data));
           }
-
-          // console.log("EXISTING ENVELIPE", envelopeList?.length);
-          // !isEmpty(envelopeList) &&
-          // !isNull(envelopeList) &&
-          // envelopeList?.length !== 0
-          //   ? setEnvelopeList([...(envelopeList ?? []), ...data?.data])
-          //   : setEnvelopeList(data?.data);
-          // if ([...(envelopeList ?? []), ...data?.data].length <= 0) {
-          //   setListIsEmpty(true);
-          // }
           setLoading(false);
           setIsLoading && setIsLoading(false);
           setListLoading(false);
@@ -123,45 +113,6 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
       }
     );
   };
-
-  // const getEnvelopeList = (
-  //   type: string,
-  //   existingEnvelopeList: EnvelopeType[],
-  //   pageNumber = 1
-  // ) => {
-  //   setIsLoading && setIsLoading(true);
-  //   setListLoading(true);
-  //   setLoading(true);
-  //   setListIsEmpty(false);
-  //   HttpService.get(apiEndpoints.envelopeList(type, pageNumber, 10), {
-  //     token: token ?? "",
-  //   }).then((response) => {
-  //     if (response) {
-  //       const data = CryptoHandler.response(response, token ?? "");
-  //       console.log("DATA:", data?.meta);
-  //       setPage(data?.meta?.current_page);
-  //       if (data?.meta?.total_pages > data?.meta?.current_page) {
-  //         setHasNextPage(true);
-  //       } else {
-  //         setHasNextPage(false);
-  //       }
-  //       console.log("EXISTING ENVELIPE", envelopeList?.length);
-  //       !isEmpty(existingEnvelopeList) &&
-  //       !isNull(existingEnvelopeList) &&
-  //       existingEnvelopeList?.length !== 0
-  //         ? setEnvelopeList([...(existingEnvelopeList ?? []), ...data?.data])
-  //         : setEnvelopeList(data?.data);
-  //       if ([...(existingEnvelopeList ?? []), ...data?.data].length <= 0) {
-  //         setListIsEmpty(true);
-  //       }
-  //       setLoading(false);
-  //       setIsLoading && setIsLoading(false);
-  //       setListLoading(false);
-  //     }
-  //   });
-  // };
-
-  // SignOut&&SignOut(()=>{});
 
   useEffect(() => {
     dispatch(setManageList(null));
@@ -194,50 +145,84 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   ];
 
   const renderNoDataTitle = () => {
-    switch (currentMenu) {
-      case "Inbox":
+    const tab = isEmpty(currentTab === "inbox" ? InBoxFilter : SentBoxFilter)
+      ? currentTab
+      : currentTab === "inbox"
+      ? InBoxFilter
+      : SentBoxFilter;
+    switch (tab) {
+      case "inbox":
         return {
           title: "No inbox envelopes yet!",
-          subtitle: "Anything you receives will show here.",
+          subTitle: "Anything you receives will show here.",
         };
-      case "Sent":
-        return {
-          title: "No sent envelopes yet!",
-          subtitle: "Anything you sents will show here.",
-        };
-      case "Drafts":
-        return {
-          title: "No drafts envelopes yet!",
-          subtitle: "Anything you draft will show here.",
-        };
-      case "Deleted":
-        return {
-          title: "No deleted envelopes yet!",
-          subtitle: "Anything you delete will show here.",
-        };
-      case "Expiring Soon ":
-        return {
-          title: "If It's urgent it's here",
-          subtitle: "Envelopes expiring within 6 days live here",
-        };
-      case "Action Required ":
+      case "action_required":
         return {
           title: "If It's action required it's here",
-          subtitle: "Envelopes requires urgent attention live here",
+          subTitle: "Envelopes requires urgent attention live here",
         };
-      case "Completed":
+      case "expiring_soon":
         return {
-          title: "If It's done it's here",
-          subtitle: "Envelopes that has been signed by everyone live here.",
+          title: "If It's urgent it's here",
+          subTitle: "Envelopes expiring within 6 days live here",
+        };
+      case "completed":
+        return {
+          title: "No completed envelopes yet!",
+          subTitle: "All signed envelopes will show here.",
+        };
+      case "sent":
+        return {
+          title: "No sent envelopes yet!",
+          subTitle: "Anything you sents will show here.",
+        };
+      case "draft":
+        return {
+          title: "No drafts envelopes yet!",
+          subTitle: "Anything you draft will show here.",
+        };
+      case "waiting_on_others":
+        return {
+          title: "No envelopes yet!",
+          subTitle: "Anything you will send to others will show here.",
+        };
+      case "rejected":
+        return {
+          title: "No rejected envelopes yet!",
+          subTitle: "anything you rejected envelopes will show here.",
+        };
+      case "signed":
+        return {
+          title: "No signed envelopes yet!",
+          subTitle: "anything you signed envelopes will show here.",
+        };
+      case "pending":
+        return {
+          title: "No pending envelopes yet!",
+          subTitle: "anything your pending envelopes will show here.",
+        };
+      case "self_sign":
+        return {
+          title: "No self sign envelopes yet!",
+          subTitle: "anything you self sign will show here.",
+        };
+      case "void":
+        return {
+          title: "No Void envelopes yet!",
+          subTitle: "anything you void will show here.",
         };
       default:
         return {
-          title: "NO DATA FOUND",
-          subtitle: "NO DATA FOUND",
+          title: "No inbox envelopes yet!",
+          subTitle: "Anything you receives will show here.",
         };
     }
   };
- // console.log("FILETR", InBoxFilter, SentBoxFilter);
+
+  useEffect(() => {
+    getEnvelopeList();
+  }, [page]);
+  // console.log("FILETR", InBoxFilter, SentBoxFilter);
   return (
     <View className="bg-white justify-center px-2">
       <View className="W-full flex flex-row ">
@@ -294,7 +279,9 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           <View className="w-full flex justify-center px-1 ">
             <CustomSelector
               width={110}
-              dataList={InBoxFilterList}
+              dataList={
+                currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
+              }
               setSelectedValue={(e: any) => {
                 if (currentTab === "inbox") {
                   setInBoxFilter(e?.option?.value);
@@ -391,23 +378,25 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
             return index.toString();
           }}
           renderItem={({ item, index }: any) => (
-            <EnvelopeListCard envelope={item} navigation={navigation} />
+            <EnvelopeListCard
+              key={index}
+              envelope={item}
+              navigation={navigation}
+            />
           )}
           maxToRenderPerBatch={10}
           onEndReachedThreshold={0.7}
           onEndReached={() => {
-            if (hasnextpage) {
-              //console.log(page);
-              //console.log("CURRENT MENU", selectedMenu);
+            if (meta?.last_page !== page) {
+              setListLoading(true);
               setPage(page + 1);
-              getEnvelopeList();
             } else {
               setListLoading(false);
             }
           }}
           refreshing={refresh}
           onRefresh={() => {
-            setEnvelopeList([]);
+            dispatch(setManageList(null));
             getEnvelopeList();
           }}
           ListFooterComponent={
@@ -424,13 +413,13 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           showsVerticalScrollIndicator={true}
           alwaysBounceVertical={true}
           ListEmptyComponent={
-            listIsEmpty ? (
+            isEmpty(list) && !loading ? (
               <View className="w-full h-full items-center justify-center">
                 <NoDataFound
                   width={200}
                   height={200}
                   title={renderNoDataTitle()?.title}
-                  subTitle={renderNoDataTitle().subtitle}
+                  subTitle={renderNoDataTitle().subTitle}
                 />
               </View>
             ) : (

@@ -61,13 +61,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
   const tabList = [
     {
       name: "Home",
-      component: (
-        <Home
-          setIsLoading={setIsLoading}
-          navigation={navigation}
-          route={route}
-        />
-      ),
+      component: <Home navigation={navigation} route={route} />,
       icon: "homeIcon",
       screenName: "Dashboard",
     },

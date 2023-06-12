@@ -16,7 +16,7 @@ import getLocalDate from "../utils/getLocalDate";
 import { useManageList } from "../utils/useReduxUtil";
 import { ENVELOPELIST } from "../types/ManageListTypes";
 import EnvelopeService from "../services/EnvelopeService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSelfSignFields } from "../redux/reducers/TempFieldSlice";
 import { setEnvelopeStep } from "../redux/reducers/uiSlice";
 import { setRecipients } from "../redux/reducers/RecipientSlice";
@@ -25,6 +25,7 @@ import {
   setSelecteDocument,
 } from "../redux/reducers/documentsSlice";
 import { setEnvelope } from "../redux/reducers/envelopeSlice";
+import { ApplicationState } from "../redux/store";
 
 interface EnvelopeListCardProps {
   envelope: ENVELOPELIST;
@@ -35,41 +36,11 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
   envelope,
   navigation,
 }) => {
-  const { auth } = useAuth();
   const dispatch = useDispatch();
-  const { list, currentTab } = useManageList();
-  const getBadge = (type: string) => {
-    switch (type) {
-      case "SIGNER":
-        return (
-          <View className="bg-yellow-50  rounded-full px-2 py-0.5 ">
-            <Text className="text-semibold text-yellow-500  text-xs">
-              Sign{" "}
-            </Text>
-          </View>
-        );
-      case "2":
-        return null;
-      // return (
-      //   <View className="bg-blue-50  rounded-full px-2 py-0.5 ">
-      //     <Text className="text-semibold text-blue-500  text-xs">
-      //       Carbon{" "}
-      //     </Text>
-      //   </View>
-      // );
-      case "RECEIVER":
-        return (
-          <View className="bg-green-50  rounded-full px-2 py-0.5 ">
-            <Text className="text-semibold text-green-500  text-xs">
-              Received{" "}
-            </Text>
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
-
+  //const { currentTab } = useManageList();
+  const currentTab = useSelector(
+    (state: ApplicationState) => state?.manage?.currentTab
+  );
   return (
     <TouchableOpacity
       className=" rounded-lg border my-2 border-gray-200 p-1 bg-white"
@@ -116,22 +87,52 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
       }}
     >
       <View className="h-1/4 w-full  flex flex-row justify-between items-end">
-        <View className="">
+        <View className="w-1/2">
           <Text className="mx-2 text-xs font-medium text-gray-500">
             {envelope?.document_fields?.completed ?? 0}/
             {envelope?.document_fields?.total ?? 0} Done
           </Text>
         </View>
-        <View className="flex flex-row">
-          <View className="flex">
-            <Text
-              className="mx-2 font-semibold text-xs text-gray-700 tracking-wider capitalize"
-              numberOfLines={1}
-            >
-              {envelope?.user?.name}
-            </Text>
-          </View>
-          {envelope?.recipient_type ? getBadge(envelope?.recipient_type) : null}
+        <View className="flex flex-row mx-2 gap-x-5 ">
+          <Text
+            className={`p-0.5 px-3 w-fit capitalize font-semibold rounded-2xl text-[10px]  ${
+              envelope?.status === "COMPLETED"
+                ? "text-green-600 bg-green-100"
+                : envelope?.status === "VOID"
+                ? "text-gray-600 bg-gray-100"
+                : envelope?.status === "WAITING ON OTHERS"
+                ? "text-[#FF947A] bg-[#FFF4DE]"
+                : envelope?.status === "DRAFTED"
+                ? "text-[#FF947A] bg-[#FFF4DE]"
+                : envelope?.status === "SELF SIGNED"
+                ? "text-[#BF83FF] bg-[#F3E8FF]"
+                : envelope?.status === "REJECTED"
+                ? "text-red-600 bg-red-100"
+                : envelope?.status === "SIGNED"
+                ? "text-green-600 bg-green-100"
+                : envelope?.status === "PENDING"
+                ? "text-[#FF947A] bg-[#FFF4DE]"
+                : "text-red-600 bg-red-100"
+            }`}
+          >
+            {envelope?.status === "COMPLETED"
+              ? "Completed "
+              : envelope?.status === "VOID"
+              ? "Void "
+              : envelope?.status === "WAITING ON OTHERS"
+              ? "Waiting on others  "
+              : envelope?.status === "DRAFTED"
+              ? "Drafted by you  "
+              : envelope?.status === "SELF SIGNED"
+              ? "Self signed "
+              : envelope?.status === "REJECTED"
+              ? "Rejected by you "
+              : envelope?.status === "SIGNED"
+              ? "signed"
+              : envelope?.status === "PENDING"
+              ? "awaiting your action "
+              : envelope?.status}
+          </Text>
         </View>
       </View>
       <View className="h-2/4 w-full  flex flex-row justify-between items-center">
