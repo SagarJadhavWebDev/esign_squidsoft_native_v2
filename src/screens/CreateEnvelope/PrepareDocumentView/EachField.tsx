@@ -382,7 +382,7 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
         )}
         <Pressable
           onPress={() => {
-            // console.log("REMOVE CALLED");
+            //console.log("REMOVE CALLED");
             removeAddedField(i);
           }}
           className="absolute -top-1.5 -right-1.5   rounded-full bg-[#d10000] justify-center items-center p-0.5"

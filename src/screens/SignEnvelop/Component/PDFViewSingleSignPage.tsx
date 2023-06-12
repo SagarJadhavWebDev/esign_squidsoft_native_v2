@@ -20,7 +20,7 @@ import GetSvg from "../../../utils/GetSvg";
 import renderFieldIcon from "../../../utils/renderFieldIcon";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import { isEmpty, isNull } from "lodash";
+import { isArray, isEmpty, isNull } from "lodash";
 import useAuth from "../../../utils/auth";
 import CredentialsModal from "../../../components/modals/CredentialsModal";
 import UploadCredentials from "../../Credentials/UploadCredentials";
@@ -158,8 +158,9 @@ const PDFViewSingleSignPage: React.FC<PDFViewSingleSignPageProps> = ({
     //console.log("STAMP DATA", data?.source?.base64);
     switch (selectedField?.type?.toLowerCase()) {
       case "stamp":
-        const value = data?.find((s: any) => s?.is_default === 1)?.source
-          ?.base64;
+        const value = isArray(data)
+          ? data?.find((s: any) => s?.is_default === 1)?.source?.base64
+          : data?.source?.base64;
         handleUpdateEnvelope(value, selectedField);
         break;
       case "signature":
