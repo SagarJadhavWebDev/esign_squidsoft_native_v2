@@ -127,7 +127,7 @@ const templates = {
   submitTemplateFields: (id: number) => `/templates/submit-fields/${id}`,
   addFieldSet: (id: number) => `/templates/field-set/${id}`,
   getTemplate: (id: number) => `/templates/${id}`,
-  sendTemplate: (id: number) => `/templates/send-template/${id}`,
+  sendTemplate: (id: number) => `templates/send-template/${id}`,
 };
 
 const getIn = {

@@ -39,19 +39,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const getTemplates = () => {
     setIsLoading && setIsLoading(true);
-    // HttpService.get(apiEndpoints.templates, { token: token ?? "" }).then(
-    //   (response) => {
-    //     const data = CryptoHandler.response(response, token ?? "");
-    //     if (data) {
-    //       console.log("DATA:", data?.templates[0].documents);
-    //       setSelectedCategory({ id: 0, name: "All" });
-    //       setAllTemplates(data?.templates);
-    //       setCategories(data?.categories);
-    //       setTemplates(data?.templates);
-    //       setIsLoading && setIsLoading(false);
-    //     }
-    //   }
-    // );
+
     handleGetTemplates(1, 5, (data) => {
       //console.log("TEMPLATES", data);
       if (data) {
@@ -62,8 +50,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
       }
     });
   };
-  // console.log("seletect", selectedCategory);
-  // console.log("tem", templates?.data);
+ 
   useEffect(() => {
     getTemplates();
   }, []);
@@ -123,7 +110,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
         <ActivityIndicator className="text-4xl" size="large" color="#d10000" />
 
       </View> */}
-      <View
+      {/* <View
         style={{
           paddingHorizontal: 8,
           width: Dimensions.get("window").width,
@@ -150,101 +137,23 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
             svgIcon1={<GetSvg name="searchIcon" classN="w-5 h-5 my-auto" />}
           />
         </View>
-        {/* <View className="w-1/6 h-full justify-center items-center">
+        <View className="w-1/6 h-full justify-center items-center">
           <View className="border border-white p-2.5 rounded-xl bg-[#e24343]">
             <GetSvg name="filterIcon" color="white" classN="w-6 h-6" />
           </View>
-        </View> */}
-      </View>
-      <ScrollView
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 5 }}
-        style={{
-          // width: Dimensions.get("screen").width,
-          height: 45,
-          padding: 3,
-          marginVertical: 6,
-        }}
-        className="bg-white overflow-x-scroll flexflex-row gap-x-2"
-      >
-        <TouchableOpacity
-          onPress={() => {
-            setSelectedCategory({
-              id: 0,
-              name: "All",
-            });
-          }}
-          style={{
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 0,
-            },
-            shadowOpacity: 0.32,
-            shadowRadius: 0.26,
-            elevation: 2,
-          }}
-          className={`${
-            selectedCategory?.id === 0
-              ? "bg-[#d10000]"
-              : "bg-white border border-gray-300"
-          } px-2.5 my-1 flex items-center text-center justify-center w-fit rounded-xl`}
-        >
-          <Text
-            className={`${
-              selectedCategory?.id === 0 ? "text-white " : "text-gray-700"
-            } font-semibold text-xs`}
-          >
-            All
-          </Text>
-        </TouchableOpacity>
-        {categories?.map((category) => {
-          return (
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedCategory(category);
-              }}
-              key={category?.id}
-              style={{
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 0,
-                },
-                shadowOpacity: 0.32,
-                shadowRadius: 0.26,
-                elevation: 2,
-              }}
-              className={`${
-                selectedCategory?.id === category?.id
-                  ? "bg-[#d10000]"
-                  : "bg-white border border-gray-300"
-              } px-2.5 my-1 flex items-center text-center justify-center w-fit rounded-xl`}
-            >
-              <Text
-                className={`${
-                  selectedCategory?.id === category?.id
-                    ? "text-white "
-                    : "text-gray-700"
-                } font-semibold text-xs`}
-              >
-                {category?.name}{" "}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+        </View>
+      </View> */}
+     
       <ScrollView
         style={{
           paddingHorizontal: 8,
           width: dimensions.width,
-          height: dimensions.height * 0.8,
+          height: dimensions.height ,
         }}
         contentContainerStyle={{
           paddingBottom: 90,
         }}
-        className="bg-white"
+        className="bg-white "
       >
         {templates?.data &&
           templates?.data?.map((template) => {

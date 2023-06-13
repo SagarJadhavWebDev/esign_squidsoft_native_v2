@@ -10,6 +10,7 @@ const routes = {
   Manage: "Manage",
   Settings: "Settings",
   TemplateDocument: "TemplateDocument",
+  sendTemplateDocument: "TemplateDocument",
   Plans: "Plans",
   Checkout: "Checkout",
   StripeCheckout: "StripeCheckout",
@@ -18,6 +19,6 @@ const routes = {
   Teams: "Teams",
   ViewTeam: "ViewTeam",
   verifyEmail: "verifyEmail",
-  emailSent:"emailSent"
+  emailSent: "emailSent",
 };
 export default routes;

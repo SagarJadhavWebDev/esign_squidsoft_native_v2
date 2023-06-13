@@ -24,6 +24,7 @@ import ViewTeam from "./Teams/ViewTeam";
 import { Linking } from "react-native";
 import VerifyEmail from "./VerifyEmail/VerifyEmail";
 import EmailSentCard from "./VerifyEmail/EmailSentCard";
+import SendTemplate from "./Templates/SendTemplate";
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
@@ -104,6 +105,11 @@ const Router = () => {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
+                name={routes.sendTemplateDocument}
+                component={SendTemplate}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
                 name={routes.createEnvelope}
                 component={CreateEnvelope}
                 options={{ headerShown: false }}
@@ -123,11 +129,11 @@ const Router = () => {
                 component={Settings}
                 options={{ headerShown: false }}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name={routes.TemplateDocument}
                 component={TemplateDocumentList}
                 options={{ headerShown: false }}
-              />
+              /> */}
               <Stack.Screen
                 name={routes.Plans}
                 component={Plans}
