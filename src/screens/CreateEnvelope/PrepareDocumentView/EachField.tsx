@@ -25,7 +25,7 @@ import { useToast } from "react-native-toast-notifications";
 import CredentialsModal from "../../../components/modals/CredentialsModal";
 import UploadCredentials from "../../Credentials/UploadCredentials";
 import SelectStampModal from "../../Credentials/SelectStampModal";
-import { isEmpty, isNull } from "lodash";
+import { isArray, isEmpty, isNull } from "lodash";
 import dayjs from "dayjs";
 
 interface EachFieldProps {
@@ -174,8 +174,9 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
     //console.log("STAMP DATA", data?.source?.base64);
     switch (i?.type?.toLowerCase()) {
       case "stamp":
-        const value = data?.find((s: any) => s?.is_default === 1)?.source
-          ?.base64;
+        const value = isArray(data)
+          ? data?.find((s: any) => s?.is_default === 1)?.source?.base64
+          : data?.source?.base64;
         handleUpdateEnvelope(value, i);
         break;
       case "signature":
@@ -248,7 +249,6 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
               if (selectedDate) {
                 setDateValue(selectedDate);
               }
-              
             }
           }}
         />
@@ -292,15 +292,15 @@ const EachField: React.FC<EachFieldProps> = ({ i }) => {
                 if (stamps?.length === 1) {
                   handleUpdateEnvelope(defaultStamp, i);
                 } else if (stamps && stamps?.length > 1) {
-                    setselectStampModal({
-                      isOpen: true,
-                      type: "stamp",
-                    });
+                  setselectStampModal({
+                    isOpen: true,
+                    type: "stamp",
+                  });
                 } else {
-                    setuploadInitialModal({
-                      isOpen: true,
-                      type: "stamp",
-                    });
+                  setuploadInitialModal({
+                    isOpen: true,
+                    type: "stamp",
+                  });
                   //MODAL OPEN TO UPLOAD STAMP
                 }
                 break;

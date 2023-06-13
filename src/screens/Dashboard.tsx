@@ -34,6 +34,21 @@ import { useNotifications, useUser } from "../utils/useReduxUtil";
 import NotificationsService from "../services/NotificationsService";
 import { useDispatch } from "react-redux";
 import { setNotifications } from "../redux/reducers/NotificationSlice";
+import {
+  setRecipients,
+  setselectedRecipients,
+} from "../redux/reducers/RecipientSlice";
+import { setEnvelope } from "../redux/reducers/envelopeSlice";
+import {
+  setEnvelopeStep,
+  setLoadingModal,
+  setModalType,
+} from "../redux/reducers/uiSlice";
+import {
+  setDocuments,
+  setSelecteDocument,
+} from "../redux/reducers/documentsSlice";
+import { setFixedFields } from "../redux/reducers/PdfSlice";
 
 interface DashboardProps {
   navigation: any;
@@ -275,6 +290,20 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
       {currentTab !== "Settings" && (
         <TouchableOpacity
           onPress={() => {
+            dispatch(setRecipients(null));
+            dispatch(setEnvelope(null));
+            dispatch(setEnvelopeStep(0));
+            dispatch(setSelecteDocument(null));
+            //navigate(ProtectedRoutes.createEnvelope);
+            dispatch(setFixedFields(null));
+            dispatch(setDocuments(null));
+            dispatch(setRecipients(null));
+            dispatch(setEnvelope(null));
+            dispatch(setEnvelopeStep(0));
+            dispatch(setModalType(""));
+            dispatch(setLoadingModal(false));
+            //dispatch(setCurrentTab("inbox"));
+            dispatch(setselectedRecipients(null));
             navigation.push(routes.createEnvelope);
           }}
           style={{

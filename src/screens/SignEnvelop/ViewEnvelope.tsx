@@ -50,7 +50,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
   useEffect(() => {
     if (envelopeData) {
       const check = envelopeData?.document_fields?.every((e: any) => {
-        return e?.value !== undefined;
+        return e?.value !== null;
       });
       setIsAllFilled(check);
     }
@@ -80,7 +80,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
       };
       //console.log("SIGN TOKEN",envelopeData?.sign_token?.replace("/api", ""))
       // console.log("PAYLOAD", envelopeData?.sign_token?.replace("/api", ""));
-      setIsLoading(false);
+    
       ApiInstance.post(envelopeData?.sign_token?.replace("/api", ""), payload)
         .then(async (res) => {
           const data = await handleResponse(res as any, toast);
@@ -102,6 +102,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
             // dispatch(setEnvelopeStep(0));
             // dispatch(setIsFullScreen(false));
           }
+          setIsLoading(false);
         })
         .catch((err) => {
           setIsLoading(false);

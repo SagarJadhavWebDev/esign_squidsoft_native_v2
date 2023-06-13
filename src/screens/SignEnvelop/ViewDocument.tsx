@@ -135,6 +135,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
       {envelope?.download ? (
         <TouchableOpacity
           onPress={() => {
+            setDownloading(true);
             const downloadToken = envelope?.download?.split("api/").pop();
             const { config, fs } = RNFetchBlob;
             const { DownloadDir } = fs.dirs; // You can check the available directories in the wiki.
@@ -152,11 +153,15 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
                 Authorization: `Bearer ${token}`,
               })
               .then((res) => {
+                setDownloading(false);
                 toast.show(`Please wait downloading ${document?.name}`, {
                   type: "success",
                   duration: 3000,
                 });
                 // console.log("do some magic in here");
+              })
+              .catch((err) => {
+                setDownloading(false);
               });
           }}
           className="rounded-xl justify-between items-center absolute bg-[#d10000] right-8 bottom-24  flex flex-row w-40 h-8 px-5 "

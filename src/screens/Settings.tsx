@@ -5,6 +5,7 @@ import {
   Dimensions,
   Image,
   Linking,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -26,6 +27,16 @@ import HttpService from "../utils/HttpService";
 import store, { revertAll } from "../redux/store";
 import { useOrganization, useTeams, useUser } from "../utils/useReduxUtil";
 import EditOrganizationModal from "../components/modals/EditOrganizationModal";
+import React from "react";
+import CredentialsService from "../services/CredentialsService";
+import { useDispatch } from "react-redux";
+import {
+  setIntial,
+  setSignature,
+  setStamps,
+} from "../redux/reducers/CredentialsSlice";
+import AuthService from "../services/AuthService";
+import { setUser } from "../redux/reducers/userSlice";
 
 interface SettingsProps {
   navigation: any;
@@ -177,16 +188,35 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   //     }
   //   });
   // };
+  const [refreshing, setRefreshing] = React.useState(false);
+  const dispatch = useDispatch();
   return (
     <View className="w-full h-full">
-      <ScrollView className="h-full">
+      <ScrollView
+        className="h-full"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              CredentialsService.handleGetCredentials((data) => {
+                dispatch(setIntial(data?.["initials"]?.[0]));
+                dispatch(setSignature(data?.["signatures"]?.[0]));
+                dispatch(setStamps(data?.["stamps"]));
+              });
+              AuthService.handleGetProfile((data) => {
+                dispatch(setUser(data));
+                return data;
+              });
+            }}
+          />
+        }
+      >
         <GetSvg
           name="leftArrowIcon"
           classN="w-5 h-5 mt-3 mx-3"
           callBack={() => {
             navigation.navigate(routes.dashboard);
           }}
-          
         />
 
         <View

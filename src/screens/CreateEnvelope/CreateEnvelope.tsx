@@ -92,6 +92,7 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
           <PrepareDocument
             setEnvelope={setEnvelope}
             envelope={envelope}
+            navigation={navigation}
             // setCurrentStep={setCurrentStep}
             //setIsLoading={setIsLoading}
           />

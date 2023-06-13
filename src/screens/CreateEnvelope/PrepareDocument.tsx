@@ -35,16 +35,19 @@ import {
 import EnvelopeService from "../../services/EnvelopeService";
 import { setRemoteFields } from "../../redux/reducers/PdfSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
+import routes from "../../constants/routes";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
   // setCurrentStep: any;
   //setIsLoading: any;
+  navigation: any;
 }
 
 const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   //envelope,
   setEnvelope,
+  navigation,
   // setCurrentStep,
   //setIsLoading,
 }) => {
@@ -239,7 +242,12 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         <TouchableOpacity
           onPress={() => {
             // setCurrentStep(1);
-            dispatch(setEnvelopeStep(1));
+            if (envelope.self_sign) {
+              dispatch(setEnvelopeStep(0));
+              navigation.navigate(routes.dashboard);
+            } else {
+              dispatch(setEnvelopeStep(1));
+            }
           }}
           className=" bg-slate-800 rounded-full p-1.5 px-4"
         >
