@@ -78,7 +78,7 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
                         Addressservice.handleSetDefaultAddresses(
                           a?.id,
                           (data) => {
-                            dispatch(setAddresses(data));
+                            dispatch(setAddresses(data?.reverse()));
                             setIsLoading(false);
                           }
                         );
