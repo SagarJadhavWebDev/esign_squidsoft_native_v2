@@ -49,12 +49,16 @@ import {
   setSelecteDocument,
 } from "../redux/reducers/documentsSlice";
 import { setFixedFields } from "../redux/reducers/PdfSlice";
+import React from "react";
+import store, { revertAll } from "../redux/store";
+import ApiInstance from "../services/ApiInstance";
 
 interface DashboardProps {
   navigation: any;
   route: any;
 }
 const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
+  const { SignOut } = useAuth();
   const [currentTab, setCurrentTab] = useState("Manage");
   const Tab = createBottomTabNavigator();
   const [isLoading, setIsLoading] = useState(false);
@@ -189,7 +193,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
         >
           <TouchableOpacity
             onPress={() => {
-              setNotificationsModal(true);
+              setNotificationsModal(!notificationsModal);
             }}
             className="relative items-center justify-center"
           >
@@ -330,11 +334,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
               <ScrollView className="w-full h-full">
                 {!isEmpty(notifications) ? (
                   notifications?.map((i: any) => {
-                    let profilePciture =
-                      ApiConfig.FILES_URL +
-                      "profile-pictures/" +
-                      i?.created_by +
-                      ".jpg?";
+                    let profilePciture = i?.user?.profile_picture;
 
                     return (
                       <View
@@ -355,18 +355,131 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
                           <View className="rounded-full w-12 h-12 absolute bg-gray-200 items-center justify-center">
                             <GetSvg name="userIcon" />
                           </View>
-                          <Image
-                            resizeMode="contain"
-                            className="rounded-full w-12 h-12"
-                            source={{
-                              uri: profilePciture ?? "",
-                            }}
-                            onError={() => {
-                              profilePciture = "";
-                            }}
-                          />
+                          {profilePciture ? (
+                            <Image
+                              resizeMode="contain"
+                              className="rounded-full w-12 h-12"
+                              source={{
+                                uri: profilePciture ?? "",
+                              }}
+                              onError={() => {
+                                profilePciture = "";
+                              }}
+                            />
+                          ) : null}
                         </View>
-                        {i?.notification_type === "invite" ? (
+
+                        <View
+                          className={` ${
+                            i?.notification_type === "ALERT"
+                              ? "w-[80%]"
+                              : "w-[60%]"
+                          } h-full flex flex-col justify-center px-2`}
+                        >
+                          <Text className="text-base font-medium">
+                            {i?.heading}
+                          </Text>
+                          <Text className="text-xs my-0.5" numberOfLines={1}>
+                            {i?.message}
+                          </Text>
+                          <Text className="text-[10px]">
+                            {convertDate(i?.created_at, "datetime")}
+                          </Text>
+                        </View>
+                        <View
+                          className={`w-[24%] flex justify-center items-center `}
+                        >
+                          {i?.notification_type === "INVITE" ? (
+                            <React.Fragment>
+                              {i?.action_status === "PENDING" ? (
+                                <View>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      const viewToken = i?.action_token
+                                        ?.split("api")
+                                        .pop();
+                                      ApiInstance.get(viewToken).then(
+                                        (res: any) => {
+                                          if (res?.status === 200) {
+                                            if (res?.data?.success) {
+                                              SignOut &&
+                                                SignOut(() => {
+                                                  store.dispatch(revertAll());
+                                                  // navigation.navigate(routes.login);
+                                                });
+                                            }
+                                          }
+                                        }
+                                      );
+                                    }}
+                                    className="bg-[#d10000] p-1 my-1 px-2.5 rounded-xl"
+                                  >
+                                    <Text className="text-white font-medium text-center text-xs">
+                                      Accept{" "}
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    onPress={() => {
+                                      const viewToken = i?.reject_token
+                                        ?.split("api")
+                                        .pop();
+                                      ApiInstance.get(viewToken).then(
+                                        (res: any) => {
+                                          if (res?.status === 200) {
+                                            if (res?.data?.success) {
+                                              SignOut &&
+                                                SignOut(() => {
+                                                  store.dispatch(revertAll());
+                                                  // navigation.navigate(routes.login);
+                                                });
+                                            }
+                                          }
+                                        }
+                                      );
+                                    }}
+                                    className="bg-gray-800 p-1 px-2.5 rounded-xl"
+                                  >
+                                    <Text className="text-white font-medium text-center text-xs">
+                                      Reject{" "}
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
+                              ) : i?.action_status === "ACCEPTED" ? (
+                                <TouchableOpacity className="bg-[#d10000] p-1.5 px-2.5 rounded-xl">
+                                  <Text className="text-white font-medium text-center">
+                                    ACCEPTED{" "}
+                                  </Text>
+                                </TouchableOpacity>
+                              ) : i?.action_status === "REJECTED" ? (
+                                <TouchableOpacity className="w-fit uppercase cursor-pointer p-1.5  px-3 bg-gray-200 text-black rounded-lg md:text-[10px] text-[8px] font-medium">
+                                  <Text className="font-semibold text-center text-[10px]">
+                                    REJECTED{" "}
+                                  </Text>
+                                </TouchableOpacity>
+                              ) : null}
+                            </React.Fragment>
+                          ) : i?.notification_type === "ENVELOPE" ? (
+                            <TouchableOpacity
+                              onPress={() => {
+                                const envelope = {
+                                  access_token: i?.action_token,
+                                };
+
+                                console.log("VIEW", envelope);
+                                navigation?.navigate(routes.viewEnvelope, {
+                                  envelope,
+                                  currentTab: "SIGN",
+                                });
+                              }}
+                              className="bg-[#d10000] p-1.5 px-2.5 rounded-xl"
+                            >
+                              <Text className="text-white font-medium text-center">
+                                View{" "}
+                              </Text>
+                            </TouchableOpacity>
+                          ) : null}
+                        </View>
+                        {/* {i?.notification_type === "invite" ? (
                           <>
                             <View className="w-[60%] h-full flex flex-col justify-center px-2">
                               <Text className="text-base font-medium">
@@ -474,7 +587,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
                               </Text>
                             </View>
                           </>
-                        )}
+                        )} */}
                       </View>
                     );
                   })
