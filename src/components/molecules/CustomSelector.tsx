@@ -14,6 +14,7 @@ interface CustomSelectorProps {
   width?: any;
   height?: any;
   style?: any;
+  disabled?: boolean;
 }
 const CustomSelector: React.FC<CustomSelectorProps> = ({
   dataList,
@@ -23,6 +24,7 @@ const CustomSelector: React.FC<CustomSelectorProps> = ({
   setSelectedValue,
   dropDownItems,
   style,
+  disabled,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
@@ -36,6 +38,7 @@ const CustomSelector: React.FC<CustomSelectorProps> = ({
         borderWidth: 1,
         borderRadius: 10,
       }}
+      disabled={disabled}
       renderDropdownIcon={() => (
         <View className="w-auto h-full border border-gray-50 justify-center items-center">
           {isOpen ? (

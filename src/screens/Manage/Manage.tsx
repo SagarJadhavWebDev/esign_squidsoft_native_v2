@@ -86,6 +86,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
     setListLoading(true);
     setLoading(true);
     setListIsEmpty(false);
+    console.log("currentTab", currentTab);
     handleGetEnvelopes(
       currentTab,
       page,
@@ -100,7 +101,6 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           if (page > 1) {
             const newData = [...list, ...new Set(data?.data)];
             const b = { ...data, data: newData };
-            console.log("OUTPUT", typeof data, newData?.length);
             dispatch(setManageList(b));
           } else {
             dispatch(setManageList(data));
@@ -115,6 +115,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   };
 
   useEffect(() => {
+    setPage(1);
     dispatch(setManageList(null));
     getEnvelopeList();
   }, [currentTab, InBoxFilter, SentBoxFilter]);
@@ -225,15 +226,15 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   // console.log("FILETR", InBoxFilter, SentBoxFilter);
   return (
     <View className="bg-white justify-center px-2">
-      <View className="W-full flex flex-row ">
-        <View
+      <View className="W-full flex flex-row py-2">
+        {/* <View
           style={{
             //width: Dimensions.get("screen").width,
             height: 50,
             padding: 3,
             marginVertical: 6,
           }}
-          className="bg-white  overflow-x-scroll flex flex-row gap-x-2"
+          className=" w-[80%] bg-red-500  overflow-x-scroll flex flex-row gap-x-2"
         >
           {menu?.map((menu) => {
             return (
@@ -274,9 +275,9 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               </TouchableOpacity>
             );
           })}
-        </View>
-        {["sent", "inbox"]?.includes(currentTab) ? (
-          <View className="w-full flex justify-center px-1 ">
+        </View> */}
+        {/* {["sent", "inbox"]?.includes(currentTab) ? (
+          <View className="w-[30%] max-w-[20%] bg-green-500 flex justify-center px-1 ">
             <CustomSelector
               width={110}
               dataList={
@@ -290,7 +291,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
                 }
               }}
               selectedItem={(item, index) => (
-                <View className=" w-full h-full bg-white rounded-xl flex flex-row ">
+                <View className=" h-full bg-white rounded-xl flex flex-row ">
                   <View className="w-full  h-full flex items-start justify-center">
                     <Text className="text-gray-500 w-full text-[10px] font-normal">
                       {currentTab === "inbox"
@@ -301,7 +302,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
                 </View>
               )}
               dropDownItems={(item, index) => (
-                <View className="mx-3 w-full h-full bg-white rounded-xl flex flex-row pr-2">
+                <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
                   <View className="w-full  h-full flex items-start justify-center">
                     <Text
                       className="text-gray-500 w-full text-[10px] font-normal"
@@ -314,7 +315,87 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               )}
             />
           </View>
-        ) : null}
+        ) : null} */}
+        <View className={`w-[75%] flex flex-row  `}>
+          {menu?.map((menu) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setEnvelopeList([]);
+                  setCurrentMenu(menu?.name);
+                  setSelectedMenu(menu?.name);
+                  dispatch(setCurrentTab(menu?.type));
+                }}
+                key={menu.name}
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 0,
+                  },
+                  shadowOpacity: 0.32,
+                  shadowRadius: 0.26,
+                  elevation: 2,
+                }}
+                className={`${
+                  currentTab === menu?.type
+                    ? "bg-[#d10000]"
+                    : "bg-white border border-gray-300"
+                }  rounded-xl flex mx-1 w-[22.5%] justify-center items-center text-center `}
+              >
+                <Text
+                  textBreakStrategy="simple"
+                  className={`${
+                    currentTab === menu?.type ? "text-white " : "text-gray-700"
+                  } px-2.5 font-semibold text-[10px] `}
+                >
+                  {menu?.name}{" "}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <View className={`w-[23%] ml-2  flex justify-center items-center `}>
+          <CustomSelector
+            disabled={
+              ["draft", "self_sign"].includes(currentTab) ? true : false
+            }
+            width={80}
+            dataList={
+              currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
+            }
+            setSelectedValue={(e: any) => {
+              if (currentTab === "inbox") {
+                setInBoxFilter(e?.option?.value);
+              } else if (currentTab === "sent") {
+                setSentBoxFilter(e?.option?.value);
+              }
+            }}
+            selectedItem={(item, index) => (
+              <View className=" h-full bg-white rounded-xl flex flex-row ">
+                <View className="w-full  h-full flex items-start justify-center">
+                  <Text className="text-gray-500 w-full text-[10px] font-normal">
+                    {currentTab === "inbox"
+                      ? InBoxFilter ?? "All"
+                      : SentBoxFilter ?? "All"}
+                  </Text>
+                </View>
+              </View>
+            )}
+            dropDownItems={(item, index) => (
+              <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
+                <View className="w-full  h-full flex items-start justify-center">
+                  <Text
+                    className="text-gray-500 w-full text-[10px] font-normal"
+                    numberOfLines={1}
+                  >
+                    {item?.title}
+                  </Text>
+                </View>
+              </View>
+            )}
+          />
+        </View>
       </View>
       {/* <ScrollView
         horizontal={true}
@@ -368,7 +449,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
       </ScrollView> */}
       {
         <FlatList
-          className="w-full px-3 h-full"
+          className="w-full  h-full"
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: 50,

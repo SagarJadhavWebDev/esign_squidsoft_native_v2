@@ -26,8 +26,8 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const toast = useToast();
   const useLoginFormState = () => {
-    const [username, setUsername] = useState<any>("mobymat50@gmail.com");
-    const [password, setPassword] = useState<any>("Sagar@8976");
+    const [username, setUsername] = useState<any>();
+    const [password, setPassword] = useState<any>();
     const [confirm_password, setConfirmPassword] = useState(null as any);
     const [isUsernameValid, setisUsernameValid] = useState(true);
     const [isPasswordValid, setisPasswordValid] = useState(true);

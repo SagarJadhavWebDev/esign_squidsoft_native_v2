@@ -95,7 +95,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         </View>
         <View className="flex flex-row mx-2 gap-x-5 ">
           <Text
-            className={`p-0.5 px-3 w-fit capitalize font-semibold rounded-2xl text-[10px]  ${
+            className={`p-0.5 px-3 w-fit max-w-32 capitalize font-semibold rounded-2xl text-[10px]  ${
               envelope?.status === "COMPLETED"
                 ? "text-green-600 bg-green-100"
                 : envelope?.status === "VOID"
@@ -130,7 +130,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
               : envelope?.status === "SIGNED"
               ? "signed"
               : envelope?.status === "PENDING"
-              ? "awaiting your action "
+              ? "awaiting your action"
               : envelope?.status}
           </Text>
         </View>
