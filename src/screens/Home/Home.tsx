@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  RefreshControl,
   SafeAreaView,
   Text,
   View,
@@ -34,6 +35,7 @@ import {
   setManageCount,
   setManageList,
 } from "../../redux/reducers/ManageSlice";
+import React from "react";
 interface HomeProps {
   navigation: any;
   route: any;
@@ -79,6 +81,7 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
     getQuickView();
     getEnvelopeList();
   }, []);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   //return null;
   return (
@@ -86,6 +89,15 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
       <ScrollView
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              getQuickView();
+              getEnvelopeList();
+            }}
+          />
+        }
       >
         <View className=" h-48 border border-gray-100 w-full flex flex-row justify-center">
           <View className="w-1/2 h-full justify-center items-center">

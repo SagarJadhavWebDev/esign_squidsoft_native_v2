@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import WFullInputField from "../../components/atoms/WFullInputField";
 import TemplateListCard from "../../components/Templates/TemplateListCard";
@@ -21,6 +22,8 @@ import { handleGetTemplates } from "../../services/TemplatesService";
 import { useDispatch } from "react-redux";
 import { setTemplates } from "../../redux/reducers/TemplatesSlice";
 import { useTemplates } from "../../utils/useReduxUtil";
+import NoDataFound from "../../components/atoms/NoDataFound";
+import { isEmpty } from "lodash";
 interface TemplatesProps {
   navigation: any;
   setIsLoading: any;
@@ -50,7 +53,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
       }
     });
   };
- 
+
   useEffect(() => {
     getTemplates();
   }, []);
@@ -103,7 +106,7 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
   }, [searchText]);
 
   const dimensions = useWindowDimensions();
-
+  const [refreshing, setRefreshing] = React.useState(false);
   return (
     <View className="bg-white">
       {/* <View className="absolute text-center z-10   top-0 bottom-32 left-0 right-0 justify-center align-middle items-center">
@@ -143,19 +146,32 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
           </View>
         </View>
       </View> */}
-     
+
       <ScrollView
         style={{
           paddingHorizontal: 8,
           width: dimensions.width,
-          height: dimensions.height ,
+          height: dimensions.height,
         }}
         contentContainerStyle={{
           paddingBottom: 90,
         }}
         className="bg-white "
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={getTemplates} />
+        }
       >
-        {templates?.data &&
+        {isEmpty(templates?.data) ? (
+          <View className="w-full h-full my-10 items-center justify-center">
+            <NoDataFound
+              width={200}
+              height={200}
+              title={"No templates found yet!"}
+              subTitle={"You can create template using our web app version"}
+            />
+          </View>
+        ) : (
+          templates?.data &&
           templates?.data?.map((template) => {
             return (
               <TemplateListCard
@@ -164,7 +180,8 @@ const Templates: React.FC<TemplatesProps> = ({ setIsLoading, navigation }) => {
                 navigation={navigation}
               />
             );
-          })}
+          })
+        )}
       </ScrollView>
     </View>
   );

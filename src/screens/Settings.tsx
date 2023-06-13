@@ -186,6 +186,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           callBack={() => {
             navigation.navigate(routes.dashboard);
           }}
+          
         />
 
         <View

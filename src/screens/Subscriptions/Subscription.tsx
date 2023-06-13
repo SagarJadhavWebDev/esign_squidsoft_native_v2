@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -98,6 +99,7 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
   const mapData: any =
     tabType === "subscription" ? subscriptions : orders?.data?.data;
   //console.log("ORDERS", orders);
+  const [refreshing, setRefreshing] = React.useState(false);
   return (
     <View className="w-full h-full items-center bg-white ">
       <View className="w-[90%] my-3 h-10 bg-white border border-gray-300 rounded-full items-center justify-center flex flex-row">
@@ -154,6 +156,18 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
             paddingHorizontal: 8,
             marginBottom: 70,
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                if (tabType === "orders") {
+                  getOrders();
+                } else {
+                  getSubscriptions();
+                }
+              }}
+            />
+          }
           className="bg-white"
         >
           {loading ? (
