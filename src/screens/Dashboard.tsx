@@ -59,7 +59,7 @@ interface DashboardProps {
 }
 const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
   const { SignOut } = useAuth();
-  const [currentTab, setCurrentTab] = useState("Manage");
+  const [currentTab, setCurrentTab] = useState("Dashboard");
   const Tab = createBottomTabNavigator();
   const [isLoading, setIsLoading] = useState(false);
   const [notificationsModal, setNotificationsModal] = useState(false);

@@ -23,13 +23,15 @@ import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import HttpService from "../../utils/HttpService";
 import { handleGetEnvelopes } from "../../services/ManageService";
 import { useManageList } from "../../utils/useReduxUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab, setManageList } from "../../redux/reducers/ManageSlice";
 import CustomSelector from "../../components/molecules/CustomSelector";
 import {
   manageInboxFilter,
   manageSentFilter,
 } from "../../types/ManageListTypes";
+import { ApplicationState } from "../../redux/store";
+import { setFilter } from "../../redux/reducers/uiSlice";
 interface ManageProps {
   navigation: any;
   setIsLoading?: any;
@@ -37,7 +39,6 @@ interface ManageProps {
 }
 const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   const { token } = useAuth();
-  const router = route?.params;
   const [currentMenu, setCurrentMenu] = useState("Inbox");
   const [selectedMenu, setSelectedMenu] = useState("inbox");
   const [loading, setLoading] = useState(false);
@@ -49,8 +50,15 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   const [refresh, setRefresh] = useState(false);
   const [listIsEmpty, setListIsEmpty] = useState(false);
   const dispatch = useDispatch();
-  const [InBoxFilter, setInBoxFilter] = useState<any | null>(null);
-  const [SentBoxFilter, setSentBoxFilter] = useState<any | null>(null);
+  const filterFromQuickview =
+    useSelector((state: ApplicationState) => state?.ui?.filter) ?? "All";
+  const [InBoxFilter, setInBoxFilter] = useState<any | null>(
+    filterFromQuickview ?? null
+  );
+  const [SentBoxFilter, setSentBoxFilter] = useState<any | null>(
+    filterFromQuickview ?? null
+  );
+
   const InBoxFilterList = [
     {
       title: "All",
@@ -86,20 +94,16 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
     setListLoading(true);
     setLoading(true);
     setListIsEmpty(false);
-    console.log("currentTab", currentTab);
+    console.log("currentTab", currentTab, filterFromQuickview);
     handleGetEnvelopes(
       currentTab,
       page,
       10,
-      currentTab === "inbox"
-        ? InBoxFilter
-        : currentTab === "sent"
-        ? SentBoxFilter
-        : "",
+      filterFromQuickview,
       (data: any) => {
         if (data) {
           if (page > 1) {
-            const newData = [...list, ...new Set(data?.data)];
+            const newData = [...(list ?? []), ...new Set(data?.data ?? [])];
             const b = { ...data, data: newData };
             dispatch(setManageList(b));
           } else {
@@ -113,12 +117,6 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
       }
     );
   };
-
-  useEffect(() => {
-    setPage(1);
-    dispatch(setManageList(null));
-    getEnvelopeList();
-  }, [currentTab, InBoxFilter, SentBoxFilter]);
 
   const menu = [
     {
@@ -146,11 +144,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   ];
 
   const renderNoDataTitle = () => {
-    const tab = isEmpty(currentTab === "inbox" ? InBoxFilter : SentBoxFilter)
-      ? currentTab
-      : currentTab === "inbox"
-      ? InBoxFilter
-      : SentBoxFilter;
+    const tab = isEmpty(filterFromQuickview) ? currentTab : filterFromQuickview;
     switch (tab) {
       case "inbox":
         return {
@@ -222,8 +216,12 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
 
   useEffect(() => {
     getEnvelopeList();
-  }, [page]);
-  // console.log("FILETR", InBoxFilter, SentBoxFilter);
+  }, [currentTab, page, filterFromQuickview, InBoxFilter, SentBoxFilter]);
+  useEffect(() => {
+    return () => {
+      dispatch(setFilter(null));
+    };
+  }, []);
   return (
     <View className="bg-white justify-center px-2">
       <View className="W-full flex flex-row py-2">
@@ -321,10 +319,13 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
             return (
               <TouchableOpacity
                 onPress={() => {
-                  setEnvelopeList([]);
+                  dispatch(setFilter(null));
+                  setInBoxFilter("All");
+                  setSentBoxFilter("All");
+                  dispatch(setManageList(null));
+                  dispatch(setCurrentTab(menu?.type));
                   setCurrentMenu(menu?.name);
                   setSelectedMenu(menu?.name);
-                  dispatch(setCurrentTab(menu?.type));
                 }}
                 key={menu.name}
                 style={{
@@ -365,19 +366,13 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
             }
             setSelectedValue={(e: any) => {
-              if (currentTab === "inbox") {
-                setInBoxFilter(e?.option?.value);
-              } else if (currentTab === "sent") {
-                setSentBoxFilter(e?.option?.value);
-              }
+              dispatch(setFilter(e?.option?.value));
             }}
             selectedItem={(item, index) => (
               <View className=" h-full bg-white rounded-xl flex flex-row ">
                 <View className="w-full  h-full flex items-start justify-center">
                   <Text className="text-gray-500 w-full text-[10px] font-normal">
-                    {currentTab === "inbox"
-                      ? InBoxFilter ?? "All"
-                      : SentBoxFilter ?? "All"}
+                    {filterFromQuickview ?? "All"}
                   </Text>
                 </View>
               </View>

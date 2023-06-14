@@ -35,6 +35,7 @@ export interface uiState {
   createTemplateModal: boolean;
   showAddFieldsetModal: boolean;
   showDownloadEnvelopeModal: boolean;
+  filter: string;
 }
 const INITIAL_STATE = {
   sidebarOpen: false,
@@ -70,6 +71,7 @@ const INITIAL_STATE = {
   createTemplateModal: false,
   showAddFieldsetModal: false,
   showDownloadEnvelopeModal: false,
+  filter: null,
 };
 
 export const UiSlice = createSlice({
@@ -172,10 +174,14 @@ export const UiSlice = createSlice({
     setshowDownloadEnvelopeModal: (state, action) => {
       state.showDownloadEnvelopeModal = action.payload;
     },
+    setFilter: (state, action) => {
+      state.filter = action.payload;
+    },
   },
 });
 
 export const {
+  setFilter,
   setshowDownloadEnvelopeModal,
   setshowAddFieldsetModal,
   setcreateTemplateModal,

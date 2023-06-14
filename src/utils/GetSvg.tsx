@@ -32,6 +32,92 @@ const GetSvg: React.FC<GetSvgProps> = ({
   props,
 }) => {
   switch (name) {
+    case "QUICKVIEWCOMPLETED":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+          color={"black"}
+          {...props}
+        >
+          <G
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+          >
+            <Circle cx={12} cy={12} r={9} />
+            <Path d="m9 12l2 2l4-4" />
+          </G>
+        </Svg>
+      );
+    case "QUICKVIEWWAITING":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+          color={"black"}
+          {...props}
+        >
+          <G
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+          >
+            <Circle cx={12} cy={12} r={9} />
+            <Path d="M12 7v5l3 3" />
+          </G>
+        </Svg>
+      );
+    case "QUICKVIEWDRAFT":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+          color={"black"}
+          {...props}
+        >
+          <Path
+            d="M15.24 2H8.76004C5.00004 2 4.71004 5.38 6.74004 7.22L17.26 16.78C19.29 18.62 19 22 15.24 22H8.76004C5.00004 22 4.71004 18.62 6.74004 16.78L17.26 7.22C19.29 5.38 19 2 15.24 2Z"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      );
+    case "QUICKVIEWPENCIL":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 24 24"
+          className="w-5 h-5"
+          color={"black"}
+          {...props}
+        >
+          <Path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16v4m9.5-13.5l4 4"
+          />
+        </Svg>
+      );
     case "sendIcon":
       return (
         <Svg

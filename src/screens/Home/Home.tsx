@@ -36,6 +36,7 @@ import {
   setManageList,
 } from "../../redux/reducers/ManageSlice";
 import React from "react";
+import QuickViews from "../../components/atoms/QuickViews";
 interface HomeProps {
   navigation: any;
   route: any;
@@ -99,7 +100,7 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
           />
         }
       >
-        <View className=" h-48 border border-gray-100 w-full flex flex-row justify-center">
+        {/* <View className=" h-48 border border-gray-100 w-full flex flex-row justify-center">
           <View className="w-1/2 h-full justify-center items-center">
             <Image
               className=""
@@ -121,7 +122,8 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
               Welcome to eSign by SquidSoft
             </Text>
           </View>
-        </View>
+        </View> */}
+       
         {/* ################ QUICK VIEW SECTION START ############### */}
         <View className="my-2 mt-5 w-[100%] border border-gray-200 rounded-2xl flex flex-col">
           <View className="border-l-[3px] border-[#d10000] mt-3">
@@ -130,59 +132,7 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
             </Text>
           </View>
           <View className="w-full flex flex-row  justify-center items-center">
-            <View className="flex flex-col ">
-              <View className="flex flex-row items-center justify-start my-1.5">
-                <View className="h-8 w-8  rounded-full border-2 border-yellow-400 justify-center items-center">
-                  <Text className="text-sm">
-                    {counts?.action_required ?? 0}
-                  </Text>
-                </View>
-                <Text className="px-3 text-xs">Action Required</Text>
-              </View>
-              <View className="flex flex-row items-center justify-start my-1.5">
-                <View className="h-8 w-8  rounded-full border-2 border-green-500 justify-center items-center">
-                  <Text className="text-sm">{counts?.completed ?? 0}</Text>
-                </View>
-                <Text className="px-3 text-xs">Completed</Text>
-              </View>
-              <View className="flex flex-row items-center justify-start my-1.5">
-                <View className="h-8 w-8  rounded-full border-2 border-red-500 justify-center items-center">
-                  <Text className="text-sm">{counts?.expiring_soon ?? 0}</Text>
-                </View>
-                <Text className="px-3 text-xs">Expiring Soon</Text>
-              </View>
-            </View>
-            <View className="mx-2 mb-3 w-1/2  items-center justify-center">
-              {isNull(counts) ? (
-                <PieChart
-                  widthAndHeight={widthAndHeight}
-                  series={[5, 5, 5]}
-                  sliceColor={sliceColor}
-                  doughnut={true}
-                  coverRadius={0.8}
-                  coverFill={"#FFF"}
-                />
-              ) : (
-                <PieChart
-                  widthAndHeight={widthAndHeight}
-                  series={
-                    (counts?.action_required ?? 0) === 0 &&
-                    (counts?.completed ?? 0) === 0 &&
-                    (counts?.expiring_soon ?? 0) === 0
-                      ? [0, 0, 1]
-                      : [
-                          counts?.action_required ?? 0,
-                          counts?.completed ?? 0,
-                          counts?.expiring_soon ?? 1,
-                        ]
-                  }
-                  sliceColor={sliceColor}
-                  doughnut={true}
-                  coverRadius={0.8}
-                  coverFill={"#FFF"}
-                />
-              )}
-            </View>
+          <QuickViews navigation={navigation} />
           </View>
         </View>
         {/* ################ QUICK VIEW SECTION END ############### */}
