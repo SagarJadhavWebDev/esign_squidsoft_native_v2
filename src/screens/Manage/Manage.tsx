@@ -22,7 +22,11 @@ import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import HttpService from "../../utils/HttpService";
 import { handleGetEnvelopes } from "../../services/ManageService";
-import { useCurrentPage, useManageList } from "../../utils/useReduxUtil";
+import {
+  useCurrentPage,
+  useIsLoading,
+  useManageList,
+} from "../../utils/useReduxUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab, setManageList } from "../../redux/reducers/ManageSlice";
 import CustomSelector from "../../components/molecules/CustomSelector";
@@ -52,6 +56,9 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   const [refresh, setRefresh] = useState(false);
   const [listIsEmpty, setListIsEmpty] = useState(false);
   const dispatch = useDispatch();
+  const updateQuery = useSelector(
+    (state: ApplicationState) => state?.ui?.updateQuery
+  );
   const filterFromQuickview = useSelector(
     (state: ApplicationState) => state?.ui?.filter
   );
@@ -86,6 +93,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
       value: "void",
     },
   ];
+
   const getEnvelopeList = () => {
     setIsLoading && setIsLoading(true);
     setListLoading(true);
@@ -219,151 +227,162 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
 
   useEffect(() => {
     getEnvelopeList();
-  }, [currentTab, page, filterFromQuickview]);
-
+  }, [currentTab, page, filterFromQuickview, updateQuery]);
+  const isloading = useIsLoading();
   return (
-    <View className="bg-white justify-center px-2">
-      <View className="W-full flex flex-row py-2">
-        <View className={`w-[75%] flex flex-row  `}>
-          {menu?.map((menu) => {
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  dispatch(setFilter(null));
-                  dispatch(setManageList(null));
-                  dispatch(setCurrentTab(menu?.type));
-                  setCurrentMenu(menu?.name);
-                  setSelectedMenu(menu?.name);
-                  dispatch(setCurrentPage(1));
-                }}
-                key={menu.name}
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 0,
-                  },
-                  shadowOpacity: 0.32,
-                  shadowRadius: 0.26,
-                  elevation: 2,
-                }}
-                className={`${
-                  currentTab === menu?.type
-                    ? "bg-[#d10000]"
-                    : "bg-white border border-gray-300"
-                }  rounded-xl flex mx-1 w-[22.5%] justify-center items-center text-center `}
-              >
-                <Text
-                  textBreakStrategy="simple"
+    <React.Fragment>
+      <View className="bg-white justify-center px-2">
+        <View className="W-full flex flex-row py-2">
+          <View className={`w-[75%] flex flex-row  `}>
+            {menu?.map((menu) => {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    dispatch(setFilter(null));
+                    dispatch(setManageList(null));
+                    dispatch(setCurrentTab(menu?.type));
+                    setCurrentMenu(menu?.name);
+                    setSelectedMenu(menu?.name);
+                    dispatch(setCurrentPage(1));
+                  }}
+                  key={menu.name}
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 0,
+                      height: 0,
+                    },
+                    shadowOpacity: 0.32,
+                    shadowRadius: 0.26,
+                    elevation: 2,
+                  }}
                   className={`${
-                    currentTab === menu?.type ? "text-white " : "text-gray-700"
-                  } px-2.5 font-semibold text-[10px] `}
+                    currentTab === menu?.type
+                      ? "bg-[#d10000]"
+                      : "bg-white border border-gray-300"
+                  }  rounded-xl flex mx-1 w-[22.5%] justify-center items-center text-center `}
                 >
-                  {menu?.name}{" "}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-        <View className={`w-[23%] ml-2  flex justify-center items-center `}>
-          <CustomSelector
-            disabled={
-              ["draft", "self_sign"].includes(currentTab) ? true : false
-            }
-            width={80}
-            dataList={
-              currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
-            }
-            setSelectedValue={(e: any) => {
-              dispatch(setCurrentPage(1));
-              dispatch(setFilter(e?.option?.value));
-            }}
-            selectedItem={(item, index) => (
-              <View className=" h-full bg-white rounded-xl flex flex-row ">
-                <View className="w-full  h-full flex items-start justify-center">
-                  <Text className="text-gray-500 w-full text-[10px] font-normal">
-                    {isEmpty(filterFromQuickview) ? "All" : filterFromQuickview}
-                  </Text>
-                </View>
-              </View>
-            )}
-            dropDownItems={(item, index) => (
-              <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
-                <View className="w-full  h-full flex items-start justify-center">
                   <Text
-                    className="text-gray-500 w-full text-[10px] font-normal"
-                    numberOfLines={1}
+                    textBreakStrategy="simple"
+                    className={`${
+                      currentTab === menu?.type
+                        ? "text-white "
+                        : "text-gray-700"
+                    } px-2.5 font-semibold text-[10px] capitalize `}
                   >
-                    {item?.title}
+                    {menu?.name}{" "}
                   </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View className={`w-[23%] ml-2  flex justify-center items-center `}>
+            <CustomSelector
+              disabled={
+                ["draft", "self_sign"].includes(currentTab) ? true : false
+              }
+              width={80}
+              dataList={
+                currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
+              }
+              setSelectedValue={(e: any) => {
+                dispatch(setCurrentPage(1));
+                dispatch(setFilter(e?.option?.value));
+              }}
+              selectedItem={(item, index) => (
+                <View className=" h-full bg-white rounded-xl flex flex-row ">
+                  <View className="w-full  h-full flex items-start justify-center">
+                    <Text className="text-gray-500 w-full text-[10px] font-normal">
+                      {isEmpty(filterFromQuickview)
+                        ? "All"
+                        : filterFromQuickview}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            )}
-          />
-        </View>
-      </View>
-
-      <FlatList
-        className="w-full  h-full"
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingBottom: 50,
-        }}
-        data={list}
-        keyExtractor={(item, index) => {
-          return index.toString();
-        }}
-        renderItem={({ item, index }: any) => (
-          <EnvelopeListCard
-            key={index}
-            envelope={item}
-            navigation={navigation}
-          />
-        )}
-        // maxToRenderPerBatch={10}
-        onEndReachedThreshold={0.7}
-        onEndReached={(e) => {
-          if (meta?.last_page !== page && !loading) {
-            setListLoading(true);
-            dispatch(setCurrentPage(page + 1));
-          } else {
-            setListLoading(false);
-          }
-        }}
-        refreshing={refresh}
-        onRefresh={() => {
-          dispatch(setCurrentPage(1));
-          dispatch(setManageList(null));
-        }}
-        ListFooterComponent={
-          listloading ? (
-            <ActivityIndicator
-              className="text-4xl"
-              size="large"
-              color="#d10000"
+              )}
+              dropDownItems={(item, index) => (
+                <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
+                  <View className="w-full  h-full flex items-start justify-center">
+                    <Text
+                      className="text-gray-500 w-full text-[10px] font-normal"
+                      numberOfLines={1}
+                    >
+                      {item?.title}
+                    </Text>
+                  </View>
+                </View>
+              )}
             />
-          ) : (
-            <></>
-          )
-        }
-        showsVerticalScrollIndicator={true}
-        alwaysBounceVertical={true}
-        ListEmptyComponent={
-          isEmpty(list) && !loading ? (
-            <View className="w-full h-full items-center justify-center">
-              <NoDataFound
-                width={200}
-                height={200}
-                title={renderNoDataTitle()?.title}
-                subTitle={renderNoDataTitle().subTitle}
+          </View>
+        </View>
+
+        <FlatList
+          className="w-full  h-full"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 50,
+          }}
+          data={list}
+          keyExtractor={(item, index) => {
+            return index.toString();
+          }}
+          renderItem={({ item, index }: any) => (
+            <EnvelopeListCard
+              key={index}
+              envelope={item}
+              navigation={navigation}
+            />
+          )}
+          // maxToRenderPerBatch={10}
+          onEndReachedThreshold={0.7}
+          onEndReached={(e) => {
+            if (meta?.last_page !== page && !loading) {
+              setListLoading(true);
+              dispatch(setCurrentPage(page + 1));
+            } else {
+              setListLoading(false);
+            }
+          }}
+          refreshing={refresh}
+          onRefresh={() => {
+            dispatch(setCurrentPage(1));
+            dispatch(setManageList(null));
+          }}
+          ListFooterComponent={
+            listloading ? (
+              <ActivityIndicator
+                className="text-4xl"
+                size="large"
+                color="#d10000"
               />
-            </View>
-          ) : (
-            <></>
-          )
-        }
-      />
-    </View>
+            ) : (
+              <></>
+            )
+          }
+          showsVerticalScrollIndicator={true}
+          alwaysBounceVertical={true}
+          ListEmptyComponent={
+            isEmpty(list) && !loading ? (
+              <View className="w-full h-full items-center justify-center">
+                <NoDataFound
+                  width={200}
+                  height={200}
+                  title={renderNoDataTitle()?.title}
+                  subTitle={renderNoDataTitle().subTitle}
+                />
+              </View>
+            ) : (
+              <></>
+            )
+          }
+        />
+      </View>
+      {isloading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
+      ) : null}
+    </React.Fragment>
   );
 };
 export default Manage;

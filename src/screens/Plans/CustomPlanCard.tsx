@@ -12,6 +12,9 @@ import { useToast } from "react-native-toast-notifications";
 import apiEndpoints from "../../constants/apiEndpoints";
 import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
+import ApiInstance from "../../services/ApiInstance";
+import apiEndpoint from "../../constants/apiEndpoints";
+import handleResponse from "../../services/handleResponse";
 
 interface CustomPlanCardProps {
   token: any;
@@ -26,39 +29,36 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
     { label: "Yearly", value: "Yearly" },
   ];
   const [value, setValue] = useState({ label: "Monthly", value: "Monthly" });
-  const [customQuery, setCustomQuery] = useState<any>({
-    additional_requirement: null,
-    noofenvelopes: null,
-    noofuser: null,
-    organization: null,
-    subscriptiontype: value,
-  });
   useEffect(() => {
-    setCustomQuery((prev: any) => ({
+    setPayload((prev: any) => ({
       ...prev,
-      subscriptiontype: value,
+      subscription_type: value,
     }));
   }, [value]);
-  const isDisabled = Object.values(customQuery).every(
+  const [payload, setPayload] = useState({
+    no_of_user: null,
+    envelope: null,
+    subscription_type: "monthly",
+    message: null,
+  });
+
+  const isDisabled = Object.values(payload).every(
     (o) => !isNull(o) && !isEmpty(o)
   );
-  const handleSubmitQuery = () => {
-    HttpService.post(apiEndpoints.submitEnquiry, {
-      token: token,
-      body: JSON.stringify({
-        content: customQuery,
-      }),
-    }).then((res) => {
-      //console.log("QUERY ", res);
-      if (res) {
+
+  const handleCustomPlan = () => {
+    ApiInstance.post(apiEndpoint.customPlan.customPlan, payload)
+      .then(async (res) => {
+        const data = await handleResponse(res as any);
+        if (data) {
+          setIsLoading(false);
+          setQuerySubmitted(true);
+        }
+      })
+      .catch((err) => {
         setIsLoading(false);
-        setQuerySubmitted(true);
-      }
-      if (res?.message) {
-        setIsLoading(false);
-        toast.show(res?.message, { type: "success" });
-      }
-    });
+        setQuerySubmitted(false);
+      });
   };
   return (
     <View className="w-[80%] my-2 mx-5  max-h-max  border border-gray-300 rounded-xl  ">
@@ -67,8 +67,8 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
           <View className="bg-green-400 rounded-full my-3">
             <GetSvg name="tickIcon" classN="w-20 h-20" color="white" />
           </View>
-          <Text className="text-2xl my-2">Submitted Your Enquiry </Text>
-          <Text>We will get back to you soon! </Text>
+          <Text className="text-xl my-2">Submitted Your Enquiry {"   "}</Text>
+          <Text className="text-center">We will get back to you soon! </Text>
         </View>
       ) : (
         <>
@@ -86,9 +86,9 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
                 </Text>
                 <TextInput
                   onChangeText={(e) => {
-                    setCustomQuery((prev: any) => ({
+                    setPayload((prev: any) => ({
                       ...prev,
-                      noofuser: e,
+                      no_of_user: e,
                     }));
                   }}
                   className="border text-xl border-gray-300 p-1  rounded-lg w-14 mx-2 h-8"
@@ -101,30 +101,16 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
                 </Text>
                 <TextInput
                   onChangeText={(e) => {
-                    setCustomQuery((prev: any) => ({
+                    setPayload((prev: any) => ({
                       ...prev,
-                      noofenvelopes: e,
+                      envelope: e,
                     }));
                   }}
                   className="border text-xl border-gray-300 p-1   rounded-lg w-1/5 mx-2 h-8"
                   keyboardType="number-pad"
                 />
               </View>
-              <View className="my-1 w-full flex flex-row items-center justify-between ">
-                <Text className=" mx-1 font-medium text-sm ">
-                  No. of Organizations{" "}
-                </Text>
-                <TextInput
-                  onChangeText={(e) => {
-                    setCustomQuery((prev: any) => ({
-                      ...prev,
-                      organization: e,
-                    }));
-                  }}
-                  className="border text-xl border-gray-300 p-1  rounded-lg w-14 mx-2 h-8"
-                  keyboardType="number-pad"
-                />
-              </View>
+
               <View className="my-1 w-full flex flex-row items-center justify-between ">
                 <Text className=" mx-1 font-medium text-sm ">
                   Subscription Type{" "}
@@ -165,9 +151,9 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
                 </Text>
                 <TextInput
                   onChangeText={(e) => {
-                    setCustomQuery((prev: any) => ({
+                    setPayload((prev: any) => ({
                       ...prev,
-                      additional_requirement: e,
+                      message: e,
                     }));
                   }}
                   textAlignVertical="top"
@@ -184,7 +170,7 @@ const CustomPlanCard: React.FC<CustomPlanCardProps> = ({ token }) => {
                 return null;
               } else {
                 setIsLoading(true);
-                handleSubmitQuery();
+                handleCustomPlan();
               }
             }}
             className={`w-64 h-8 mb-2  justify-center items-center rounded-lg mx-auto flex flex-row ${

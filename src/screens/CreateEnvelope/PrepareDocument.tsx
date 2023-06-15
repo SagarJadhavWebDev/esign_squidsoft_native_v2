@@ -36,6 +36,7 @@ import EnvelopeService from "../../services/EnvelopeService";
 import { setRemoteFields } from "../../redux/reducers/PdfSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
 import routes from "../../constants/routes";
+import React from "react";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
@@ -187,7 +188,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   //   dispatch(setIsLoading(false));
   // }, []);
   return (
-    <ScrollView className="w-full h-full bg-white p-2">
+    <React.Fragment>
       <View className="w-full h-[90%]">
         <View className="flex flex-row w-full justify-between items-center">
           <View className="w-[48%]">
@@ -264,7 +265,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           <Text className="text-white text-xs font-extrabold ">Next </Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </React.Fragment>
   );
 };
 export default PrepareDocument;

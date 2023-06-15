@@ -47,32 +47,15 @@ ApiInstance.interceptors.request.use(
 );
 
 // Add a response interceptor
-ApiInstance.interceptors.response.use(
-  function (response) {
-    // removePending(response.config);
-    return response;
-  },
-  async function (error) {
-    console.log("API ERROR CODES", error);
-    if (error?.response?.status === 401) {
-      console.log("API ERROR CODES", error);
-      // toast.error(error?.response?.data?.message ?? error?.message);
-      // localStorage.removeItem("token");
-      const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
-      AsyncStorage.removeItem(SP.AUTHTOKEN, token);
-      //window.location.replace(UnProtectedRoutes.SIGNIN);
-      return null;
-    }
-    // removePending(error.config);
-    if (!axios.isCancel(error)) {
-      //toast.error(error?.response?.data?.message);
-      return null; //Promise.reject(error);
-    } else {
-      // return empty object for aborted request
-      console.log("API ERROR CODES", error);
-      return null; //Promise.resolve({});
-    }
-  }
-);
+// ApiInstance.interceptors.response.use(
+//   function (response) {
+//     // removePending(response.config);
+//     return response;
+//   },
+//   function (error) {
+//     // removePending(response.config);
+//     return error;
+//   }
+// );
 
 export default ApiInstance;

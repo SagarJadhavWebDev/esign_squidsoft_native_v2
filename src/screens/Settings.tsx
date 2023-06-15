@@ -25,7 +25,12 @@ import getIpData from "../utils/getIpData";
 import GetSvg from "../utils/GetSvg";
 import HttpService from "../utils/HttpService";
 import store, { revertAll } from "../redux/store";
-import { useOrganization, useTeams, useUser } from "../utils/useReduxUtil";
+import {
+  useOrganization,
+  useSubscription,
+  useTeams,
+  useUser,
+} from "../utils/useReduxUtil";
 import EditOrganizationModal from "../components/modals/EditOrganizationModal";
 import React from "react";
 import CredentialsService from "../services/CredentialsService";
@@ -37,6 +42,8 @@ import {
 } from "../redux/reducers/CredentialsSlice";
 import AuthService from "../services/AuthService";
 import { setUser } from "../redux/reducers/userSlice";
+import SubscriptionService from "../services/SubscriptionService";
+import { setSubscription } from "../redux/reducers/SubscriptionSlice";
 
 interface SettingsProps {
   navigation: any;
@@ -55,6 +62,11 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   const [userProfilePicture, setUserProfilePicture] = useState<any>(
     user?.profile_picture
   );
+  const getSubscriptions = () => {
+    SubscriptionService.handleGetSubscription((data) => {
+      dispatch(setSubscription(data));
+    });
+  };
   const ProfileMenuList = [
     {
       name: "Edit Profile",
@@ -99,7 +111,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       show: !isEmpty(teams),
     },
   ];
-
+  const subscriptions = useSubscription();
   const moreMenuList = [
     {
       name: "Plans",
@@ -107,6 +119,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       onClick: () => {
         navigation.navigate(routes.Plans);
       },
+      show: subscriptions?.length !== 3,
     },
     {
       name: "About Us",
@@ -116,6 +129,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           console.error("An error occurred", err)
         );
       },
+      show: true,
     },
     {
       name: "Feedback",
@@ -125,6 +139,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           console.error("An error occurred", err)
         );
       },
+      show: true,
     },
     {
       name: "Terms & Conditions",
@@ -134,6 +149,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           console.error("An error occurred", err)
         );
       },
+      show: true,
     },
     {
       name: "Privacy Policy",
@@ -143,6 +159,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           console.error("An error occurred", err)
         );
       },
+      show: true,
     },
     {
       name: "Cancellation & Refund",
@@ -152,6 +169,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           console.error("An error occurred", err)
         );
       },
+      show: true,
     },
     {
       name: "Logout",
@@ -163,6 +181,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
             // navigation.navigate(routes.login);
           });
       },
+      show: true,
     },
   ];
 
@@ -170,24 +189,9 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
     setUserProfilePicture(user?.profile_picture);
   }, [user?.profile_picture]);
 
-  // const SendOtp = () => {
-  //   setIsLoading(true);
-  //   HttpService.post(apiEndpoints.sendOtp, {
-  //     body: JSON.stringify({
-  //       email: auth?.user?.email,
-  //     }),
-  //   }).then((res) => {
-  //     console.log("OTP", res);
-  //     if (res?.message) {
-  //       setIsLoading(false);
-  //       setVerifyEmail(true);
-
-  //       toast.show(res?.message, { type: "success" });
-  //     } else {
-  //       setIsLoading(false);
-  //     }
-  //   });
-  // };
+  useEffect(() => {
+    getSubscriptions();
+  }, []);
   const [refreshing, setRefreshing] = React.useState(false);
   const dispatch = useDispatch();
   return (
@@ -207,6 +211,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
                 dispatch(setUser(data));
                 return data;
               });
+              getSubscriptions();
             }}
           />
         }
@@ -363,28 +368,34 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
             <Text className="mx-2 text-sm font-semibold my-0.5">More</Text>
           </View>
           <View className="flex flex-col px-5 mt-2">
-            {moreMenuList?.map((item) => {
-              return (
-                <TouchableOpacity
-                  key={item.name}
-                  onPress={() => item?.onClick()}
-                  className="w-full flex flex-row justify-between items-center my-2"
-                >
-                  <View className="flex flex-row justify-start items-center">
-                    <View className="bg-gray-200 rounded-full p-1.5 mr-3">
-                      <GetSvg
-                        name={item.icon}
-                        strokeWidth={2}
-                        classN="w-4 h-4"
-                        color="gray"
-                      />
+            {moreMenuList
+              ?.filter((s) => s?.show)
+              .map((item) => {
+                return (
+                  <TouchableOpacity
+                    key={item.name}
+                    onPress={() => item?.onClick()}
+                    className="w-full flex flex-row justify-between items-center my-2"
+                  >
+                    <View className="flex flex-row justify-start items-center">
+                      <View className="bg-gray-200 rounded-full p-1.5 mr-3">
+                        <GetSvg
+                          name={item.icon}
+                          strokeWidth={2}
+                          classN="w-4 h-4"
+                          color="gray"
+                        />
+                      </View>
+                      <Text className="w-full max-w-[70%]">{item.name}</Text>
                     </View>
-                    <Text className="w-full max-w-[70%]">{item.name}</Text>
-                  </View>
-                  <GetSvg name="rightArrowIcon" classN="w-4 h-4" color="gray" />
-                </TouchableOpacity>
-              );
-            })}
+                    <GetSvg
+                      name="rightArrowIcon"
+                      classN="w-4 h-4"
+                      color="gray"
+                    />
+                  </TouchableOpacity>
+                );
+              })}
           </View>
         </View>
       </ScrollView>

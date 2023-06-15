@@ -222,11 +222,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const SignOut = async (callback: Function) => {
-    await AsyncStorage.clear();
-    setAuthState({});
-    setAuthToken(null);
-    ApiInstance.delete(apiEndpoint.auth.logout).then((res) => {
+    console.log("LOGOUT", ApiConfig.API_URL + apiEndpoint.auth.logout);
+    ApiInstance.delete(apiEndpoint.auth.logout).then(async (res) => {
       callback();
+      await AsyncStorage.clear();
+      setAuthState({});
+      setAuthToken(null);
     });
   };
   const RefreshUser = async (token: any) => {

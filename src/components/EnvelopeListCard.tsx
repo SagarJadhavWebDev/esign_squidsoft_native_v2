@@ -4,6 +4,7 @@ import {
   Text,
   Touchable,
   TouchableOpacity,
+  Vibration,
 } from "react-native";
 import routes from "../constants/routes";
 import { EnvelopeType } from "../types/EnvelopeType";
@@ -13,12 +14,16 @@ import GetSvg from "../utils/GetSvg";
 import { Envelope } from "../types/ViewEnvelopeTypes";
 import React from "react";
 import getLocalDate from "../utils/getLocalDate";
-import { useManageList } from "../utils/useReduxUtil";
+import { useManageList, useToken } from "../utils/useReduxUtil";
 import { ENVELOPELIST } from "../types/ManageListTypes";
 import EnvelopeService from "../services/EnvelopeService";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelfSignFields } from "../redux/reducers/TempFieldSlice";
-import { setEnvelopeStep } from "../redux/reducers/uiSlice";
+import {
+  setEnvelopeStep,
+  setIsLoading,
+  setUpdateQuery,
+} from "../redux/reducers/uiSlice";
 import { setRecipients } from "../redux/reducers/RecipientSlice";
 import {
   setDocuments,
@@ -26,6 +31,12 @@ import {
 } from "../redux/reducers/documentsSlice";
 import { setEnvelope } from "../redux/reducers/envelopeSlice";
 import { ApplicationState } from "../redux/store";
+import { isEmpty, times } from "lodash";
+import ApiInstance from "../services/ApiInstance";
+import handleResponse from "../services/handleResponse";
+import ApiConfig from "../constants/ApiConfig";
+import RNFetchBlob from "rn-fetch-blob";
+import { useToast } from "react-native-toast-notifications";
 
 interface EnvelopeListCardProps {
   envelope: ENVELOPELIST;
@@ -41,11 +52,72 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
   const currentTab = useSelector(
     (state: ApplicationState) => state?.manage?.currentTab
   );
+  const handleDeleteEnvelope = (deleteToken: any) => {
+    dispatch(setIsLoading(true));
+    const deleteTokens = deleteToken?.split("api").pop();
+    console.log();
+    ApiInstance.delete(deleteTokens)
+      .then(async (res) => {
+        const data = await handleResponse(res as any);
+        if (data) {
+          console.log("DELETE", data);
+          dispatch(setUpdateQuery(Date.now()));
+        }
+        dispatch(setIsLoading(false));
+      })
+      .catch((err) => {
+        dispatch(setIsLoading(false));
+      });
+  };
+  const token = useToken();
+  const toast = useToast();
+  const handleDownload = (type: "Documents" | "Audit trail") => {
+    dispatch(setIsLoading(true));
+    toast.show(`Please wait downloading ${type} `, {
+      type: "success",
+      duration: 3000,
+    });
+    const downloadToken =
+      type === "Documents"
+        ? envelope?.download?.split("api/").pop()
+        : envelope?.audit_trail?.split("api/").pop();
+    const { config, fs } = RNFetchBlob;
+    const { DownloadDir } = fs.dirs; // You can check the available directories in the wiki.
+    const options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true, // true will use native manager and be shown on notification bar.
+        notification: true,
+        path:
+          type === "Documents"
+            ? `${DownloadDir}/${"eSignDocuments_" + envelope?.id}.zip`
+            : `${DownloadDir}/${"eSignDocuments_" + envelope?.id}.pdf`,
+        description: "Downloading.",
+      },
+    };
+    config(options)
+      .fetch("GET", ApiConfig.API_URL + downloadToken, {
+        Authorization: `Bearer ${token}`,
+      })
+      .then((res: any) => {
+        dispatch(setIsLoading(false));
+        toast.show(` ${type} download successfully `, {
+          type: "success",
+          duration: 3000,
+        });
+        // console.log("do some magic in here");
+      })
+      .catch((err) => {
+        dispatch(setIsLoading(false));
+      });
+  };
   return (
     <TouchableOpacity
       className=" rounded-lg border my-2 border-gray-200 p-1 bg-white"
       style={{
-        height: 90, //Dimensions.get("window").height * 0.1,
+        height: isEmpty(envelope?.download || envelope?.audit_trail)
+          ? 160
+          : 195, //Dimensions.get("window").height * 0.1,
         shadowColor: "#000",
         shadowOffset: {
           width: 0,
@@ -71,7 +143,6 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
               dispatch(setDocuments(data?.envelope_documents));
               dispatch(setRecipients(data?.envelope_recipients));
               dispatch(setSelecteDocument(data?.envelope_documents?.[0]));
-
               navigation.navigate(routes.createEnvelope, {
                 existingEnvelope: envelope,
               });
@@ -86,14 +157,85 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
         }
       }}
     >
-      <View className="h-1/4 w-full  flex flex-row justify-between items-end">
-        <View className="w-1/2">
-          <Text className="mx-2 text-xs font-medium text-gray-500">
-            {envelope?.document_fields?.completed ?? 0}/
-            {envelope?.document_fields?.total ?? 0} Done
+      <View className="my-1.5 w-full   flex flex-row justify-between items-end">
+        <View className="">
+          <Text
+            className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            Request from
           </Text>
         </View>
-        <View className="flex flex-row mx-2 gap-x-5 ">
+        <View className="w-56 max-w-56 flex justify-end ">
+          <Text
+            style={{
+              textAlign: "right",
+            }}
+            className="mx-2  truncate flex text-end text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            {envelope?.user?.email + " "}
+          </Text>
+        </View>
+      </View>
+      <View className="my-1.5 w-full   flex flex-row justify-between items-end">
+        <View className=" ">
+          <Text
+            className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            Subject
+          </Text>
+        </View>
+        <View className="w-56 max-w-56 flex justify-end ">
+          <Text
+            style={{
+              textAlign: "right",
+            }}
+            className="mx-2  truncate flex text-end text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            {envelope?.subject + " "}
+          </Text>
+        </View>
+      </View>
+      <View className="my-1.5 w-full   flex flex-row justify-between items-end">
+        <View className="w-1/2">
+          <Text
+            className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            Documents
+          </Text>
+        </View>
+        <View className="">
+          <Text
+            className="mx-2  text-xs w-1/2 max-w-1/2 max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            {envelope.envelope_documents?.map((document) => {
+              return (
+                <GetSvg
+                  key={document}
+                  name="documentIcon"
+                  classN="w-4 h-4"
+                  color={"#d10000"}
+                />
+              );
+            })}
+          </Text>
+        </View>
+      </View>
+      <View className="my-2 w-full   flex flex-row justify-between items-end">
+        <View className="w-1/2">
+          <Text
+            className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            Status
+          </Text>
+        </View>
+        <View className="">
           <Text
             className={`p-0.5 px-3 w-fit max-w-32 capitalize font-semibold rounded-2xl text-[10px]  ${
               envelope?.status === "COMPLETED"
@@ -135,8 +277,88 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
           </Text>
         </View>
       </View>
-      <View className="h-2/4 w-full  flex flex-row justify-between items-center">
-        <View className="items-start w-full">
+      <View className="mt-1.5 w-full   flex flex-row justify-between items-end">
+        <View className="w-1/2">
+          <Text
+            className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+            numberOfLines={1}
+          >
+            Actions
+          </Text>
+        </View>
+        <View className="flex flex-row justify-between">
+          {/* {currentTab === "sent" ? (
+            <TouchableOpacity onPress={() => {}}>
+              <GetSvg
+                name="VOIDICON"
+                color="#374151"
+                classN="w-6 h-6 mx-2"
+                pathStrokeWidth={1.2}
+              />
+            </TouchableOpacity>
+          ) : null} */}
+          <TouchableOpacity
+            onPress={() => {
+              handleDeleteEnvelope(envelope?.delete_token);
+            }}
+          >
+            <GetSvg
+              name="deleteIcon"
+              color="#374151"
+              classN="w-5 h-5 mx-2"
+              pathStrokeWidth={1.2}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+      {!isEmpty(envelope?.download || envelope?.audit_trail) ? (
+        <View className="my-2 w-full   flex flex-row justify-between items-end">
+          <View className="flex mx-2 justify-center items-center ">
+            <Text
+              className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
+              numberOfLines={1}
+            >
+              Download :{" "}
+              <Text className="text-[9px] mx-5 text-gray-500">
+                ( click the icon to download )
+              </Text>
+            </Text>
+          </View>
+          <View className="flex flex-row justify-between">
+            {envelope?.download ? (
+              <TouchableOpacity
+                onPress={() => {
+                  handleDownload("Documents");
+                }}
+              >
+                <GetSvg
+                  name="documentIcon"
+                  color="#374151"
+                  classN="w-6 h-6 mx-2"
+                  pathStrokeWidth={1.2}
+                />
+              </TouchableOpacity>
+            ) : null}
+
+            {envelope?.audit_trail ? (
+              <TouchableOpacity
+                onPress={() => {
+                  handleDownload("Audit trail");
+                }}
+              >
+                <GetSvg
+                  name="AUDITTRAILICON"
+                  color="#374151"
+                  classN="w-6 h-6 mx-2"
+                  pathStrokeWidth={1.2}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
+      {/* <View className="h-2/4 w-full  flex flex-row justify-between items-center">
+        <View className=" ">
           <Text
             className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
             numberOfLines={1}
@@ -144,22 +366,25 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             {envelope?.subject ?? "Drafted by you"}
           </Text>
         </View>
-        <View className="items-center">
-          <Text className="mx-2 text-2xl font-black  tracking-wider">
-            {envelope?.envelope_documents?.map((document) => {
+        <View className=" ">
+          <Text
+            numberOfLines={1}
+            className="mx-2  text-2xl font-black truncate w-1/2 max-w-1/2  tracking-wider"
+          >
+            {times(10)?.map((document) => {
               return (
                 <GetSvg
                   key={document}
                   name="documentIcon"
-                  classN="w-6 h-6"
+                  classN="w-4 h-4"
                   color={"#d10000"}
                 />
               );
             })}
           </Text>
         </View>
-      </View>
-      {!["draft", "deleted"].includes(currentTab) ? (
+      </View> */}
+      {/* {!["draft", "deleted"].includes(currentTab) ? (
         <View className="h-1/4 w-full  flex flex-row justify-between items-start">
           <View className="w-full">
             {envelope?.sent_at ? (
@@ -188,7 +413,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             ) : null}
           </View>
         </View>
-      )}
+      )} */}
     </TouchableOpacity>
   );
 };

@@ -8,14 +8,18 @@ interface CreateEnvelopeTypes {
 const handleUploadDocument = (
   envelopeId: number,
   payload: any,
+  toast: any,
   callback: (data: any) => void
 ) => {
   ApiInstance.postForm(apiEndpoint.document.uploadDocument(envelopeId), payload)
     .then(async (res) => {
-      const data = await handleResponse(res as any);
+      console.log(res, "docu");
+      const data = await handleResponse(res as any, toast);
       return callback(data);
     })
     .catch((err) => {
+      toast.show("something went wrong", { type: "error" });
+      console.log(err, "docu err");
       callback(false);
     });
 };
@@ -51,7 +55,7 @@ const handleCreateEnvelope = (
 const handleAddRecipients = (
   payload: any,
   envelopeId: number,
-  toast:any,
+  toast: any,
   callback: (data: any) => void
 ) => {
   ApiInstance.post(apiEndpoint.envelope.addRecipients(envelopeId), payload)
@@ -103,7 +107,6 @@ const handleSendEnvelope = (
       return callback(data);
     })
     .catch((err) => {
-      
       callback(false);
     });
 };

@@ -36,18 +36,7 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const getSubscriptions = () => {
     setLoading(true);
-    // HttpService.get(apiEndpoints.getActiveSubscription, {
-    //   token: token ?? "",
-    // })
-    //   .then((res) => {
-    //     const data = CryptoHandler.response(res, token ?? "");
-    //     setSubscriptions(data?.[0]);
-    //     setLoading(false);
-    //   })
-    //   .catch((err) => {
-    //     console.log("GET SUBSCRIPTION ERR", err);
-    //     setLoading(false);
-    //   });
+  
     SubscriptionService.handleGetSubscription((data) => {
       dispatch(setSubscription(data));
       setLoading(false);

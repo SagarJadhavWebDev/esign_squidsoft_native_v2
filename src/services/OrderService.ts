@@ -9,6 +9,7 @@ const handleCreateOrder = (payload: any, callBack: (data: any) => void) => {
       return callBack(data);
     })
     .catch((err) => {
+      console.log("order crete error", err);
       return callBack(null);
     });
 };

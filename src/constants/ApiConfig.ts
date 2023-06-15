@@ -6,7 +6,7 @@ const ApiConfig = {
   RAZORPAY_KEY: "rzp_live_eU1uZSBS6AcAOA", //"rzp_live_eU1uZSBS6AcAOA",
   STRIPE_KEY:
     "pk_live_51LpmsRSJI0Wtw0THPW28Iup2BIAydjK2VvOLggVeaGOoIpQPxY3YPoIELpNAiHHvfF1Ev625fXjbDXFcnerD9oTO001lTG3SbT",
-    //pk_test_51LpmsRSJI0Wtw0THsR54OYXbRNHKEf12AbHHxR5rAnIKAQfuOaVJn8ylqz249ITR454WPEY59MeFuygTwy4rqTeU00EPA9MgEw
+    // "pk_test_51LpmsRSJI0Wtw0THsR54OYXbRNHKEf12AbHHxR5rAnIKAQfuOaVJn8ylqz249ITR454WPEY59MeFuygTwy4rqTeU00EPA9MgEw"
 };
 export default ApiConfig;
 

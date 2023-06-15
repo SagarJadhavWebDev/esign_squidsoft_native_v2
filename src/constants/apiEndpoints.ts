@@ -3,7 +3,7 @@ const auth = {
   login: "/users/signin",
   resendEmail: "/users/resend",
   verifyEmail: "email/verify/",
-  logout: "/users/logout",
+  logout: "users/logout",
   sendForgotLink: "/users/reset-password-link",
   forgotPassword: "/users/forget-password",
 };
@@ -56,7 +56,7 @@ const country = {
     `/get-country-state-city/${countryCode}/${stateCode}`,
 };
 const order = {
-  createOrder: `/subscriptions/create-order`,
+  createOrder: `subscriptions/create-order`,
   getAllorders: (pageNo: number, perPage: number) =>
     `/subscriptions/orders?page=${pageNo}&per_page=${perPage}`,
   orderCheckout: (id: number) => `/subscriptions/checkout-order/${id}`,
@@ -122,7 +122,7 @@ const templates = {
   useAsTemplates: (envelopeId:number) => `/templates/${envelopeId}`,
   deleteTemplate: (templateId:number) => `/templates/${templateId}`,
   createTemplates: `/templates`,
-  uploadTemplateDocuments: (id: number) => `/templates/upload-documents/${id}`,
+  uploadTemplateDocuments: (id: number) => `templates/upload-documents/${id}`,
   uploadRemoveDocuments: `/templates/remove-documents`,
   submitTemplateFields: (id: number) => `/templates/submit-fields/${id}`,
   addFieldSet: (id: number) => `/templates/field-set/${id}`,
@@ -133,7 +133,11 @@ const templates = {
 const getIn = {
   addGst: `users/update-gstin`,
 };
+const customPlan = {
+  customPlan:`subscriptions/custom-plan-request`
+}
 const apiEndpoint = {
+  customPlan,
   getIn,
   auth,
   profile,

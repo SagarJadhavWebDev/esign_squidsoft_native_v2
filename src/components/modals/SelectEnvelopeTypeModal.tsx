@@ -19,6 +19,7 @@ import { setFixedFields } from "../../redux/reducers/PdfSlice";
 import routes from "../../constants/routes";
 import { setRecipients } from "../../redux/reducers/RecipientSlice";
 import { setEnvelope } from "../../redux/reducers/envelopeSlice";
+import { useToast } from "react-native-toast-notifications";
 
 interface SelectEnvelopeTypeModalProps {
   navigate: any;
@@ -34,6 +35,7 @@ const SelectEnvelopeTypeModal: React.FC<SelectEnvelopeTypeModalProps> = ({
   const isOpen = useSelector(
     (state: ApplicationState) => state.ui.showEnvelopeTypeModal
   );
+  const toast = useToast();
   const handleDocumentUpload = (envelopeId: number, isSelfSign: boolean) => {
     let payload = new FormData();
     Array.from(documents).forEach((document: any) => {
@@ -41,27 +43,32 @@ const SelectEnvelopeTypeModal: React.FC<SelectEnvelopeTypeModalProps> = ({
     });
 
     if (envelopeId)
-      EnvelopeService.handleUploadDocument(envelopeId, payload, (data) => {
-        if (data) {
-          dispatch(setIsLoading(false));
-          dispatch(setDocuments(data));
-          dispatch(showEnvelopeTypeModal(false));
-          if (isSelfSign) {
-            dispatch(setEnvelopeStep(2));
-            dispatch(setSelfSignFields([]));
-            dispatch(setFixedFields([]));
-            dispatch(setSelecteDocument(null));
+      EnvelopeService.handleUploadDocument(
+        envelopeId,
+        payload,
+        toast,
+        (data) => {
+          if (data) {
+            dispatch(setIsLoading(false));
+            dispatch(setDocuments(data));
+            dispatch(showEnvelopeTypeModal(false));
+            if (isSelfSign) {
+              dispatch(setEnvelopeStep(2));
+              dispatch(setSelfSignFields([]));
+              dispatch(setFixedFields([]));
+              dispatch(setSelecteDocument(null));
+            } else {
+              dispatch(setEnvelopeStep(1));
+              dispatch(setSelfSignFields([]));
+              dispatch(setFixedFields([]));
+              dispatch(setSelecteDocument(null));
+            }
+            navigate.navigate(routes.createEnvelope);
           } else {
-            dispatch(setEnvelopeStep(1));
-            dispatch(setSelfSignFields([]));
-            dispatch(setFixedFields([]));
-            dispatch(setSelecteDocument(null));
+            dispatch(setIsLoading(false));
           }
-          navigate.navigate(routes.createEnvelope);
-        } else {
-          dispatch(setIsLoading(false));
         }
-      });
+      );
   };
   const handleCreateEnvelope = (isSelfSign: boolean) => {
     dispatch(showEnvelopeTypeModal(false));

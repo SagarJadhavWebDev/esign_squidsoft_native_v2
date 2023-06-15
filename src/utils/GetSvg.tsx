@@ -1,6 +1,7 @@
 import { TouchableWithoutFeedback } from "react-native";
 import Svg, {
   Circle,
+  Defs,
   Ellipse,
   G,
   Path,
@@ -32,6 +33,82 @@ const GetSvg: React.FC<GetSvgProps> = ({
   props,
 }) => {
   switch (name) {
+    case "AUDITTRAILICON":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 64 64"
+          className={classN ?? "w-5 h-5"}
+          color={color ?? "#374151"}
+          {...props}
+        >
+          <Path
+            fill="#2e3f55"
+            d="M45.9 6.9h-6.7v3.9h5.4v46H21.1c-.3 1.4-1 2.8-1.9 3.9h26.7c1.4 0 2.5-1.1 2.5-2.5V9.4c0-1.4-1.2-2.5-2.5-2.5zm-31.3 0H7.9C6.5 6.9 5.4 8 5.4 9.4v37.4c1.1-.9 2.4-1.6 3.9-1.9V10.8h5.4V6.9zm22-1h-4.8c0-2.7-2.2-4.9-4.9-4.9S22 3.2 22 5.9h-4.8c-.5 0-.9.4-.9.9v3.5c0 1 .8 1.9 1.9 1.9h17.6c1 0 1.9-.8 1.9-1.9V6.8c-.1-.5-.6-.9-1.1-.9zm-9.7 2.2c-1.2 0-2.2-1-2.2-2.2 0-1.2 1-2.2 2.2-2.2 1.2 0 2.2 1 2.2 2.2 0 1.2-1 2.2-2.2 2.2z"
+            // className="color2e3f55 svgShape"
+          />
+          <Path
+            fill="#2e7abf"
+            d="M22.9 52.3c-.3-.7-1.1-1-1.8-.7-.6.3-9.1 3.7-9.1 3.7-.5-.9-1.7-3-1.7-3.1-.6-.8-1.7-.9-2.5-.3-.8.6-.9 1.7-.3 2.5.8 1 2.6 3.6 2.6 3.6.3.4.8.7 1.3.7.6 0 10.1-4.3 10.7-4.5.8-.4 1.1-1.2.8-1.9z"
+            // className="color2e7abf svgShape"
+          />
+          <Path
+            fill="#2e7abf"
+            d="M17.1 57.4c-1.1 2-3.2 3.4-5.6 3.4-3.5 0-6.3-2.8-6.3-6.3s2.8-6.3 6.3-6.3c2.6 0 4.9 1.6 5.8 3.9.8-.3 1.5-.6 2.1-.9-1.3-3.1-4.3-5.3-7.9-5.3-4.7 0-8.6 3.8-8.6 8.6 0 4.7 3.8 8.6 8.6 8.6 4.1 0 7.6-2.9 8.4-6.9-1.1.4-2 .9-2.8 1.2z"
+            // className="color2e7abf svgShape"
+          />
+          <G fill="#2e7abf" className="color2e7abf svgShape">
+            <Circle
+              cx={17}
+              cy={20}
+              r={3.7}
+              fill="#000000"
+              // className="color000 svgShape"
+            />
+            <Circle
+              cx={17}
+              cy={36.7}
+              r={3.7}
+              fill="#000000"
+              // className="color000 svgShape"
+            />
+            <Path
+              d="M25.4 21.1h14c.6 0 1.1-.5 1.1-1.1 0-.6-.5-1.1-1.1-1.1h-14c-.6 0-1.1.5-1.1 1.1 0 .6.5 1.1 1.1 1.1zm14 14.5h-14c-.6 0-1.1.5-1.1 1.1s.5 1.1 1.1 1.1h14c.6 0 1.1-.5 1.1-1.1s-.5-1.1-1.1-1.1z"
+              fill="#000000"
+              // className="color000 svgShape"
+            />
+          </G>
+          <Path
+            fill="#2e3f55"
+            d="M60.8 13.5c-.1-.1-.3-.2-.5-.2-.4 0-.7.3-.7.7v1.6h-.9v-1.5c0-.8-.3-1.6-.9-2.2-.6-.6-1.4-.9-2.2-.9-1.7 0-3 1.5-3 3.1v9c0 .2.2.3.3.3h.1v19.9c0 .9.7 4 1.4 6.5.4 1.4.8 2.6 1.2 2.9h.2c.3-.3.8-1.5 1.2-2.9.7-2.4 1.4-5.6 1.4-6.5V23.6h.1c.2 0 .3-.2.3-.3v-6.5c.5 0 .9.4.9.9v6.7c0 .4.4.8.8.7.4 0 .6-.4.6-.7V14c-.1-.2-.2-.4-.3-.5zm-5.1 38.9c-.1-.2-.3-.7-.8-2.2h1.6c-.5 1.5-.7 2-.8 2.2z"
+            // className="color2e3f55 svgShape"
+          />
+        </Svg>
+      );
+    case "VOIDICON":
+      return (
+        <Svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          fontSize="1.375rem"
+          viewBox="0 0 24 24"
+          className={classN ?? "w-5 h-5"}
+          color={color ?? "#374151"}
+          {...props}
+        >
+          <Path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            //fillRule="evenodd"
+            d="M7.22 3.22A.75.75 0 017.75 3h9A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17h-9a.75.75 0 01-.53-.22L.97 10.53a.75.75 0 010-1.06l6.25-6.25zm3.06 4a.75.75 0 10-1.06 1.06L10.94 10l-1.72 1.72a.75.75 0 101.06 1.06L12 11.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L12 8.94l-1.72-1.72z"
+            clipRule="evenodd"
+          />
+        </Svg>
+      );
     case "QUICKVIEWCOMPLETED":
       return (
         <Svg

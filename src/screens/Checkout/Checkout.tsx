@@ -117,22 +117,22 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
     },
   };
 
-  const initializeStripePaymentSheet = async (intent: any) => {
-    const { error } = await initPaymentSheet({
-      appearance: customAppearance,
-      merchantDisplayName: AppConfig.APP_NAME,
-      paymentIntentClientSecret: intent,
-      allowsDelayedPaymentMethods: true,
-      primaryButtonLabel: "Submit",
-      style: "automatic",
-    });
-    if (error) {
-      setStripeReady(false);
-      Alert.alert("Something went wrong!");
-    } else {
-      setStripeReady(true);
-    }
-  };
+  // const initializeStripePaymentSheet = async (intent: any) => {
+  //   const { error } = await initPaymentSheet({
+  //     appearance: customAppearance,
+  //     merchantDisplayName: AppConfig.APP_NAME,
+  //     paymentIntentClientSecret: intent,
+  //     allowsDelayedPaymentMethods: true,
+  //     primaryButtonLabel: "Submit",
+  //     style: "automatic",
+  //   });
+  //   if (error) {
+  //     setStripeReady(false);
+  //     Alert.alert("Something went wrong!");
+  //   } else {
+  //     setStripeReady(true);
+  //   }
+  // };
 
   // useEffect(() => {
   //   const existingStripeSheet = async () => {
@@ -311,7 +311,7 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
   //     isYearly ? Plan?.price * (12 - Plan?.yearly_discount) : Plan?.price
   //   );
   // }, [Plan]);
-  console.log(Plan);
+  
   return (
     <View className="w-full h-full items-center bg-white  ">
       <View className="w-full h-12 border-b border-gray-300 justify-between items-center flex flex-row   ">
@@ -344,7 +344,7 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
             Take a review of order and proceed{" "}
           </Text>
 
-          <CheckoutCard route={route} naviagte={navigation} />
+          <CheckoutCard route={route} navigation={navigation} />
         </View>
       </ScrollView>
       {isLoading ? (

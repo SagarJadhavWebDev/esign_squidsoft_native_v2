@@ -43,12 +43,13 @@ import ManageAddress from "../Address/Address";
 import AddAddressModal from "../../components/modals/AddAddressModal";
 import Addressservice from "../../services/AddressService";
 import { setAddresses } from "../../redux/reducers/AddressesSlice";
+import apiEndpoint from "../../constants/apiEndpoints";
 
 interface CheckoutCardProps {
-  naviagte: any;
+  navigation: any;
   route: any;
 }
-const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
+const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
   const Plan = route?.params?.plan;
   const checkoutData = Plan;
   const dispatch = useDispatch();
@@ -102,7 +103,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
         }
       });
     } else {
-     // console.log("Please add address before checkout");
+      // console.log("Please add address before checkout");
     }
   };
   const [errors, setErrors] = useState<any>(null);
@@ -154,6 +155,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
     if (error) {
       setStripeReady(false);
       Alert.alert("Something went wrong!");
+      console.log("sjwks", error);
     } else {
       setStripeReady(true);
     }
@@ -165,8 +167,10 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
       // console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
       if (error) {
         Alert.alert("Payment failed!");
+        console.log("sjwks", error);
       } else {
         dispatch(setPaymentPending(true));
+        setStripeReady(false);
       }
     };
     if (stripeReady) {
@@ -175,124 +179,74 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
   }, [stripeReady]);
   const handleActiveSubscription = async () => {
     seCheckouttLoadiing(true);
-    // await getIpData((ipData: any) => {
 
-    // });
-    const payload = {
-      type: "PLAN",
-      plan_id: checkoutData?.id,
-      billing_address_id: defaultAddress?.id,
-      coupon_code: couponCode?.coupon_code,
-      currency: "INR",
-      subscription_id: null,
-      gstin: couponCode?.gstin ?? null,
-      company_name: couponCode?.company_name ?? null,
-    };
-
-    const validate = !isEmpty(couponCode?.gstin)
-      ? isEmpty(couponCode?.gstin) && isEmpty(couponCode?.company_name)
-      : true;
-    // console.log("payload", payload, validate);
-    if (validate) {
-      console.log("payload", payload);
-      OrderService.handleCreateOrder(payload, async (data) => {
-        setOrder(data);
-        seCheckouttLoadiing(false);
-        // console.log("data", data);
-        if (data && user) {
-          // console.log("RAZR PAY PAYMENT ERR", data);
+    await getIpData((ipData: any) => {
+      console.log("IP DATA", ipData);
+      const payload = {
+        type: "PLAN",
+        plan_id: checkoutData?.id,
+        billing_address_id: defaultAddress?.id,
+        coupon_code: couponCode?.coupon_code,
+        currency: ipData?.country_code === "IN" ? "INR" : "USD",
+        subscription_id: null,
+        gstin: couponCode?.gstin ?? null,
+        company_name: couponCode?.company_name ?? null,
+      };
+      const validate = !isEmpty(couponCode?.gstin)
+        ? isEmpty(couponCode?.gstin) && isEmpty(couponCode?.company_name)
+        : true;
+      if (ipData) {
+        OrderService.handleCreateOrder(payload, async (data) => {
+          setOrder(data);
           seCheckouttLoadiing(false);
-          setIntent(data?.payment_intent_id);
-          const options: any = {
-            key: ApiConfig.RAZORPAY_KEY,
-            order_id: data?.payment_intent_id,
-            currency: "INR",
-            name: AppConfig.APP_NAME,
-            description: `payment for ${Plan?.name}`,
-            prefill: {
-              name: user?.name,
-              contact: user?.phone_number,
-              email: user?.email,
-            },
-          };
+          if (data && user) {
+            // console.log("RAZR PAY PAYMENT ERR", data);
+            seCheckouttLoadiing(false);
+            setIntent(data?.payment_intent_id);
+            const options: any = {
+              key: ApiConfig.RAZORPAY_KEY,
+              order_id: data?.payment_intent_id,
+              currency: "INR",
+              name: AppConfig.APP_NAME,
+              description: `payment for ${Plan?.name}`,
+              prefill: {
+                name: user?.name,
+                contact: user?.phone_number,
+                email: user?.email,
+              },
+            };
 
-          switch (data?.payment_intent_mode) {
-            case "RAZORPAY":
-              return RazorpayCheckout.open(options)
-                .then((res) => {
-                  // console.log("RAZORPAY PAYMENT", res);
-                  SubscriptionService.handleGetSubscription((data) => {
-                    dispatch(setSubscription(data));
+            switch (data?.payment_intent_mode) {
+              case "RAZORPAY":
+                return RazorpayCheckout.open(options)
+                  .then((res) => {
+                    SubscriptionService.handleGetSubscription((data) => {
+                      dispatch(setSubscription(data));
+                    });
+                    AuthService.handleGetProfile((data) => {
+                      if (data) {
+                        dispatch(setUser(data));
+                      }
+                    });
+                    navigation.pop();
+                  })
+                  .catch((e) => {
+                    console.log("RAZORPAY PAYMENT", e);
                   });
-                  AuthService.handleGetProfile((data) => {
-                    if (data) {
-                      dispatch(setUser(data));
-                    }
-                  });
-                })
-                .catch((e) => {
-                  console.log("RAZORPAY PAYMENT", e);
-                });
 
-            case "STRIPE":
-              dispatch(setCurrentOrderId(data?.id));
-              dispatch(setPaymentIntent(data?.payment_intent_id));
-              await initializeStripePaymentSheet(data?.payment_intent_id);
-            default:
-              return null;
+              case "STRIPE":
+                dispatch(setCurrentOrderId(data?.id));
+                dispatch(setPaymentIntent(data?.payment_intent_id));
+                await initializeStripePaymentSheet(data?.payment_intent_id);
+              default:
+                return null;
+            }
+          } else {
+            seCheckouttLoadiing(false);
           }
-        } else {
-          seCheckouttLoadiing(false);
-        }
-      });
-    }
-    //    else {
-    //     GSTValidations.validate(
-    //       { gstin: couponCode?.gstin, company_name: couponCode?.company_name },
-    //       { abortEarly: false }
-    //     )
-    //       .catch((err) => {
-    //         setErrors(serializeYupErrors(err));
-    //         seCheckouttLoadiing(false);
-    //         console.log("GST ", err);
-    //       })
-    //       .then((res) => {
-    //         console.log("GST ", res);
-    //         if (res !== undefined) {
-    //           setErrors(null);
-    //           OrderService.handleCreateOrder(payload, (data) => {
-    //             setOrder(data);
-    //             seCheckouttLoadiing(false);
-    //             console.log("data", data?.payment_intent_id);
-    //             if (data && ipData) {
-    //               console.log("RAZR PAY PAYMENT ERR", order);
-    //               seCheckouttLoadiing(false);
-    //               switch (data?.payment_intent_mode) {
-    //                 case "RAZORPAY":
-    //                   return InitiateRazrorpayPayment(
-    //                     Razorpay,
-    //                     data,
-    //                     user,
-    //                     data?.payment_intent_id,
-    //                     (data) => {
-    //                       SubscriptionService.handleGetSubscription((data) => {
-    //                         dispatch(setSubscription(data));
-    //                       });
-    //                       naviagte(ProtectedRoutes.settings);
-    //                     }
-    //                   );
-    //                 case "STRIPE":
-    //                   dispatch(showStripeModal(true));
-    //                   dispatch(setPaymentIntent(data?.payment_intent_id));
-    //                   dispatch(setCurrentOrderId(data?.id));
-    //                 default:
-    //                   return null;
-    //               }
-    //             }
-    //           });
-    //         }
-    //       });
-    //   }
+        });
+      }
+    });
   };
   const amount = (theform: any) => {
     let with2Decimals = theform?.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
@@ -432,6 +386,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
           <TouchableOpacity
             onPress={() => {
               // navigation.push(routes.dashboard);
+              navigation.pop();
             }}
             className=" bg-slate-800  rounded-full p-1.5 px-4"
           >
@@ -440,6 +395,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ naviagte, route }) => {
           <TouchableOpacity
             onPress={() => {
               if (defaultAddress) {
+                console.log("NEXT", defaultAddress);
                 handleActiveSubscription();
               } else {
                 toast.show("Please add address before checkout", {

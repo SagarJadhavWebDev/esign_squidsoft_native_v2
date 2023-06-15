@@ -127,7 +127,17 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
             {order?.associated_plan?.name}
           </Text>
         </View>
-        {order?.status === "FULFILLED" ? null : (
+        {order?.status === "FULFILLED" ? (
+          <View className="w-1/3 flex justify-center items-center ">
+            <TouchableOpacity
+              className={`bg-green-400 p-2 rounded-full px-5 mr-0.5 `}
+            >
+              <Text className="text-white w-full text-[10px] font-semibold">
+                {order?.status + " "}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
           <View className="w-1/3 flex justify-center items-center ">
             <TouchableOpacity
               onPress={async () => {
@@ -148,7 +158,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
                   case "RAZORPAY":
                     return RazorpayCheckout.open(options)
                       .then((res) => {
-                       // console.log("RAZORPAY PAYMENT", res);
+                        // console.log("RAZORPAY PAYMENT", res);
                         SubscriptionService.handleGetSubscription((data) => {
                           dispatch(setSubscription(data));
                         });
@@ -189,7 +199,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, type, navigation }) => {
             {order.associated_plan.type} - {order?.id ?? order?.id}
           </Text>
         </View>
-        <View className="w-1/3 "></View>
+        <View className="w-1/3 ">
+          <Text>{order.status}</Text>
+        </View>
         {order?.status === "FULFILLED" ? null : (
           <View className={`w-1/3  flex flex-row items-end  justify-center `}>
             <TouchableOpacity
