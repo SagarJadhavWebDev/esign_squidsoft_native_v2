@@ -130,7 +130,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
               : envelope?.status === "SIGNED"
               ? "signed"
               : envelope?.status === "PENDING"
-              ? "awaiting your action"
+              ? "awaiting your action "
               : envelope?.status}
           </Text>
         </View>

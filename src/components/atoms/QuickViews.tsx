@@ -7,6 +7,7 @@ import routes from "../../constants/routes";
 import GetSvg from "../../utils/GetSvg";
 import { Text, TouchableOpacity, View } from "react-native";
 import { setFilter } from "../../redux/reducers/uiSlice";
+import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
 
 interface cardType {
   name: string;
@@ -71,6 +72,7 @@ const QuickViews: React.FC<QuickViewsProps> = ({ navigation }) => {
               key={card?.name}
               className="border border-gray-200 rounded-2xl p-5 w-40 flex flex-col justify-around cursor-pointer"
               onPress={() => {
+                dispatch(setCurrentPage(1));
                 dispatch(setCurrentTab(card?.link));
                 dispatch(setManageList(null));
                 dispatch(

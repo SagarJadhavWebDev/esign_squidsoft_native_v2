@@ -138,7 +138,7 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
         {/* ################ QUICK VIEW SECTION END ############### */}
 
         {/* ################ INBOX SECTION START ############### */}
-        <View className=" h-64 border border-gray-200 rounded-2xl   w-full">
+        <View className="  mb-3 border border-gray-200 rounded-2xl   w-full">
           <View className="border-l-[3px] border-[#d10000] mt-3">
             <Text className="mx-2 text-sm font-semibold my-0.5">Inbox</Text>
           </View>

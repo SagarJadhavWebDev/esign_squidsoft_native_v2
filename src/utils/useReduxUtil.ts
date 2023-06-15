@@ -370,23 +370,33 @@ const useEnvelopesCount = () => {
   const counts = useSelector((state: ApplicationState) => state?.manage?.count);
   return counts;
 };
-// const usePagination = () => {
-//   const paginationData = useSelector(
-//     (state: ApplicationState) => state?.pagination
-//   );
-//   const pages = getPaginationPages(
-//     paginationData?.totalPages,
-//     5,
-//     paginationData?.currentPage
-//   );
-//   const perPage = paginationData?.perPage;
-//   return {
-//     currentPage: paginationData?.currentPage,
-//     totalPages: paginationData?.totalPages,
-//     pages,
-//     perPage,
-//   };
-// };
+
+const useCurrentPage = () => {
+  const paginationData = useSelector(
+    (state: ApplicationState) => state?.pagination
+  );
+  return paginationData?.currentPage;
+};
+const usePagination = () => {
+  const paginationData = useSelector(
+    (state: ApplicationState) => state?.pagination
+  );
+  return paginationData?.currentPage;
+  // const pages = getPaginationPages(
+  //   paginationData?.totalPages,
+  //   5,
+  //   paginationData?.currentPage
+  // );
+  // const perPage = paginationData?.perPage;
+  // return {
+  //   currentPage: paginationData?.currentPage,
+  //   totalPages: paginationData?.totalPages,
+  //   pages,
+  //   perPage,
+  // };
+
+  // return paginationData?.currentPage;
+};
 
 const useSignUserType = () => {
   const type = useSelector(
@@ -470,6 +480,7 @@ const useTemplates = () => {
 //   });
 // };
 export {
+  useCurrentPage,
   useOrders,
   useUser,
   useUI,

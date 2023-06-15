@@ -22,7 +22,7 @@ import useAuth from "../../utils/auth";
 import CryptoHandler from "../../utils/EncryptDecryptHandler";
 import HttpService from "../../utils/HttpService";
 import { handleGetEnvelopes } from "../../services/ManageService";
-import { useManageList } from "../../utils/useReduxUtil";
+import { useCurrentPage, useManageList } from "../../utils/useReduxUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab, setManageList } from "../../redux/reducers/ManageSlice";
 import CustomSelector from "../../components/molecules/CustomSelector";
@@ -32,6 +32,7 @@ import {
 } from "../../types/ManageListTypes";
 import { ApplicationState } from "../../redux/store";
 import { setFilter } from "../../redux/reducers/uiSlice";
+import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
 interface ManageProps {
   navigation: any;
   setIsLoading?: any;
@@ -43,20 +44,16 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
   const [selectedMenu, setSelectedMenu] = useState("inbox");
   const [loading, setLoading] = useState(false);
   const { currentTab, list, meta } = useManageList();
+  const page = useCurrentPage();
   const [envelopeList, setEnvelopeList] = useState<EnvelopeType[]>([]);
   const [listloading, setListLoading] = useState(false);
-  const [page, setPage] = useState<number>(1);
+  //const [page, setPage] = useState<number>(1);
   const [hasnextpage, setHasNextPage] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [listIsEmpty, setListIsEmpty] = useState(false);
   const dispatch = useDispatch();
-  const filterFromQuickview =
-    useSelector((state: ApplicationState) => state?.ui?.filter) ?? "All";
-  const [InBoxFilter, setInBoxFilter] = useState<any | null>(
-    filterFromQuickview ?? null
-  );
-  const [SentBoxFilter, setSentBoxFilter] = useState<any | null>(
-    filterFromQuickview ?? null
+  const filterFromQuickview = useSelector(
+    (state: ApplicationState) => state?.ui?.filter
   );
 
   const InBoxFilterList = [
@@ -94,28 +91,34 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
     setListLoading(true);
     setLoading(true);
     setListIsEmpty(false);
-    console.log("currentTab", currentTab, filterFromQuickview);
     handleGetEnvelopes(
       currentTab,
       page,
       10,
       filterFromQuickview,
       (data: any) => {
+        // console.log("page api", data?.last_page, page);
         if (data) {
           if (page > 1) {
-            const newData = [...(list ?? []), ...new Set(data?.data ?? [])];
+            const newData = [...(list ?? []), ...(data?.data ?? [])];
             const b = { ...data, data: newData };
+            console.log("pageascsc", data?.last_page, page, b?.data?.length);
             dispatch(setManageList(b));
+            setLoading(false);
+            setIsLoading && setIsLoading(false);
+            setListLoading(false);
           } else {
+            // console.log("pageascsc", data?.last_page,page);
             dispatch(setManageList(data));
+            setLoading(false);
+            setIsLoading && setIsLoading(false);
+            setListLoading(false);
           }
-          setLoading(false);
-          setIsLoading && setIsLoading(false);
-          setListLoading(false);
         } else {
         }
       }
     );
+    // console.log("currentTab", currentTab, filterFromQuickview, page);
   };
 
   const menu = [
@@ -216,116 +219,22 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
 
   useEffect(() => {
     getEnvelopeList();
-  }, [currentTab, page, filterFromQuickview, InBoxFilter, SentBoxFilter]);
-  useEffect(() => {
-    return () => {
-      dispatch(setFilter(null));
-    };
-  }, []);
+  }, [currentTab, page, filterFromQuickview]);
+
   return (
     <View className="bg-white justify-center px-2">
       <View className="W-full flex flex-row py-2">
-        {/* <View
-          style={{
-            //width: Dimensions.get("screen").width,
-            height: 50,
-            padding: 3,
-            marginVertical: 6,
-          }}
-          className=" w-[80%] bg-red-500  overflow-x-scroll flex flex-row gap-x-2"
-        >
-          {menu?.map((menu) => {
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  setEnvelopeList([]);
-                  setCurrentMenu(menu?.name);
-                  setSelectedMenu(menu?.name);
-                  dispatch(setCurrentTab(menu?.type));
-                }}
-                key={menu.name}
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 0,
-                  },
-                  shadowOpacity: 0.32,
-                  shadowRadius: 0.26,
-                  elevation: 2,
-                }}
-                className={`${
-                  currentTab === menu?.type
-                    ? "bg-[#d10000]"
-                    : "bg-white border border-gray-300"
-                }  my-1 flex items-center text-center justify-center  rounded-xl ${
-                  ["sent", "inbox"]?.includes(currentTab) ? "" : "w-20"
-                }`}
-              >
-                <Text
-                  textBreakStrategy="simple"
-                  className={`${
-                    currentTab === menu?.type ? "text-white " : "text-gray-700"
-                  } px-2.5 font-semibold text-xs `}
-                >
-                  {menu?.name}{" "}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View> */}
-        {/* {["sent", "inbox"]?.includes(currentTab) ? (
-          <View className="w-[30%] max-w-[20%] bg-green-500 flex justify-center px-1 ">
-            <CustomSelector
-              width={110}
-              dataList={
-                currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
-              }
-              setSelectedValue={(e: any) => {
-                if (currentTab === "inbox") {
-                  setInBoxFilter(e?.option?.value);
-                } else if (currentTab === "sent") {
-                  setSentBoxFilter(e?.option?.value);
-                }
-              }}
-              selectedItem={(item, index) => (
-                <View className=" h-full bg-white rounded-xl flex flex-row ">
-                  <View className="w-full  h-full flex items-start justify-center">
-                    <Text className="text-gray-500 w-full text-[10px] font-normal">
-                      {currentTab === "inbox"
-                        ? InBoxFilter ?? "All"
-                        : SentBoxFilter ?? "All"}
-                    </Text>
-                  </View>
-                </View>
-              )}
-              dropDownItems={(item, index) => (
-                <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
-                  <View className="w-full  h-full flex items-start justify-center">
-                    <Text
-                      className="text-gray-500 w-full text-[10px] font-normal"
-                      numberOfLines={1}
-                    >
-                      {item?.title}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            />
-          </View>
-        ) : null} */}
         <View className={`w-[75%] flex flex-row  `}>
           {menu?.map((menu) => {
             return (
               <TouchableOpacity
                 onPress={() => {
                   dispatch(setFilter(null));
-                  setInBoxFilter("All");
-                  setSentBoxFilter("All");
                   dispatch(setManageList(null));
                   dispatch(setCurrentTab(menu?.type));
                   setCurrentMenu(menu?.name);
                   setSelectedMenu(menu?.name);
+                  dispatch(setCurrentPage(1));
                 }}
                 key={menu.name}
                 style={{
@@ -366,13 +275,14 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
             }
             setSelectedValue={(e: any) => {
+              dispatch(setCurrentPage(1));
               dispatch(setFilter(e?.option?.value));
             }}
             selectedItem={(item, index) => (
               <View className=" h-full bg-white rounded-xl flex flex-row ">
                 <View className="w-full  h-full flex items-start justify-center">
                   <Text className="text-gray-500 w-full text-[10px] font-normal">
-                    {filterFromQuickview ?? "All"}
+                    {isEmpty(filterFromQuickview) ? "All" : filterFromQuickview}
                   </Text>
                 </View>
               </View>
@@ -392,118 +302,67 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           />
         </View>
       </View>
-      {/* <ScrollView
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 5 }}
-        style={{
-          // width: Dimensions.get("screen").width,
-          height: 50,
-          padding: 3,
-          marginVertical: 6,
+
+      <FlatList
+        className="w-full  h-full"
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 50,
         }}
-        className="bg-white overflow-x-scroll flex flex-row gap-x-2"
-      >
-        {menu?.map((menu) => {
-          return (
-            <TouchableOpacity
-              onPress={() => {
-                setEnvelopeList([]);
-                setCurrentMenu(menu?.name);
-                setSelectedMenu(menu?.name);
-                dispatch(setCurrentTab(menu?.type));
-              }}
-              key={menu.name}
-              style={{
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 0,
-                },
-                shadowOpacity: 0.32,
-                shadowRadius: 0.26,
-                elevation: 2,
-              }}
-              className={`${
-                currentMenu === menu?.name
-                  ? "bg-[#d10000]"
-                  : "bg-white border border-gray-300"
-              }  my-1 flex items-center text-center justify-center  rounded-xl`}
-            >
-              <Text
-                textBreakStrategy="simple"
-                className={`${
-                  currentMenu === menu?.name ? "text-white " : "text-gray-700"
-                } px-2.5 font-semibold text-xs `}
-              >
-                {menu?.name}{" "}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView> */}
-      {
-        <FlatList
-          className="w-full  h-full"
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: 50,
-          }}
-          data={list}
-          keyExtractor={(item, index) => {
-            return index.toString();
-          }}
-          renderItem={({ item, index }: any) => (
-            <EnvelopeListCard
-              key={index}
-              envelope={item}
-              navigation={navigation}
+        data={list}
+        keyExtractor={(item, index) => {
+          return index.toString();
+        }}
+        renderItem={({ item, index }: any) => (
+          <EnvelopeListCard
+            key={index}
+            envelope={item}
+            navigation={navigation}
+          />
+        )}
+        // maxToRenderPerBatch={10}
+        onEndReachedThreshold={0.7}
+        onEndReached={(e) => {
+          if (meta?.last_page !== page && !loading) {
+            setListLoading(true);
+            dispatch(setCurrentPage(page + 1));
+          } else {
+            setListLoading(false);
+          }
+        }}
+        refreshing={refresh}
+        onRefresh={() => {
+          dispatch(setCurrentPage(1));
+          dispatch(setManageList(null));
+        }}
+        ListFooterComponent={
+          listloading ? (
+            <ActivityIndicator
+              className="text-4xl"
+              size="large"
+              color="#d10000"
             />
-          )}
-          maxToRenderPerBatch={10}
-          onEndReachedThreshold={0.7}
-          onEndReached={() => {
-            if (meta?.last_page !== page) {
-              setListLoading(true);
-              setPage(page + 1);
-            } else {
-              setListLoading(false);
-            }
-          }}
-          refreshing={refresh}
-          onRefresh={() => {
-            dispatch(setManageList(null));
-            getEnvelopeList();
-          }}
-          ListFooterComponent={
-            listloading ? (
-              <ActivityIndicator
-                className="text-4xl"
-                size="large"
-                color="#d10000"
+          ) : (
+            <></>
+          )
+        }
+        showsVerticalScrollIndicator={true}
+        alwaysBounceVertical={true}
+        ListEmptyComponent={
+          isEmpty(list) && !loading ? (
+            <View className="w-full h-full items-center justify-center">
+              <NoDataFound
+                width={200}
+                height={200}
+                title={renderNoDataTitle()?.title}
+                subTitle={renderNoDataTitle().subTitle}
               />
-            ) : (
-              <></>
-            )
-          }
-          showsVerticalScrollIndicator={true}
-          alwaysBounceVertical={true}
-          ListEmptyComponent={
-            isEmpty(list) && !loading ? (
-              <View className="w-full h-full items-center justify-center">
-                <NoDataFound
-                  width={200}
-                  height={200}
-                  title={renderNoDataTitle()?.title}
-                  subTitle={renderNoDataTitle().subTitle}
-                />
-              </View>
-            ) : (
-              <></>
-            )
-          }
-        />
-      }
+            </View>
+          ) : (
+            <></>
+          )
+        }
+      />
     </View>
   );
 };

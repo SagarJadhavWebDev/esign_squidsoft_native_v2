@@ -157,46 +157,48 @@ const SendTemplate: React.FC<SendTemplateProps> = ({ navigation, route }) => {
             <Text className="w-full my-3 text-start font-semibold px-1 text-sm">
               Signers
             </Text>
-            <View className="min-h-16 h-[25%]    max-h-56 flex justify-center my-2 py-2 items-center border border-gray-300 rounded-xl">
-              <ScrollView
-                showsHorizontalScrollIndicator={true}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-                contentInsetAdjustmentBehavior="always"
-                className="px-2 w-full "
-              >
-                {fieldSets?.map((t: any) => {
-                  return (
-                    <View key={t.id} className="w-full rounded-xl  ">
-                      <View className="flex flex-col w-full justify-center ">
-                        {/* <Text className="text-[10px]">Enter signer email</Text> */}
-                        <WFullInputField
-                          placeholder={`Enter ${t?.name} email`}
-                          className="text-xs h-5 w-full"
-                          textContentType="emailAddress"
-                          onChangeText={(e) => {
-                            handleFieldSetChange(t?.id, e, "EMAIL");
-                          }}
-                          value={t?.email}
-                        />
+            {fieldSets ? (
+              <View className="min-h-16 h-[25%]    max-h-56 flex justify-center my-2 py-2 items-center border border-gray-300 rounded-xl">
+                <ScrollView
+                  showsHorizontalScrollIndicator={true}
+                  showsVerticalScrollIndicator={true}
+                  nestedScrollEnabled={true}
+                  contentInsetAdjustmentBehavior="always"
+                  className="px-2 w-full "
+                >
+                  {fieldSets?.map((t: any) => {
+                    return (
+                      <View key={t.id} className="w-full rounded-xl  ">
+                        <View className="flex flex-col w-full justify-center ">
+                          {/* <Text className="text-[10px]">Enter signer email</Text> */}
+                          <WFullInputField
+                            placeholder={`Enter ${t?.name} email`}
+                            className="text-xs h-5 w-full"
+                            textContentType="emailAddress"
+                            onChangeText={(e) => {
+                              handleFieldSetChange(t?.id, e, "EMAIL");
+                            }}
+                            value={t?.email}
+                          />
+                        </View>
+                        <View className="flex flex-col justify-center ">
+                          {/* <Text className="text-[10px]">Enter signer name</Text> */}
+                          <WFullInputField
+                            placeholder={`Enter ${t?.name} name`}
+                            className="text-xs h-5 w-full"
+                            textContentType="name"
+                            onChangeText={(e) => {
+                              handleFieldSetChange(t?.id, e, "NAME");
+                            }}
+                            value={t?.user_name}
+                          />
+                        </View>
                       </View>
-                      <View className="flex flex-col justify-center ">
-                        {/* <Text className="text-[10px]">Enter signer name</Text> */}
-                        <WFullInputField
-                          placeholder={`Enter ${t?.name} name`}
-                          className="text-xs h-5 w-full"
-                          textContentType="name"
-                          onChangeText={(e) => {
-                            handleFieldSetChange(t?.id, e, "NAME");
-                          }}
-                          value={t?.user_name}
-                        />
-                      </View>
-                    </View>
-                  );
-                })}
-              </ScrollView>
-            </View>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            ) : null}
             <Text className="w-full mt-3 text-start font-semibold px-1 text-sm">
               Send a copy to
             </Text>
