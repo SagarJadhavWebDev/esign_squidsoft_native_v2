@@ -10,6 +10,7 @@ export interface RegisterTypes {
 export interface LoginTypes {
   email: string;
   password: string;
+  showPassword: boolean;
 }
 
 export interface LoginData {
