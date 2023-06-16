@@ -163,7 +163,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             className="mx-2 w-full text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
             numberOfLines={1}
           >
-            Request from
+            {currentTab === "inbox" ? " Request from" : "Sent To"}
           </Text>
         </View>
         <View className="w-56 max-w-56 flex justify-end ">
@@ -174,7 +174,9 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
             className="mx-2  truncate flex text-end text-xs max-h-1/2 font-semibold text-gray-700 items-baseline"
             numberOfLines={1}
           >
-            {envelope?.user?.email + " "}
+            {currentTab === "sent"
+              ? envelope?.recipients?.map((s: any) => s?.email)?.join(",")
+              : envelope?.user?.email}
           </Text>
         </View>
       </View>

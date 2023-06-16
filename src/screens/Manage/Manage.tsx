@@ -347,6 +347,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
           onRefresh={() => {
             dispatch(setCurrentPage(1));
             dispatch(setManageList(null));
+            getEnvelopeList();
           }}
           ListFooterComponent={
             listloading ? (
