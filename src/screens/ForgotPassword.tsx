@@ -20,6 +20,9 @@ import CommonUtils from "../utils/CommonUtils";
 import GetSvg from "../utils/GetSvg";
 import AuthService from "../services/AuthService";
 import EmailSentCard from "./VerifyEmail/EmailSentCard";
+import InputTextBox from "../components/atoms/InputTextBox";
+import HttpService from "../controllers/HttpService";
+import apiEndpoint from "../constants/apiEndpoints";
 interface ForgotPasswordProps {
   navigation: any;
   route: any;
@@ -71,7 +74,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
         !isEmpty(passwordsValue.password_confirmation),
     }));
   }, [passwordsValue.password, passwordsValue.password_confirmation]);
-
+  const [error, setError] = useState<any>();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loadComponent, setLoadComponent] = useState(
@@ -80,38 +83,36 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   const [email, setEmail] = useState<any>(null);
 
   const handleCheckUser = () => {
-    setIsLoading(true);
-    AuthService.handleSendResetLink(email, toast, () => {
-      setIsLoading(false);
-      navigation.navigate(routes.emailSent, {
-        email: email,
-        type: "FORGOT_PASSWORD",
+    if (email) {
+      setError(null);
+      setIsLoading(true);
+      HttpService.post(apiEndpoint.auth.sendForgotLink, {
+        body: JSON.stringify({ email: email }),
+      }).then((res) => {
+        console.log("RESULt", res);
+        toast.show(res?.message, {
+          type: res?.success ? "success" : "error",
+        });
+        setIsLoading(false);
+        if (res?.success) {
+          navigation.navigate(routes.emailSent, {
+            email: email,
+            type: "FORGOT_PASSWORD",
+          });
+        }
       });
-    });
+    } else {
+      setError("Please enter valid email");
+    }
   };
 
-  const handleValidateOtp = () => {
-    //console.log("OPT FUN");
-    setIsLoading(true);
-    AuthController.validateOtp(email, otp).then((res) => {
-      // console.log("OPT FUN", res);
-      if (!res?.status) {
-        toast.show(res?.message, { type: "error" });
-        setIsLoading(false);
-      } else {
-        toast.show(res?.message, { type: "success" });
-        setLoadComponent("changePassword");
-        setIsLoading(false);
-      }
-    });
-  };
   const validated = Object.values(showPasswordsValidation).every(
     (i) => i !== false
   );
   const handleResetPassword = () => {
     if (validated) {
       setIsLoading(true);
-     // console.log("passwordsValue",passwordsValue)
+      // console.log("passwordsValue",passwordsValue)
       // AuthController.ResetPassword(
       //   email,
       //   passwordsValue.password,
@@ -133,7 +134,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
       });
     } else {
       toast.show("Please enter password in given format", { type: "error" });
-     // console.log(showPasswordsValidation);
+      // console.log(showPasswordsValidation);
     }
   };
   useEffect(() => {
@@ -186,10 +187,15 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
           <View className=" w-full max-w-sm">
             {loadComponent === "profileCheck" ? (
               <>
-                <WFullInputField
+                <InputTextBox
+                  editingState={true}
+                  onSubmitEditing={() => {
+                    handleCheckUser();
+                  }}
                   className="text-sm"
                   placeholder={"Please enter your email"}
                   onChangeText={setEmail}
+                  error={error}
                   svgIcon1={<GetSvg name="userIcon" classN="w-5 h-5 m-auto" />}
                 />
 

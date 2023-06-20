@@ -1,11 +1,11 @@
 const auth = {
-  register: "/users/signup",
-  login: "/users/signin",
+  register: "users/signup",
+  login: "users/signin",
   resendEmail: "/users/resend",
   verifyEmail: "email/verify/",
   logout: "users/logout",
-  sendForgotLink: "/users/reset-password-link",
-  forgotPassword: "/users/forget-password",
+  sendForgotLink: "users/reset-password-link",
+  forgotPassword: "users/forget-password",
 };
 const profile = {
   getProfile: "/users/me",

@@ -5,6 +5,8 @@ import { setIsLoading } from "../../redux/reducers/uiSlice";
 import { useToast } from "react-native-toast-notifications";
 import { useIsLoading } from "../../utils/useReduxUtil";
 import React from "react";
+import HttpService from "../../utils/HttpService";
+import apiEndpoint from "../../constants/apiEndpoints";
 
 interface EmailSentCardProps {
   route?: any;
@@ -41,18 +43,25 @@ const EmailSentCard: React.FC<EmailSentCardProps> = ({ route }) => {
                 onPress={() => {
                   dispatch(setIsLoading(true));
                   if (type === "VERIFY_EMAIL") {
-                    AuthService.ResendVerifyLink(email, toast, (data: any) => {
-                      if (data) {
-                        // console.log("DATA0", data);
-                        dispatch(setIsLoading(false));
-                      }
+                    HttpService.post(apiEndpoint.auth.verifyEmail, {
+                      body: JSON.stringify({ email: email }),
+                    }).then((res) => {
+                      toast.show(res?.message, {
+                        type: res?.success ? "success" : "error",
+                      });
+
+                      dispatch(setIsLoading(false));
                     });
                   } else {
-                    AuthService.handleSendResetLink(email, toast, (data) => {
-                      if (data) {
-                        // console.log("DATA0", data);
-                        dispatch(setIsLoading(false));
-                      }
+                    HttpService.post(apiEndpoint.auth.sendForgotLink, {
+                      body: JSON.stringify({ email: email }),
+                    }).then((res) => {
+                      console.log("RESULt", res);
+                      toast.show(res?.message, {
+                        type: res?.success ? "success" : "error",
+                      });
+
+                      dispatch(setIsLoading(false));
                     });
                   }
                 }}

@@ -35,18 +35,21 @@ interface WFullInputFieldProps extends TextInputProps {
   toggleIcon?: boolean;
   svgIcon1?: any;
   svgIcon2?: any;
+  ref?: any;
 }
 const WFullInputField: React.FC<WFullInputFieldProps> = ({
   error,
   toggleIcon = true,
   svgIcon1,
   svgIcon2,
+  ref,
   ...props
 }) => {
   return (
     <>
       <View className="border-gray-200 border-solid border rounded-lg text-xl p-2 px-3 my-2 flex flex-row justify-between">
         <TextInput
+          ref={ref}
           //   secureTextEntry={!showPassword}
           //   onChangeText={setPassword}
           //   value={password}

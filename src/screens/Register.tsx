@@ -19,6 +19,13 @@ import GetSvg from "../utils/GetSvg";
 import ApiInstance from "../services/ApiInstance";
 import apiEndpoint from "../constants/apiEndpoints";
 import handleResponse from "../services/handleResponse";
+import InputTextBox from "../components/atoms/InputTextBox";
+import { RegisterTypes } from "../types/AuthTypes";
+import { useValidateObjectValues } from "../utils/useReduxUtil";
+import { useDispatch } from "react-redux";
+import RegisterValidations from "../validations/RegisterValidations";
+import serializeYupErrors from "../utils/SerializeErrors";
+import HttpService from "../utils/HttpService";
 
 interface RegisterProps {
   navigation: any;
@@ -40,152 +47,13 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
   const toast = useToast();
   const { SignIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const useRegisterFormState = () => {
-    const [payload, setPayload] = useState<RegisterPayLoad>({
-      name: null,
-      email: null,
-      password: null,
-      terms_accepted: true,
-    });
-
-    const [validate, setValidate] = useState<RegisterPayLoadValidation>({
-      name: true,
-      email: true,
-      password: true,
-    });
-
-    const [error, setError] = useState<RegisterPayLoad>({
-      name: null,
-      email: null,
-      password: null,
-    });
-
-    const handleErrorValidation = () => {
-      setValidate({
-        name: true,
-        email: true,
-        password: true,
-      });
-      setError({
-        name: null,
-        email: null,
-        password: null,
-      });
-      //console.log("Submit");
-      let validated = true;
-      if (isEmpty(payload.name)) {
-        setValidate((prev) => ({
-          ...prev,
-          name: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          name: "Name is Required",
-        }));
-        validated = false;
-      }
-      if (isEmpty(payload.email)) {
-        setValidate((prev) => ({
-          ...prev,
-          email: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          email: "Email is Required",
-        }));
-        validated = false;
-      }
-
-      if (isEmpty(payload.password)) {
-        setValidate((prev) => ({
-          ...prev,
-          password: false,
-        }));
-        setError((prev) => ({
-          ...prev,
-          password: "Password is Required",
-        }));
-        validated = false;
-      }
-
-      return validated;
-    };
-
-    const handleSubmit = () => {
-      const v = handleErrorValidation();
-      if (v && validate.name && validate.email && validate.password) {
-        setIsLoading(true);
-        ApiInstance.post(apiEndpoint.auth.register, payload)
-          .then(async (response) => {
-            const data = await handleResponse(response, toast);
-           // console.log("PAYLOAD REGSIERT:", payload, data);
-            if (response?.status === 200) {
-              navigation.navigate(routes.emailSent, {
-                email: payload?.email,
-                type: "VERIFY_EMAIL",
-              });
-            }
-            setIsLoading(false);
-          })
-          .catch(async (res) => {
-           // console.log("PAYLOAD: REGSIERT", payload);
-            const data = await handleResponse(res, toast);
-            setIsLoading(false);
-            // callBack(res?.response?.status === 200);
-            // not handling user token storage here because of we need to verify email by link
-            // const data = handleResponse(res.response);
-          });
-        //setIsLoading(true);
-        // AuthController.Register(payload).then((result) => {
-        //   // console.log("Rgister:", result);
-        //   setIsLoading(false);
-        //   if (result?.e_payload) {
-        //     SignIn &&
-        //       SignIn(result, () => {
-        //         toast.show("register successfully", { type: "success" });
-        //       });
-        //     //navigation.navigate(routes.dashboard);
-        //   } else {
-        //     toast.show(result?.message, { type: "error" });
-        //   }
-        // });
-      }
-    };
-
-    return {
-      name: {
-        value: payload.name,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, name: value })),
-        valid: validate.name,
-        error: error.name,
-      },
-      email: {
-        value: payload.email,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, email: value })),
-        valid: validate.email,
-        error: error.email,
-      },
-
-      password: {
-        value: payload.password,
-        set: (value: string) =>
-          setPayload((prev) => ({ ...prev, password: value })),
-        valid: validate.password,
-        error: error.password,
-      },
-
-      submit: handleSubmit,
-    };
-  };
-  const {
-    email,
-    name,
-    password,
-
-    submit,
-  } = useRegisterFormState();
+  const [errors, SetErrors] = useState<any>();
+  const [payload, setPayload] = useState<RegisterTypes>({
+    name: "",
+    email: "",
+    password: "",
+    terms_accepted: true,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showErrorBox, setShowErrorBox] = useState(false);
@@ -220,7 +88,43 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
   const isValidPassword = Object.values(showPasswordsValidation).every(
     (o: any) => o === true
   );
+  const [focusId, setFocusId] = useState("name");
+  const dispatch = useDispatch();
+  const validate = useValidateObjectValues(showPasswordsValidation, false);
   // console.log("isValidPassword",isValidPassword,showPasswordsValidation)
+  const handleRegister = () => {
+    
+      setIsLoading(true);
+      RegisterValidations.validate(payload, {
+        abortEarly: false,
+      })
+        .catch((err) => {
+          SetErrors(serializeYupErrors(err));
+          console.log("serializeYupErrors(err)", serializeYupErrors(err));
+          setIsLoading(false);
+        })
+        .then((res) => {
+          if (res !== undefined && validate) {
+            SetErrors(null);
+            HttpService.post(apiEndpoint.auth.register, {
+              body: JSON.stringify(payload),
+            }).then((res) => {
+              console.log("RESULt", res);
+              toast.show(res?.message, {
+                type: res?.success ? "success" : "error",
+              });
+              setIsLoading(false);
+              if (res?.success) {
+                navigation.navigate(routes.emailSent, {
+                  email: payload?.email,
+                  type: "VERIFY_EMAIL",
+                });
+              }
+            });
+          }
+        });
+  
+  };
   return (
     <>
       <ScrollView>
@@ -255,21 +159,45 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
             </Text>
           </View>
           <View className=" w-full">
-            <WFullInputField
+            <InputTextBox
+              editingState={focusId === "name"}
               placeholder="Full Name"
               className="text-base"
-              onChangeText={name.set}
-              value={name.value ?? ""}
-              error={!name.valid ? name.error : null}
+              onFocus={() => {
+                setFocusId("name");
+              }}
+              onSubmitEditing={() => {
+                setFocusId("email");
+              }}
+              onChangeText={(e) => {
+                setPayload((prev) => ({
+                  ...prev,
+                  name: e,
+                }));
+              }}
+              value={payload?.name ?? ""}
+              error={errors?.name ? errors?.name : null}
               svgIcon1={<GetSvg name="userIcon" classN="w-5 h-5 m-auto" />}
             />
-            <WFullInputField
+            <InputTextBox
+              editingState={focusId === "email"}
               textContentType="emailAddress"
+              onFocus={() => {
+                setFocusId("email");
+              }}
               placeholder="Email"
               className="text-base"
-              onChangeText={email.set}
-              value={email.value ?? ""}
-              error={!email.valid ? email.error : null}
+              onChangeText={(e) => {
+                setPayload((prev) => ({
+                  ...prev,
+                  email: e,
+                }));
+              }}
+              value={payload.email}
+              onSubmitEditing={() => {
+                setFocusId("password");
+              }}
+              error={errors?.email ? errors?.email : null}
               svgIcon1={
                 <Svg
                   // xmlns="http://www.w3.org/2000/svg"
@@ -287,20 +215,28 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
               }
             />
 
-            <WFullInputField
+            <InputTextBox
+              editingState={focusId === "password"}
               secureTextEntry={!showPassword}
               onChangeText={(e) => {
-                password.set(e);
+                setPayload((prev) => ({
+                  ...prev,
+                  password: e,
+                }));
                 setPasswordsValue((prev: any) => ({
                   ...prev,
                   new_password: e,
                 }));
               }}
               onFocus={() => {
+                setFocusId("password");
                 setShowErrorBox(true);
               }}
-              value={password.value ?? ""}
-              error={!password.valid ? password.error : null}
+              onSubmitEditing={() => {
+                handleRegister();
+              }}
+              value={payload?.password ?? ""}
+              error={errors?.password ? errors?.password : null}
               placeholder="Password"
               className="text-base"
               toggleIcon={!showPassword}
@@ -402,9 +338,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
                 isValidPassword ? "uppercase text-base" : "uppercase text-base "
               }
               onPress={() => {
-                if (isValidPassword) {
-                  submit();
-                }
+                handleRegister();
               }}
             />
             <TouchableOpacity
