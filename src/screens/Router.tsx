@@ -38,29 +38,30 @@ const Router = () => {
   }, []);
 
   const navigationRef = useRef<any>();
-  Linking.addEventListener("url", (e) => {
-    //console.log("FROM LINKING", e.url);
-    const url: any = e.url;
-    if (url.includes("/envelope/view?")) {
-      const envelope = { access_token: url };
-      navigationRef?.current?.navigate(routes.viewEnvelope, {
-        envelope,
-        currentTab: "SIGN",
-      });
-    } else if (url?.includes("/email/verify/")) {
-      navigationRef?.current?.navigate(routes.verifyEmail, {
-        token: url,
-      });
-    } else if (url?.includes("/forgot-password?")) {
-      navigationRef?.current?.navigate(routes.ForgotPassword, {
-        token: url,
-      });
-    }
-  });
+
+  const handleNavigationReady = async () => {
+    const urlData: any = await Linking.getInitialURL();
+    if (urlData)
+      if (urlData.includes("/envelope/view?")) {
+        const envelope = { access_token: urlData };
+        navigationRef?.current?.navigate(routes.viewEnvelope, {
+          envelope,
+          currentTab: "SIGN",
+        });
+      } else if (urlData?.includes("/email/verify/")) {
+        navigationRef?.current?.navigate(routes.verifyEmail, {
+          token: urlData,
+        });
+      } else if (urlData?.includes("/forgot-password?")) {
+        navigationRef?.current?.navigate(routes.ForgotPassword, {
+          token: urlData,
+        });
+      }
+  };
 
   return (
     <React.Fragment>
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer onReady={handleNavigationReady} ref={navigationRef}>
         <Stack.Navigator initialRouteName={routes.splash}>
           {showSplashScreen ? (
             <Stack.Screen

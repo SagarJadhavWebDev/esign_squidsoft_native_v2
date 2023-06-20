@@ -37,6 +37,8 @@ import { setRemoteFields } from "../../redux/reducers/PdfSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
 import routes from "../../constants/routes";
 import React from "react";
+import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
+import { setselectedRecipients } from "../../redux/reducers/RecipientSlice";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
@@ -197,7 +199,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
               <RecipientSelector
                 recipients={recipients}
                 selectedRecipient={selectedRecipient}
-                setSelectedRecipient={() => {}}
+                setSelectedRecipient={(e: any) => {
+                  dispatch(setselectedRecipients(e?.option));
+                }}
               />
             )}
           </View>
@@ -206,7 +210,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             {documents && (
               <DocumentSelector
                 selectedDocument={SelectedDocuments}
-                setSelectedDocument={() => {}}
+                setSelectedDocument={(e: any) => {
+                  dispatch(setSelecteDocument(e?.option));
+                }}
                 documents={documents}
               />
             )}
