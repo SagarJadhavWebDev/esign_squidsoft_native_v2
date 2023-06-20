@@ -5,7 +5,7 @@ import { ICONTYPE } from "../../types/IconTypes";
 import { setCurrentTab, setManageList } from "../../redux/reducers/ManageSlice";
 import routes from "../../constants/routes";
 import GetSvg from "../../utils/GetSvg";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import { setFilter } from "../../redux/reducers/uiSlice";
 import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
 
@@ -63,20 +63,33 @@ const QuickViews: React.FC<QuickViewsProps> = ({ navigation }) => {
   ];
 
   const dispatch = useDispatch();
+  const width = Dimensions.get("window").width
   return (
-    <View className=" flex flex-col my-2   ">
-      <View className="py-3 w-full flex flex-row md:flex-row flex-wrap  gap-x-3  gap-y-4  justify-center items-center">
+    <View className={` flex flex-col my-2 p-2   `}>
+      {/* <View className="py-3 w-full flex flex-row md:flex-row flex-wrap  gap-x-3  grid-auto  justify-center "> */}
+      <View
+        style={{
+          width: width
+        }}
+        className={`py-2  flex flex-row   flex-wrap `}>
         {cards?.map((card: cardType) => {
           return (
             <TouchableOpacity
+              style={{
+                width: width / 2.3,
+                minWidth: width / 4
+              }}
               key={card?.name}
-              className="border border-gray-200 rounded-2xl p-5 w-40 flex flex-col justify-around cursor-pointer"
+              // className="border border-gray-200 rounded-2xl  w-40 flex flex-col cursor-pointer"
+              className={`border border-gray-200 rounded-2xl cursor-pointer flex flex-col     m-1 p-2`}
               onPress={() => {
+                console.log('Dimensions width', Dimensions.get('window'), Dimensions.get('screen').width / 2 + "px")
                 dispatch(setCurrentPage(1));
                 dispatch(setCurrentTab(card?.link));
                 dispatch(setManageList(null));
                 dispatch(
                   setFilter(
+
                     card?.name === "Awaiting your action"
                       ? "pending"
                       : card?.name === "Waiting on others"
@@ -86,7 +99,7 @@ const QuickViews: React.FC<QuickViewsProps> = ({ navigation }) => {
                       : ""
                   )
                 );
-                navigation.navigate(routes.Manage);
+                // navigation.navigate(routes.Manage);
               }}
             >
               <View

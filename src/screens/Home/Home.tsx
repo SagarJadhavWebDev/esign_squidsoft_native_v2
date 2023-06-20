@@ -131,7 +131,7 @@ const Home: React.FC<HomeProps> = ({ navigation, route }) => {
               Quick Views
             </Text>
           </View>
-          <View className="w-full flex flex-row  justify-center items-center">
+          <View className="w-full flex flex-row ">
           <QuickViews navigation={navigation} />
           </View>
         </View>
