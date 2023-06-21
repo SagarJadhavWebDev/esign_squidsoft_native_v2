@@ -35,8 +35,21 @@ import {
   manageSentFilter,
 } from "../../types/ManageListTypes";
 import { ApplicationState } from "../../redux/store";
-import { setFilter } from "../../redux/reducers/uiSlice";
+import {
+  setFilter,
+  setUpdateQuery,
+  setshowConfirmDeleteModal,
+  setshowVoidEnvelopeModal,
+} from "../../redux/reducers/uiSlice";
 import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
+import VoidEnvlopeModal from "../../components/modals/VoidEnvlopeModal";
+import ApiInstance from "../../services/ApiInstance";
+import apiEndpoint from "../../constants/apiEndpoints";
+import handleResponse from "../../services/handleResponse";
+import { useToast } from "react-native-toast-notifications";
+import { setIsLoading as setloadingModal } from "../../redux/reducers/uiSlice";
+import DeleteEnvelopeModal from "../../components/modals/DeleteEnvelopeModal";
+import { nanoid } from "@reduxjs/toolkit";
 interface ManageProps {
   navigation: any;
   setIsLoading?: any;
@@ -224,11 +237,61 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
         };
     }
   };
+  const toast = useToast();
 
+  const isloading = useIsLoading();
+  const modalToken: any = useSelector(
+    (state: ApplicationState) => state?.ui?.modalData
+  );
+  const handleVoidEnvelope = (value: any) => {
+    setLoading(true);
+    dispatch(setloadingModal(true));
+    dispatch(setshowVoidEnvelopeModal(false));
+    HttpService.post(apiEndpoint.envelope.voidEnvelope(modalToken), {
+      body: JSON.stringify({ reason: value }),
+    })
+      .then((res) => {
+        toast.show(res?.message, {
+          type: res?.success ? "success" : "error",
+        });
+        dispatch(setloadingModal(false));
+        dispatch(setUpdateQuery(nanoid()));
+        setLoading(false);
+      })
+      .catch((err) => {
+        dispatch(setshowVoidEnvelopeModal(true));
+        dispatch(setloadingModal(false));
+      });
+  };
+  const handleDeleteEnvelope = () => {
+    setLoading(true);
+    dispatch(setloadingModal(true));
+    dispatch(setshowConfirmDeleteModal(false));
+    const deleteTokens = modalToken?.split("api/").pop();
+    HttpService.delete(deleteTokens)
+      .then((res) => {
+        toast.show(res?.message, {
+          type: res?.success ? "success" : "error",
+        });
+        dispatch(setloadingModal(false));
+        dispatch(setUpdateQuery(nanoid()));
+        setLoading(false);
+      })
+      .catch((err) => {
+        dispatch(setshowConfirmDeleteModal(true));
+        dispatch(setloadingModal(false));
+      });
+  };
+
+  const isOpenVoidEnvelope = useSelector(
+    (state: ApplicationState) => state?.ui?.showVoidEnvelopeModal
+  );
+  const isOpenDeleteEnvelope = useSelector(
+    (state: ApplicationState) => state?.ui?.showConfirmDeleteModal
+  );
   useEffect(() => {
     getEnvelopeList();
   }, [currentTab, page, filterFromQuickview, updateQuery]);
-  const isloading = useIsLoading();
   return (
     <React.Fragment>
       <View className="bg-white justify-center px-2">
@@ -238,6 +301,9 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               return (
                 <TouchableOpacity
                   onPress={() => {
+                    if (menu?.name === currentTab) {
+                      return null;
+                    }
                     dispatch(setFilter(null));
                     dispatch(setManageList(null));
                     dispatch(setCurrentTab(menu?.type));
@@ -281,7 +347,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               disabled={
                 ["draft", "self_sign"].includes(currentTab) ? true : false
               }
-              width={80}
+              width={87}
               dataList={
                 currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
               }
@@ -292,7 +358,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               selectedItem={(item, index) => (
                 <View className=" h-full bg-white rounded-xl flex flex-row ">
                   <View className="w-full  h-full flex items-start justify-center">
-                    <Text className="text-gray-500 w-full text-[10px] font-normal">
+                    <Text className="text-gray-700 font-semibold w-full text-[10px] ">
                       {isEmpty(filterFromQuickview)
                         ? "All"
                         : filterFromQuickview}
@@ -301,10 +367,10 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
                 </View>
               )}
               dropDownItems={(item, index) => (
-                <View className="mx-3  h-full bg-white rounded-xl flex flex-row">
+                <View className="mx-3 w-72  h-full bg-white rounded-xl flex flex-row">
                   <View className="w-full  h-full flex items-start justify-center">
                     <Text
-                      className="text-gray-500 w-full text-[10px] font-normal"
+                      className="text-gray-700 w-full text-[10px] font-semibold"
                       numberOfLines={1}
                     >
                       {item?.title}
@@ -382,6 +448,12 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
         <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
           <ActivityIndicator size={"large"} color="#d10000" />
         </View>
+      ) : null}
+      {isOpenVoidEnvelope ? (
+        <VoidEnvlopeModal callBack={handleVoidEnvelope} />
+      ) : null}
+      {isOpenDeleteEnvelope ? (
+        <DeleteEnvelopeModal callBack={handleDeleteEnvelope} />
       ) : null}
     </React.Fragment>
   );

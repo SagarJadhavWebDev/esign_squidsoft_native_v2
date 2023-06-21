@@ -104,7 +104,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
               body: JSON.stringify(payload),
             })
               .then((res) => {
-                console.log("RESULt", res);
+                toast.hideAll();
                 toast.show(res?.message, {
                   type: res?.success ? "success" : "error",
                 });

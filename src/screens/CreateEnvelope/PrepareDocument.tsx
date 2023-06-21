@@ -39,6 +39,7 @@ import routes from "../../constants/routes";
 import React from "react";
 import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
 import { setselectedRecipients } from "../../redux/reducers/RecipientSlice";
+import EnvelopeUserWarningModal from "../../components/modals/EnvelopeUserWarningModal";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
@@ -189,6 +190,12 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   // useEffect(() => {
   //   dispatch(setIsLoading(false));
   // }, []);
+  const recipientsFieldList = addedFields?.map((u: any) => {
+    return u?.meta?.email;
+  });
+  const isAllUserFieldAdded = recipients?.filter((s) => {
+    return !recipientsFieldList?.includes(s?.user?.email);
+  });
   return (
     <React.Fragment>
       <View className="w-full h-[90%]">
@@ -262,7 +269,11 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            handleSubmit(addedFields);
+            if (!isEmpty(isAllUserFieldAdded) && !isEmpty(addedFields)) {
+              dispatch(setshowEnvelopeUserWarningModal(true));
+            } else {
+              handleSubmit(addedFields);
+            }
           }}
           className={`rounded-full  p-1.5 px-4 ${
             addedFields?.length ? "bg-[#d10000]" : "bg-[#ef9393]"
@@ -271,6 +282,14 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           <Text className="text-white text-xs font-extrabold ">Next </Text>
         </TouchableOpacity>
       </View>
+      <EnvelopeUserWarningModal
+        users={isAllUserFieldAdded?.map((u) => {
+          return u?.user?.email;
+        })}
+        callBack={() => {
+          handleSubmit(addedFields);
+        }}
+      />
     </React.Fragment>
   );
 };

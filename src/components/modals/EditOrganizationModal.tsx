@@ -1,40 +1,20 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { Modal, View, Pressable, Text, Button, Image } from "react-native";
-import ApiConfig from "../../constants/ApiConfig";
+import React, { useEffect, useRef, useState } from "react";
+import { Modal, View, Pressable, Text, Image } from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import DocumentPicker, { types } from "react-native-document-picker";
-import {
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-} from "react-native-gesture-handler";
-import { isEmpty, isNull, omit } from "lodash";
+import { ScrollView } from "react-native-gesture-handler";
+import { isEmpty } from "lodash";
 import WFullInputField from "../atoms/WFullInputField";
-import WFullInputFieldCC from "../atoms/WFullInputFieldCC";
-import useAuth from "../../utils/auth";
-import { useToast } from "react-native-toast-notifications";
 import Error from "../atoms/Error";
-import HttpService from "../../utils/HttpService";
-import apiEndpoints from "../../constants/apiEndpoints";
-import CryptoHandler from "../../utils/EncryptDecryptHandler";
-import IndeterminateProgressBar from "../atoms/IndeterminateProgressBar";
 import { useDispatch } from "react-redux";
-import ProfileService from "../../services/ProfileService";
-import { setUser } from "../../redux/reducers/userSlice";
-import {
-  setIsLoading,
-  setLoadingModal,
-  setModalType,
-} from "../../redux/reducers/uiSlice";
+import { setLoadingModal, setModalType } from "../../redux/reducers/uiSlice";
 import {
   useCitiesList,
   useCountryList,
-  useIsLoading,
   useOrganization,
   useStateList,
   useUser,
 } from "../../utils/useReduxUtil";
-import RNFetchBlob from "rn-fetch-blob";
 import CountryService from "../../services/CountryService";
 import {
   setCitiesData,
@@ -43,6 +23,7 @@ import {
 import OrganizationsService from "../../services/OrganizationsService";
 import { setOrganization } from "../../redux/reducers/ListOrganizationSlice";
 import CustomDropDown from "../molecules/CustomDropDown";
+import { setTeams } from "../../redux/reducers/TeamsSlice";
 interface EditOrganizationModalProps {
   isOpen: boolean;
   setIsOpen: any;
@@ -147,6 +128,7 @@ const EditOrganizationModal: React.FC<EditOrganizationModalProps> = ({
         (data: any) => {
           if (data) {
             dispatch(setOrganization(data));
+            dispatch(setTeams(data?.teams));
             dispatch(setLoadingModal(false));
             dispatch(setModalType(""));
             setIsOpen(false);
@@ -468,7 +450,7 @@ const EditOrganizationModal: React.FC<EditOrganizationModalProps> = ({
                         })}
                         onSelect={(e: any) => {
                           const selectedState = e?.option;
-                         // console.log("selectedState", selectedState);
+                          // console.log("selectedState", selectedState);
 
                           setPayload((prev: any) => ({
                             ...prev,

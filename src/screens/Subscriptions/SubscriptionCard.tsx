@@ -100,7 +100,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             } `}
           >
             <Text className="text-white w-full text-[10px] font-semibold">
-              {subscription?.plan?.name === "Personal" ? "Activated " : "Renew"}
+              {subscription?.plan?.name === "Personal" ? "Activated " : "Renew "}
             </Text>
           </TouchableOpacity>
         </View>

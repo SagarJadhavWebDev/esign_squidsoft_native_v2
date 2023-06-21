@@ -19,7 +19,7 @@ const envelope = {
     `/envelopes/recipients/add/${envelopeId}`,
   sendEnvelope: (id: number) => `envelopes/send/${id}`,
   viewEnvelope: `envelope/view`,
-  voidEnvelope: (envelopeId: number) => `/envelopes/void/${envelopeId}`,
+  voidEnvelope: (envelopeId: number) => `envelopes/void/${envelopeId}`,
   searchRecipients: (q: string) => `/envelopes/recipients/search?q=${q}`,
 };
 const document = {

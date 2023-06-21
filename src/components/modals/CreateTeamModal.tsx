@@ -1,16 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Modal, View, Pressable, Text, TextInput } from "react-native";
+import React, { useState } from "react";
+import { Modal, View, Pressable, Text } from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import { ScrollView } from "react-native-gesture-handler";
-import useAuth from "../../utils/auth";
-import { useToast } from "react-native-toast-notifications";
-import Svg, { Path } from "react-native-svg";
 import WFullInputField from "../atoms/WFullInputField";
-import Error from "../atoms/Error";
-import { isEmpty } from "lodash";
-import HttpService from "../../utils/HttpService";
-import apiEndpoints from "../../constants/apiEndpoints";
-import ProfileService from "../../services/ProfileService";
 import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "../../redux/store";
 import { useOrganization } from "../../utils/useReduxUtil";

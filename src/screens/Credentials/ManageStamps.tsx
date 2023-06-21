@@ -11,8 +11,14 @@ import GetSvg from "../../utils/GetSvg";
 import HttpService from "../../utils/HttpService";
 import { useStamps } from "../../utils/useReduxUtil";
 import CredentialsService from "../../services/CredentialsService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setStamps } from "../../redux/reducers/CredentialsSlice";
+import {
+  setmodalData,
+  setshowConfirmDeleteModal,
+} from "../../redux/reducers/uiSlice";
+import DeleteEnvelopeModal from "../../components/modals/DeleteEnvelopeModal";
+import { ApplicationState } from "../../redux/store";
 
 // @isSelectStamp used for selecting stamp if multiple stamps availble for sign enevelope
 interface ManageStampsProps {
@@ -35,57 +41,9 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
   const toast = useToast();
   const stamps = useStamps();
   const [viewStamp, setViewStamp] = useState<any>(null);
-  // const handleDefaultStamp = async (id: any) => {
-  //   setIsLoading && setIsLoading(true);
-  //   await HttpService.put(apiEndpoints.updateStamp(id), { token: token })
-  //     .then(async (res: any) => {
-  //       const data = res;
-  //       if (res?.id) {
-  //         const data = CryptoHandler.response(res, token ?? "");
-  //         UpdateUser &&
-  //           UpdateUser(res, token, () => {
-  //             setIsOpen({
-  //               type: null,
-  //               isOpen: false,
-  //             });
-  //             RefreshUser && RefreshUser(token);
-  //             toast.show(`${modalType} default set successfully`, {
-  //               type: "success",
-  //             });
-  //             setIsLoading && setIsLoading(false);
-  //           });
-  //       } else {
-  //         toast.show("Failed to update stamp", { type: "error" });
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
-  // const handleDeleteStamp = async (id: any) => {
-  //   setIsLoading && setIsLoading(true);
-  //   await HttpService.delete(apiEndpoints.updateCredentials(id), {
-  //     token: token ?? "",
-  //   })
-  //     .then(async (res: any) => {
-  //       if (res) {
-  //         const data = CryptoHandler.response(res, token ?? "");
-  //         UpdateUser &&
-  //           UpdateUser(res, token, () => {
-  //             setIsOpen({
-  //               type: null,
-  //               isOpen: false,
-  //             });
-  //             RefreshUser && RefreshUser(token);
-  //             toast.show("Stamp deleted succesfully", { type: "success" });
-  //             setIsLoading && setIsLoading(false);
-  //           });
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log("STAMP DELETE ERR", err);
-  //     });
-  // };
+  const modalData = useSelector(
+    (state: ApplicationState) => state?.ui?.modalData
+  );
   const dispatch = useDispatch();
   return (
     <>
@@ -140,12 +98,9 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => {
-                          CredentialsService.handleDeleteCredentials(
-                            s?.id,
-                            (data) => {
-                              dispatch(setStamps(data?.["stamps"]));
-                            }
-                          );
+                          dispatch(setmodalData(s?.id));
+                          dispatch(setshowConfirmDeleteModal(true));
+
                           //handleDeleteStamp(s?.id);
                         }}
                         className="justify-center items-center"
@@ -233,6 +188,18 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
           </>
         )}
       </ScrollView>
+      <DeleteEnvelopeModal
+        description="Are you sure you want to delete this stamp?"
+        callBack={() => {
+          dispatch(setshowConfirmDeleteModal(false));
+          CredentialsService.handleDeleteCredentials(
+            Number(modalData),
+            (data) => {
+              dispatch(setStamps(data?.["stamps"]));
+            }
+          );
+        }}
+      />
     </>
   );
 };

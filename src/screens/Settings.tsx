@@ -194,6 +194,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   }, []);
   const [refreshing, setRefreshing] = React.useState(false);
   const dispatch = useDispatch();
+  console.log("organization",Organization)
   return (
     <View className="w-full h-full">
       <ScrollView
@@ -212,6 +213,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
                 return data;
               });
               getSubscriptions();
+              
             }}
           />
         }

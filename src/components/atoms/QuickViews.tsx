@@ -8,7 +8,7 @@ import GetSvg from "../../utils/GetSvg";
 import { Text, TouchableOpacity, View } from "react-native";
 import { setFilter } from "../../redux/reducers/uiSlice";
 import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
-
+import {Dimensions} from 'react-native';
 interface cardType {
   name: string;
   icon: ICONTYPE;
@@ -61,7 +61,8 @@ const QuickViews: React.FC<QuickViewsProps> = ({ navigation }) => {
       link: "sent",
     },
   ];
-
+ 
+  const windowWidth = Dimensions.get('window').width;
   const dispatch = useDispatch();
   return (
     <View className=" flex flex-col my-2   ">

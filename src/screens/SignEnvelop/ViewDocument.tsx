@@ -158,6 +158,12 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
                   type: "success",
                   duration: 3000,
                 });
+                if (res?.path()) {
+                  RNFetchBlob.android.actionViewIntent(
+                    res?.path(),
+                    "application/zip"
+                  );
+                }
                 // console.log("do some magic in here");
               })
               .catch((err) => {

@@ -202,7 +202,6 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
                   <TouchableOpacity className="flex  bg-red-500 mt-2 flex-row justify-center items-center rounded-xl  p-2">
                     <Text
                       onPress={() => {
-                        console.log("MODAL");
                         dispatch(setAddUserModal(true));
                       }}
                       className="text-white text-[11px] w-1/2  text-center font-semibold"
@@ -263,8 +262,8 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
         }}
         className=" bg-[#d10000] p-2 absolute rounded-full "
       >
-        <Text className="">
-          <GetSvg name="addIcon" color="white" classN="w-8 h-8" />
+        <Text className="text-white text-xs px-2 font-extrabold">
+          Add new member +{" "}
         </Text>
       </TouchableOpacity>
     </View>
