@@ -20,17 +20,19 @@ import { setTeams } from "../../redux/reducers/TeamsSlice";
 import CustomDropDown from "../molecules/CustomDropDown";
 import { setAddUserModal } from "../../redux/reducers/uiSlice";
 import routes from "../../constants/routes";
+import CreateTeamValidations from "../../validations/CreateTeamValidations";
+import serializeYupErrors from "../../utils/SerializeErrors";
 
 interface AddUserModalProps {
   team: any;
 }
 const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
   const dispatch = useDispatch();
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState<any>();
   const isOpen = useSelector(
     (state: ApplicationState) => state?.ui?.addUserModal
   );
-  const toast = useToast()
+  const toast = useToast();
   const [loadiing, setLoading] = useState(false);
   const [payload, setPayload] = useState({
     email: null,
@@ -39,17 +41,29 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
 
   const handleSubmit = () => {
     setLoading(true);
-   // console.log("CLICKED", payload);
-    TeamsService.handleAddUser(payload,toast, (data: any) => {
-      if (data) {
-        // dispatch(setOrganization(data));
-        dispatch(setAddUserModal(false));
+    CreateTeamValidations.AddUserValidations.validate(payload, {
+      abortEarly: false,
+    })
+      .catch((err) => {
+        console.log("CLICKED", err);
         setLoading(false);
-      } else {
-        setLoading(false);
-        dispatch(setAddUserModal(false));
-      }
-    });
+        setErrors(serializeYupErrors(err));
+      })
+      .then((res) => {
+        if (res !== undefined) {
+          console.log("CLICKED");
+          TeamsService.handleAddUser(payload, toast, (data: any) => {
+            if (data) {
+              // dispatch(setOrganization(data));
+              dispatch(setAddUserModal(false));
+              setLoading(false);
+            } else {
+              setLoading(false);
+              dispatch(setAddUserModal(false));
+            }
+          });
+        }
+      });
   };
   return (
     <>
@@ -105,6 +119,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
                         }));
                       }}
                       className="h-5 text-sm "
+                      error={errors?.name ? errors?.name : null}
                     />
                   </View>
                 </ScrollView>
