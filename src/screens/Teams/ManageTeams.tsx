@@ -162,7 +162,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
       </View>
       {isOpen ? <CreateTeamModal /> : null}
       {addUserModal ? <AddUserModal team={team} /> : null}
-      {!isEmpty(plans) ? (
+      {!isEmpty(team) ? (
         <TouchableOpacity
           onPress={() => {
             dispatch(setCreateTeamModal(true));
