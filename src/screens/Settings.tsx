@@ -108,7 +108,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       name: "Manage Teams",
       icon: "teamIcon",
       onClick: () => navigation.navigate(routes.Teams),
-      show: !isEmpty(teams),
+      show: !isEmpty(Organization),
     },
   ];
   const subscriptions = useSubscription();
@@ -194,7 +194,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
   }, []);
   const [refreshing, setRefreshing] = React.useState(false);
   const dispatch = useDispatch();
-  console.log("organization",Organization)
+  console.log("organization", Organization);
   return (
     <View className="w-full h-full">
       <ScrollView
@@ -213,7 +213,6 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
                 return data;
               });
               getSubscriptions();
-              
             }}
           />
         }
