@@ -45,13 +45,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
       abortEarly: false,
     })
       .catch((err) => {
-        console.log("CLICKED", err);
+        // console.log("CLICKED", err);
         setLoading(false);
         setErrors(serializeYupErrors(err));
       })
       .then((res) => {
         if (res !== undefined) {
-          console.log("CLICKED");
+          // console.log("CLICKED");
           TeamsService.handleAddUser(payload, toast, (data: any) => {
             if (data) {
               // dispatch(setOrganization(data));

@@ -8,7 +8,7 @@ import GetSvg from "../../utils/GetSvg";
 import { Text, TouchableOpacity, View } from "react-native";
 import { setFilter } from "../../redux/reducers/uiSlice";
 import { setCurrentPage } from "../../redux/reducers/PaginationSlice";
-import {Dimensions} from 'react-native';
+import { Dimensions } from "react-native";
 interface cardType {
   name: string;
   icon: ICONTYPE;
@@ -61,17 +61,25 @@ const QuickViews: React.FC<QuickViewsProps> = ({ navigation }) => {
       link: "sent",
     },
   ];
- 
-  const windowWidth = Dimensions.get('window').width;
+
+  const windowWidth = Dimensions.get("window").width;
   const dispatch = useDispatch();
   return (
     <View className=" flex flex-col my-2   ">
-      <View className="py-3 w-full flex flex-row md:flex-row flex-wrap  gap-x-3  gap-y-4  justify-center items-center">
+      <View
+        className={`py-3  flex flex-row md:flex-row flex-wrap  gap-x-3  gap-y-4   justify-center items-center w-${
+          windowWidth + "px"
+        }`}
+      >
         {cards?.map((card: cardType) => {
           return (
             <TouchableOpacity
               key={card?.name}
-              className="border border-gray-200 rounded-2xl p-5 w-40 flex flex-col justify-around cursor-pointer"
+              style={{
+                width: windowWidth / 2.3,
+                maxHeight: windowWidth / 2.3,
+              }}
+              className={`border border-gray-200 rounded-2xl p-5 flex flex-col justify-around cursor-pointer `}
               onPress={() => {
                 dispatch(setCurrentPage(1));
                 dispatch(setCurrentTab(card?.link));

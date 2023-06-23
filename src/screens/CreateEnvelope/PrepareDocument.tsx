@@ -157,7 +157,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         }),
       })
         .then((res) => {
-          console.log("RES ADDED FIELDS", res);
           if (res?.success) {
             toast.show(res?.message, { type: "success" });
             dispatch(setRemoteFields(res?.data));
@@ -169,7 +168,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           }
         })
         .catch((err) => {
-          console.log("RES ADDED FIELDS ERR", err);
         });
 
       // if (response) {

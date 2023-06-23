@@ -170,7 +170,7 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
           if (currentTab == "draft") {
             EnvelopeService.handleFetchEnvelope(envelope?.id, (data) => {
               if (data) {
-                console.log("fetch envelope data", data);
+                // console.log("fetch envelope data", data);
                 if (data?.self_sign) {
                   dispatch(setEnvelope(data));
                   dispatch(setEnvelopeStep(2));

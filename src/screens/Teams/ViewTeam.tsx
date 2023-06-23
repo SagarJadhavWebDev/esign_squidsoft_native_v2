@@ -94,7 +94,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
             <TouchableOpacity className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2">
               <Text
                 onPress={() => {
-                  console.log("MODAL");
+                  // console.log("MODAL");
                   dispatch(setCreateTeamModal(true));
                 }}
                 className="text-white text-xs w-1/2 text-center font-semibold"

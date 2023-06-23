@@ -56,7 +56,7 @@ const EmailSentCard: React.FC<EmailSentCardProps> = ({ route }) => {
                     HttpService.post(apiEndpoint.auth.sendForgotLink, {
                       body: JSON.stringify({ email: email }),
                     }).then((res) => {
-                      console.log("RESULt", res);
+                      // console.log("RESULt", res);
                       toast.show(res?.message, {
                         type: res?.success ? "success" : "error",
                       });

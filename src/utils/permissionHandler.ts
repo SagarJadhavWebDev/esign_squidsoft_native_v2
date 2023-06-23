@@ -5,7 +5,6 @@ import AppConfig from "../constants/appConfig";
 const permissionsHandler = async (perimission: string) => {
   let permissonsGiven = false;
   console.log("PERR:", perimission);
-
   switch (perimission) {
     case "READ_EXTERNAL_STORAGE":
       try {

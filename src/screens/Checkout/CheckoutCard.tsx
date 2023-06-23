@@ -155,7 +155,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     if (error) {
       setStripeReady(false);
       Alert.alert("Something went wrong!");
-      console.log("sjwks", error);
+      // console.log("sjwks", error);
     } else {
       setStripeReady(true);
     }
@@ -167,7 +167,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
       // console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
       if (error) {
         Alert.alert("Payment failed!");
-        console.log("sjwks", error);
+        // console.log("sjwks", error);
       } else {
         dispatch(setPaymentPending(true));
         setStripeReady(false);
@@ -181,7 +181,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     seCheckouttLoadiing(true);
 
     await getIpData((ipData: any) => {
-      console.log("IP DATA", ipData);
+      // console.log("IP DATA", ipData);
       const payload = {
         type: "PLAN",
         plan_id: checkoutData?.id,
@@ -438,7 +438,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
           <TouchableOpacity
             onPress={() => {
               if (defaultAddress) {
-                console.log("NEXT", defaultAddress);
+                // console.log("NEXT", defaultAddress);
                 handleActiveSubscription();
               } else {
                 toast.show("Please add address before checkout", {
@@ -489,7 +489,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             });
                           }
                         );
-                        console.log("ss");
+
                       }}
                     >
                       <GetSvg
@@ -513,7 +513,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             });
                           }
                         );
-                        console.log("sagar");
+                       
                       }}
                       //title="Delete Address"
                       className="p-1 rounded-full hover:bg-gray-300 "

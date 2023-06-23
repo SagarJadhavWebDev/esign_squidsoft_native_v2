@@ -148,18 +148,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
           ?.slice(route?.params?.token?.indexOf("token") + 1)
           ?.split("=")?.[1],
       }));
-      console.log(
-        "EMIAL",
-        route?.params?.token
-          ?.slice(route?.params?.token?.indexOf("=") + 1)
-          ?.split("&")?.[0]
-      );
-      console.log(
-        "TOKEN",
-        route?.params?.token
-          ?.slice(route?.params?.token?.indexOf("token") + 1)
-          ?.split("=")?.[1]
-      );
+      
       setLoadComponent("");
     }
   }, [route?.params?.token]);
