@@ -33,7 +33,7 @@ import {
   setshowEnvelopeUserWarningModal,
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
-import { setRemoteFields } from "../../redux/reducers/PdfSlice";
+import { setCurrentPage, setRemoteFields } from "../../redux/reducers/PdfSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
 import routes from "../../constants/routes";
 import React from "react";
@@ -55,7 +55,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   // setCurrentStep,
   //setIsLoading,
 }) => {
-  const { currentPage, selfSignFields, fixedFields } = usePdfData();
   const { recipients, selectedRecipient } = useRecipients();
   const dispatch = useDispatch();
   const recipientsList = recipients?.filter((list) => list?.type === "SIGNER");
@@ -167,8 +166,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             dispatch(setIsLoading(false));
           }
         })
-        .catch((err) => {
-        });
+        .catch((err) => {});
 
       // if (response) {
       //   dispatch(setRemoteFields(data));
@@ -194,7 +192,8 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   const isAllUserFieldAdded = recipients?.filter((s) => {
     return !recipientsFieldList?.includes(s?.user?.email);
   });
-  console.log("selected doc", SelectedDocuments)
+  console.log("selected doc", SelectedDocuments);
+  const { totalPages, currentPage } = usePdfData();
   return (
     <React.Fragment>
       <View className="w-full h-[90%]">
@@ -266,6 +265,34 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         >
           <Text className="text-white text-xs font-extrabold">Prev </Text>
         </TouchableOpacity>
+        <GetSvg
+          name="leftArrowIcon"
+          classN="w-6 h-6 px-2 "
+          color="#374151"
+          callBack={() => {
+            if (currentPage !== 1) {
+              dispatch(setIsLoading(true));
+              dispatch(setCurrentPage(currentPage - 1));
+              setTimeout(() => dispatch(setIsLoading(false)), 2000);
+              // setCurrentPageNumber(currentPageNumber - 1);
+            }
+          }}
+        />
+        <Text className="mx-5">
+          Page {currentPage} of {totalPages}{" "}
+        </Text>
+        <GetSvg
+          callBack={() => {
+            if (currentPage !== totalPages) {
+              dispatch(setIsLoading(true));
+              dispatch(setCurrentPage(currentPage + 1));
+              setTimeout(() => dispatch(setIsLoading(false)), 2000);
+            }
+          }}
+          name="rightArrowIcon"
+          classN="w-6 h-6 px-2"
+          color="#374151"
+        />
         <TouchableOpacity
           onPress={() => {
             if (!isEmpty(isAllUserFieldAdded) && !isEmpty(addedFields)) {

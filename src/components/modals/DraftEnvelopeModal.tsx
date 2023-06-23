@@ -73,22 +73,22 @@ const DraftEnvelopeModal: React.FC<DraftEnvelopeModalProps> = ({
                 <View className="w-full justify-end items-center flex flex-row my-4 ">
                   <Text
                     onPress={() => {
+                      callBack();
+                    }}
+                    className="p-2 bg-slate-800 w-24 text-center text-xs text-white rounded-full "
+                  >
+                    Discard {" "}
+                  </Text>
+                  <Text
+                    onPress={() => {
                       dispatch(setEnvelope(null));
                       dispatch(setRecipients(null));
                       dispatch(setshowEnvelopeDraftModal(false));
                       navigation.navigate(routes.dashboard);
                     }}
-                    className="p-2 bg-slate-800 w-24 text-center text-xs text-white rounded-full "
-                  >
-                    Cancel
-                  </Text>
-                  <Text
-                    onPress={() => {
-                      callBack();
-                    }}
                     className="p-2 bg-[#d10000] w-24 text-center text-xs text-white rounded-full mx-5"
                   >
-                    Discard
+                    Save as draft{" "}
                   </Text>
                 </View>
               </View>
