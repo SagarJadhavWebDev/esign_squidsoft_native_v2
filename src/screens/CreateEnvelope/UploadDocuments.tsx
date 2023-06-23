@@ -209,8 +209,8 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
                   <Text className="text-gray-500 w-[50%]  font-semibold md:text-xs opacity-40 text-[8px]">
                     {"[ Max Documents Count: 4 ] "}
                   </Text>
-                  <Text className="text-gray-500 w-[40%] font-semibold md:text-xs opacity-40 text-[8px]">
-                    {" Upload [ Max File Size: 5MB ] "}
+                  <Text className="text-gray-500 w-[45%] font-semibold md:text-xs opacity-40 text-[8px]">
+                    {" Upload [ Max File Size: 5MB ]  "}
                   </Text>
                 </View>
               </View>

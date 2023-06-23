@@ -80,7 +80,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
       };
       //console.log("SIGN TOKEN",envelopeData?.sign_token?.replace("/api", ""))
       // console.log("PAYLOAD", envelopeData?.sign_token?.replace("/api", ""));
-    
+
       ApiInstance.post(envelopeData?.sign_token?.replace("/api", ""), payload)
         .then(async (res) => {
           const data = await handleResponse(res as any, toast);
@@ -112,13 +112,12 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
   };
   useEffect(() => {
     handleFetchViewEnvelope();
-  }, []);
-  // console.log("envelopeData", type);
-  //return null;
+  }, [envelope]);
+
   return (
     <SafeAreaView className="w-full h-full flex flex-col justify-start">
       <View className="w-full h-12 flex flex-row justify-between items-center px-3 bg-white">
-        <Text className="text-lg font-normal">
+        <Text className="text-lg font-normal w-1/2">
           Envelope : {envelopeData?.id + " "}
         </Text>
         <GetSvg

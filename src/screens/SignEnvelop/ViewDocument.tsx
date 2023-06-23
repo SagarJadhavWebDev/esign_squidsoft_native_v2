@@ -21,6 +21,7 @@ import useAuth from "../../utils/auth";
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
 import GetSvg from "../../utils/GetSvg";
 import { ViewEnvelopeTypes } from "../../types/ViewEnvelopeTypes";
+import { useDocuments } from "../../utils/useReduxUtil";
 
 interface ViewDocumentProps {
   document: any;
@@ -37,16 +38,18 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
   setDownloading,
 }) => {
   const toast = useToast();
+  const {  SelectedDocuments } = useDocuments();
   const [source, setSource] = useState<any>(null);
   const [totalPages, setTotalPages] = useState(0);
   const { token } = useAuth();
   // const fields = envelope?.fields;
   const handleDocumentFetch = async () => {
+    console.log(ApiConfig.API_URL + SelectedDocuments?.path)
     const response = await RNFetchBlob.config({
       // path: s,
       fileCache: true,
     })
-      .fetch("GET", `${ApiConfig.API_URL + document?.path}`)
+      .fetch("GET", `${ApiConfig.API_URL + SelectedDocuments?.path}`)
       .then((value) => {
         setSource(value.path());
         // console.log("RESPONSE FROM RN FECTH BLOB:", ApiConfig.API_URL + "/" + document?.path);
@@ -71,7 +74,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
 
   useEffect(() => {
     handleDocumentFetch();
-  }, [document]);
+  }, [SelectedDocuments]);
 
   const handlePageLoadComplete = (event: any) => {};
   const handleExport = (url: string) => {
@@ -92,7 +95,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
         setDownloading(false);
       });
   };
-
+ console.log("SelectedDocuments",SelectedDocuments)
   return (
     <>
       <ScrollView

@@ -194,6 +194,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   const isAllUserFieldAdded = recipients?.filter((s) => {
     return !recipientsFieldList?.includes(s?.user?.email);
   });
+  console.log("selected doc", SelectedDocuments)
   return (
     <React.Fragment>
       <View className="w-full h-[90%]">

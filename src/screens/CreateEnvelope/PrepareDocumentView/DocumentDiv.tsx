@@ -108,7 +108,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
   }, []);
 
   useEffect(() => {
-    if (selectedDocument?.option?.name) {
+    if (selectedDocument) {
       handleDocumentFetch();
     }
   }, [selectedDocument]);
