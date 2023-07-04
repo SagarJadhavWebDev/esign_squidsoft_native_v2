@@ -38,13 +38,14 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
   setDownloading,
 }) => {
   const toast = useToast();
-  const {  SelectedDocuments } = useDocuments();
+  // const {  SelectedDocuments } = useDocuments();
+  const SelectedDocuments = document;
   const [source, setSource] = useState<any>(null);
   const [totalPages, setTotalPages] = useState(0);
   const { token } = useAuth();
   // const fields = envelope?.fields;
   const handleDocumentFetch = async () => {
-    console.log(ApiConfig.API_URL + SelectedDocuments?.path)
+    console.log(ApiConfig.API_URL + SelectedDocuments?.path);
     const response = await RNFetchBlob.config({
       // path: s,
       fileCache: true,
@@ -95,7 +96,7 @@ const ViewDocument: React.FC<ViewDocumentProps> = ({
         setDownloading(false);
       });
   };
- console.log("SelectedDocuments",SelectedDocuments)
+  console.log("SelectedDocuments", SelectedDocuments);
   return (
     <>
       <ScrollView
