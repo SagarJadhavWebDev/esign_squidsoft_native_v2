@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 import DocumentPicker, {
-  isInProgress,
+  isInProgress, types,
 } from "react-native-document-picker";
 import { useToast } from "react-native-toast-notifications";
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
@@ -89,6 +89,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: "fullScreen",
         copyTo: "cachesDirectory",
+        type: [types.images],
       });
 
       if (!isEmpty(pickerResult)) {
