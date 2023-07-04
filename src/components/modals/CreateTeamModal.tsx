@@ -124,13 +124,14 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                       })}
                       onSelect={(e: any) => {
                         const selectedState = e?.option;
-                        console.log("selectedState", selectedState);
                         setPayload((prev) => ({
                           ...prev,
                           subscription_id: selectedState?.value,
                         }));
                       }}
-                      selectedValue={{ label: payload?.name ?? "Select plan" }}
+                      selectedValue={{
+                        label: payload?.subscription_id ?? "Select plan",
+                      }}
                       placeholder={""}
                       setMainScrollState={true}
                       width={150}
