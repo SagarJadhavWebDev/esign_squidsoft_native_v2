@@ -14,7 +14,7 @@ import CustomDropDown from "../molecules/CustomDropDown";
 import CreateTeamValidations from "../../validations/CreateTeamValidations";
 import serializeYupErrors from "../../utils/SerializeErrors";
 import Error from "../atoms/Error";
-
+import omit from "lodash/omit";
 interface CreateTeamModalProps {}
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
   const dispatch = useDispatch();
@@ -26,12 +26,14 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
   const [payload, setPayload] = useState({
     name: null,
     subscription_id: null,
+    plan_name: null,
   });
   const organization = useOrganization();
   const plans = organization?.meta?.available_subscriptions;
   const handleSubmit = () => {
+    const updatedPayload = omit(payload, "plan_name");
     setLoading(true);
-    CreateTeamValidations.CreateTeamValidations.validate(payload, {
+    CreateTeamValidations.CreateTeamValidations.validate(updatedPayload, {
       abortEarly: false,
     })
       .catch((err) => {
@@ -40,7 +42,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
       })
       .then((res) => {
         if (res !== undefined) {
-          TeamsService.handleCreateTeam(payload, (data: any) => {
+          TeamsService.handleCreateTeam(updatedPayload, (data: any) => {
             if (data) {
               dispatch(setOrganization(data));
               dispatch(setTeams(data?.teams));
@@ -127,10 +129,13 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                         setPayload((prev) => ({
                           ...prev,
                           subscription_id: selectedState?.value,
+                          plan_name: selectedState?.label,
                         }));
                       }}
                       selectedValue={{
-                        label: payload?.subscription_id ?? "Select plan",
+                        label:
+                          payload?.name + payload?.subscription_id ??
+                          "Select plan",
                       }}
                       placeholder={""}
                       setMainScrollState={true}
