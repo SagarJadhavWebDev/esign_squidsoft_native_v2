@@ -98,11 +98,11 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         dispatch(setTempStamp([Array.from(data)?.reverse()]));
         dispatch(setStamps(Array.from(data)));
         setIsLoading && setIsLoading(false);
+        toast.show("stamp added successfully", {
+          type: "success",
+        });
         if (callback) {
           callback(Array.from(data));
-          toast.show("stamp added successfully", {
-            type: "success",
-          });
         }
         setIsOpen({
           type: null,
