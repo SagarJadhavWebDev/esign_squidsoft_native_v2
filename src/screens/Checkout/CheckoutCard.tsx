@@ -220,15 +220,28 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
               case "RAZORPAY":
                 return RazorpayCheckout.open(options)
                   .then((res) => {
-                    SubscriptionService.handleGetSubscription((data) => {
-                      dispatch(setSubscription(data));
-                    });
-                    AuthService.handleGetProfile((data) => {
-                      if (data) {
-                        dispatch(setUser(data));
-                      }
-                    });
-                    navigation.pop();
+                    if (res?.razorpay_payment_id) {
+                      const payload = {
+                        id: order?.id,
+                        transaction_mode: order?.payment_intent_mode,
+                        transaction_id: res?.razorpay_payment_id,
+                      };
+                      OrderService.handleVerifyOrder(payload, (data) => {
+                        if (data) {
+                          SubscriptionService.handleGetSubscription((data) => {
+                            dispatch(setSubscription(data));
+                          });
+                          AuthService.handleGetProfile((data) => {
+                            if (data) {
+                              dispatch(setUser(data));
+                            }
+                          });
+                          navigation.navigate(routes.dashboard);
+                        }
+                      });
+                    } else {
+                      console.log("RAZR PAY PAYMENT ERR", res);
+                    }
                   })
                   .catch((e) => {
                     console.log("RAZORPAY PAYMENT", e);
@@ -489,7 +502,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             });
                           }
                         );
-
                       }}
                     >
                       <GetSvg
@@ -513,7 +525,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             });
                           }
                         );
-                       
                       }}
                       //title="Delete Address"
                       className="p-1 rounded-full hover:bg-gray-300 "
