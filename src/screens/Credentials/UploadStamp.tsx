@@ -100,6 +100,9 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         setIsLoading && setIsLoading(false);
         if (callback) {
           callback(Array.from(data));
+          toast.show("stamp added successfully", {
+            type: "success",
+          });
         }
         setIsOpen({
           type: null,

@@ -236,7 +236,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                               dispatch(setUser(data));
                             }
                           });
-                          navigation.navigate(routes.dashboard);
+                          navigation.navigate(routes.Subscriptions);
                         }
                       });
                     } else {
@@ -497,7 +497,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                           (data) => {
                             dispatch(setAddresses(data));
                             dispatch(setIsLoading(false));
-                            toast.show("Stamp set to default successfully", {
+                            toast.show("address set to default successfully", {
                               type: "success",
                             });
                           }
@@ -520,7 +520,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             // setAddress(data);
                             dispatch(setAddresses(data));
                             dispatch(setIsLoading(false));
-                            toast.show("Stamp deleted successfully", {
+                            toast.show("address deleted successfully", {
                               type: "success",
                             });
                           }
