@@ -58,8 +58,11 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
 
   const handleFetchViewEnvelope = () => {
     const viewToken = envelope?.access_token?.split("view").pop();
+    console.log("VIEW TOKEN:", viewToken);
     EnvelopeService.handleFetchViewEnvelope(viewToken, (data) => {
       if (data) {
+        console.log("DATA TOKEN:", data);
+
         setEnvelope(data);
         setSelectedDocument(data?.envelope_documents?.[0]);
         // dispatch(setViewEnvelope(data));
