@@ -196,6 +196,9 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
             Number(modalData),
             (data) => {
               dispatch(setStamps(data?.["stamps"]));
+              toast.show("stamp deleted successfully", {
+                type: "success",
+              });
             }
           );
         }}
