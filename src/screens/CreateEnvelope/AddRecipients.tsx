@@ -109,7 +109,7 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
               handleSubmitRecipient();
             } else {
               toast.hide("recipients");
-              toast.show("Please add atleast 1 recipients", {
+              toast.show("Please add atleast 1 recipient", {
                 type: "error",
                 id: "recipients",
               });

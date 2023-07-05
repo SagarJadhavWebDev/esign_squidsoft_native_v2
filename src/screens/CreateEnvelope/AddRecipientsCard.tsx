@@ -92,7 +92,7 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
                 {/* <Text className="text-[10px]">Enter signer email</Text> */}
                 <WFullInputField
                   placeholder="Enter signer email"
-                  className="text-xs w-full h-5"
+                  className="text-xs w-full h-5 color-black-200"
                   textContentType="emailAddress"
                   value={s?.email ?? s?.user?.email}
                   editable={false}
