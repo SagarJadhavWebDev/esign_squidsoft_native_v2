@@ -1,4 +1,5 @@
 import { TouchableWithoutFeedback } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, {
   Circle,
   Defs,
@@ -696,25 +697,33 @@ const GetSvg: React.FC<GetSvgProps> = ({
       );
     case "rightArrowIcon":
       return (
-        <Svg
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={strokeWidth ?? 1.6}
-          stroke={color ?? "black"}
-          className={classN ?? "w-8 h-8"}
-          {...props}
+        <TouchableOpacity
+          onPress={() => {
+            if (callBack) {
+              callBack();
+            }
+          }}
         >
-          <Path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={pathStrokeWidth ?? 2.5}
-            d="M9 5l7 7-7 7"
-          />
-        </Svg>
+          <Svg
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={strokeWidth ?? 1.6}
+            stroke={color ?? "black"}
+            className={classN ?? "w-8 h-8"}
+            {...props}
+          >
+            <Path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={pathStrokeWidth ?? 2.5}
+              d="M9 5l7 7-7 7"
+            />
+          </Svg>
+        </TouchableOpacity>
       );
     case "leftArrowIcon":
       return (
-        <TouchableWithoutFeedback
+        <TouchableOpacity
           onPress={() => {
             if (callBack) {
               callBack();
@@ -736,7 +745,7 @@ const GetSvg: React.FC<GetSvgProps> = ({
               d="M15 19l-7-7 7-7"
             />
           </Svg>
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
       );
     case "lockIcon":
       return (

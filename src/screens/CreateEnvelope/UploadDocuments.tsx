@@ -149,7 +149,7 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
                   borderStyle: "dashed",
                   borderWidth: 1.5,
                   borderColor: "rgba(161,155,183,0.8)",
-                  height: 150,
+                  height: 170,
                 }}
                 className="justify-center items-center my-5"
               >
@@ -158,7 +158,7 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
                     Select document to Upload
                   </Text>
                 </View>
-                <View className="w-full h-2/4 flex justify-start items-center ">
+                <View className="w-full h-10 flex justify-start items-center ">
                   <TouchableOpacity
                     onPress={async () => {
                       try {
@@ -193,15 +193,24 @@ const UploadDocuments: React.FC<UploadDocumentsProps> = ({ navigation }) => {
                     </Text>
                   </TouchableOpacity>
                 </View>
-                <View className="absolute flex w-full m-auto justify-center items-center  bottom-2 text-xs text-white">
+                <View className=" flex w-full  justify-center items-center  text-xs text-white">
                   <Text
-                    className="text-[10px] w-[80%] text-center text-gray-400"
+                    className="text-[10px] w-[100%] text-center text-gray-400"
                     //numberOfLines={1}
                   >
                     {" "}
                     {isDocumentConversion
                       ? "[Supported File Types : csv,docx,doc,xls,xlsx,txt,jpeg,jpg,png,ppt,pptx]"
                       : "[Supported File Types : pdf]"}
+                  </Text>
+                </View>
+
+                <View className=" w-full  px-5 my-4 flex flex-row justify-between ">
+                  <Text className="text-gray-500 w-[50%]  font-semibold md:text-xs opacity-40 text-[8px]">
+                    {"[ Max Documents Count: 4 ] "}
+                  </Text>
+                  <Text className="text-gray-500 w-[45%] font-semibold md:text-xs opacity-40 text-[8px]">
+                    {" Upload [ Max File Size: 5MB ]  "}
                   </Text>
                 </View>
               </View>

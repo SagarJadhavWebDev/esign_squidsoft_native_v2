@@ -16,6 +16,8 @@ import apiEndpoint from "../constants/apiEndpoints";
 import handleResponse from "../services/handleResponse";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/reducers/userSlice";
+import InputTextBox from "../components/atoms/InputTextBox";
+import HttpService from "../controllers/HttpService";
 interface LoginProps {
   navigation: any;
 }
@@ -94,39 +96,29 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
         case "loadLogin":
           if (!isEmpty(username) && !isEmpty(password)) {
             setIsLoading(true);
-            ApiInstance.post(apiEndpoint.auth.login, {
+            const payload = {
               email: username,
               password: password,
+            };
+            HttpService.post(apiEndpoint.auth.login, {
+              body: JSON.stringify(payload),
             })
-              .then(async (result) => {
-                const data = await handleResponse(result as any, toast);
-                // console.log("LOGIN",result);
-                if (data) {
+              .then((res) => {
+                toast.hideAll();
+                toast.show(res?.message, {
+                  type: res?.success ? "success" : "error",
+                });
+                setIsLoading(false);
+                if (res?.data) {
                   SignIn &&
-                    SignIn(data?.token, () => {
+                    SignIn(res?.data?.token, () => {
                       setPassword(null);
                       setUsername(null);
-                      dispatch(setUser(data?.user));
+                      dispatch(setUser(res?.data?.user));
                       setIsLoading(false);
                       // navigation.navigate(routes.dashboard);
                     });
-                } else {
-                  setIsLoading(false);
                 }
-                // if (result?.message) {
-                //   toast.show(result?.message, { type: "error" });
-                //   setIsLoading(false);
-                //   setPassword(null);
-                // } else {
-                //   setIsLoading(false);
-                //   SignIn &&
-                //     SignIn(result, () => {
-                //       toast.show("Login successfully", { type: "success" });
-                //       setPassword(null);
-                //       setUsername(null);
-                //       // navigation.navigate(routes.dashboard);
-                //     });
-                // }
               })
               .catch((err) => {
                 setIsLoading(false);
@@ -185,7 +177,7 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { username, password, confirm_password, submit } = useLoginFormState();
   const [loadComponent, setLoadComponent] = useState("loadLogin");
-
+  const [focusId, setFocusId] = useState("email");
   return (
     <>
       <BackgroundWave2 className="w-full absolute" />
@@ -206,27 +198,41 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
         <View className=" w-full max-w-sm">
           {loadComponent === "loadLogin" ? (
             <>
-              <WFullInputField
+              <InputTextBox
+                editingState={focusId === "email"}
                 placeholder={"Email"}
                 onChangeText={(value) => {
                   username.set(value);
                 }}
+                onFocus={() => {
+                  setFocusId("email");
+                }}
                 className="text-base"
+                autoFocus
                 value={username.value}
+                onSubmitEditing={() => {
+                  setFocusId("password");
+                }}
                 error={!username.valid ? username.error : null}
                 svgIcon1={<GetSvg name="userIcon" classN="w-5 h-5 m-auto" />}
               />
               {loadComponent === "loadLogin" ? (
                 <>
-                  <WFullInputField
+                  <InputTextBox
+                    onFocus={() => {
+                      setFocusId("password");
+                    }}
+                    editingState={focusId === "password"}
                     secureTextEntry={!showPassword}
                     onChangeText={password.set}
                     value={password.value}
                     error={!password.valid ? password.error : null}
                     placeholder="Password"
-                    autoFocus={true}
                     className="text-base w-11/12"
                     toggleIcon={!showPassword}
+                    onSubmitEditing={() => {
+                      submit(loadComponent, setLoadComponent);
+                    }}
                     svgIcon1={
                       <GetSvg
                         name="eyeOpenIcon"
@@ -264,20 +270,29 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
           ) : (
             <>
               <>
-                <WFullInputField
+                <InputTextBox
+                  editingState={focusId === "name"}
                   className="text-base"
                   placeholder={"Username"}
                   onChangeText={username.set}
                   value={username.value}
+                  onPressIn={() => {}}
+                  onSubmitEditing={() => {
+                    setFocusId("password");
+                  }}
                   error={!username.valid ? username.error : null}
                   svgIcon1={<GetSvg name="userIcon" classN="w-5 h-5 m-auto" />}
                 />
-                <WFullInputField
+                <InputTextBox
+                  editingState={focusId === "password"}
                   secureTextEntry={!showPassword}
                   onChangeText={password.set}
                   value={password.value}
                   error={!password.valid ? password.error : null}
                   placeholder="Password"
+                  onSubmitEditing={() => {
+                    setFocusId("cpassword");
+                  }}
                   className="text-base w-11/12"
                   toggleIcon={!showPassword}
                   svgIcon1={
@@ -295,7 +310,8 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                     />
                   }
                 />
-                <WFullInputField
+                <InputTextBox
+                  editingState={focusId === "cpassword"}
                   secureTextEntry={!showConfirmPassword}
                   onChangeText={confirm_password.set}
                   value={confirm_password.value}
@@ -304,6 +320,9 @@ const Login: React.FC<LoginProps> = ({ navigation }) => {
                   }
                   placeholder="Confirm Password"
                   className="text-base w-11/12"
+                  onSubmitEditing={() => {
+                    submit("setPassword", setLoadComponent);
+                  }}
                   toggleIcon={!showConfirmPassword}
                   svgIcon1={
                     <GetSvg

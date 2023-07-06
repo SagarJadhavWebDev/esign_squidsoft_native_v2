@@ -11,6 +11,8 @@ import HttpService from "./HttpService";
 import Storage from "./StorageHandler";
 import ApiInstance from "../services/ApiInstance";
 import apiEndpoint from "../constants/apiEndpoints";
+import { useToast } from "react-native-toast-notifications";
+import handleResponse from "../services/handleResponse";
 
 // type UserType = {
 //   [x: string]: any;
@@ -174,6 +176,7 @@ const AuthContext = React.createContext<AuthContextData>({});
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuthState] = useState({});
+  const toast = useToast();
   const [authToken, setAuthToken] = useState(null as any);
   const [isLoading, setIsLoading] = useState(false);
   const getAuthToken = async () => {
@@ -222,12 +225,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const SignOut = async (callback: Function) => {
-    console.log("LOGOUT", ApiConfig.API_URL + apiEndpoint.auth.logout);
     ApiInstance.delete(apiEndpoint.auth.logout).then(async (res) => {
-      callback();
-      await AsyncStorage.clear();
-      setAuthState({});
-      setAuthToken(null);
+      if (res) {
+        const data = handleResponse(res, toast);
+        callback();
+        await AsyncStorage.clear();
+        setAuthState({});
+        setAuthToken(null);
+      }
     });
   };
   const RefreshUser = async (token: any) => {

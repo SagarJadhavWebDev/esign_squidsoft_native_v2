@@ -38,6 +38,9 @@ const CustomSelector: React.FC<CustomSelectorProps> = ({
         borderWidth: 1,
         borderRadius: 10,
       }}
+      rowTextStyle={{
+        width: "100%",
+      }}
       disabled={disabled}
       renderDropdownIcon={() => (
         <View className="w-auto h-full border border-gray-50 justify-center items-center">

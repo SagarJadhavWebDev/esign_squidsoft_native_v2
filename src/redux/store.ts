@@ -106,6 +106,7 @@ export interface ApplicationState {
   orders: OrderTypes;
   templates: TemplatesTypes;
   template: any;
+  
 }
 
 const combinedReducer = combineReducers({

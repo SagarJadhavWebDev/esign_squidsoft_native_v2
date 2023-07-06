@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import WFullInputField from "../../components/atoms/WFullInputField";
 import { useDispatch } from "react-redux";
 import { useRecipients } from "../../utils/useReduxUtil";
@@ -31,18 +31,22 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
     });
   }, [recipients?.length]);
   const handleAddUser = () => {
-    setErrors(null);
-    const userEXists = recipients?.some(
-      (recipient: any) =>
-        recipient?.email === currentRecipient?.email &&
-        recipient.action === currentRecipient?.action
-    );
-    if (!userEXists) {
-      dispatch(setRecipients([...(recipients ?? []), currentRecipient]));
+    if (currentRecipient?.email) {
+      setErrors(null);
+      const userEXists = recipients?.some(
+        (recipient: any) =>
+          recipient?.email === currentRecipient?.email &&
+          recipient.action === currentRecipient?.action
+      );
+      if (!userEXists) {
+        dispatch(setRecipients([...(recipients ?? []), currentRecipient]));
+      } else {
+        toast.show("This user is already assigned with same operation", {
+          type: "error",
+        });
+      }
     } else {
-      toast.show("This user is already assigned with same operation", {
-        type: "error",
-      });
+      toast.show("Please enter valid email", { type: "error" });
     }
   };
   const handleSearchUsers = (q: any) => {
@@ -72,41 +76,51 @@ const AddRecipientsCard: React.FC<AddRecipientsCardProps> = () => {
   // console.log(recipients);
   return (
     <React.Fragment>
-      {recipients?.map((s: any) => {
-        return (
-          <View key={s?.email} className="w-full flex flex-row my-2  border border-gray-300 rounded-xl  items-center">
-            <View className="flex ml-2 mr-3  justify-center w-[70%] ">
-              {/* <Text className="text-[10px]">Enter signer email</Text> */}
-              <WFullInputField
-                placeholder="Enter signer email"
-                className="text-xs w-full h-5"
-                textContentType="emailAddress"
-                value={s?.email ?? s?.user?.email}
-                editable={false}
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={() => {
-                const data = recipients?.filter((user: any) => {
-                  if (user?.id) {
-                    return user?.id !== s?.id;
-                  } else {
-                    return user?.order !== s?.order;
-                  }
-                });
-                // console.log("DATA", data);
-                dispatch(setRecipients(data));
-              }}
-              className="w-[20%] rounded-xl flex p-2 flex-row  my-1 bg-red-500  "
+      <ScrollView
+        style={{
+          maxHeight: "70%",
+        }}
+        className="w-full border border-gray-300 rounded-xl px-3"
+      >
+        {recipients?.map((s: any) => {
+          return (
+            <View
+              key={s?.email}
+              className="w-full flex flex-row my-2  border border-gray-300 rounded-xl  items-center"
             >
-              <Text className="text-[10px] text-center w-full text-white font-semibold">
-                Remove
-              </Text>
-            </TouchableOpacity>
-          </View>
-        );
-      })}
+              <View className="flex ml-2 mr-3  justify-center w-[70%] ">
+                {/* <Text className="text-[10px]">Enter signer email</Text> */}
+                <WFullInputField
+                  placeholder="Enter signer email"
+                  className="text-xs w-full h-5"
+                  textContentType="emailAddress"
+                  value={s?.email ?? s?.user?.email}
+                  editable={false}
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  const data = recipients?.filter((user: any) => {
+                    if (user?.id) {
+                      return user?.id !== s?.id;
+                    } else {
+                      return user?.order !== s?.order;
+                    }
+                  });
+                  // console.log("DATA", data);
+                  dispatch(setRecipients(data));
+                }}
+                className="w-[20%] rounded-xl flex p-2 flex-row  my-1 bg-red-500  "
+              >
+                <Text className="text-[10px] text-center w-full text-white font-semibold">
+                  Remove
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
+        })}
+      </ScrollView>
       <View className="w-full flex flex-col p-1 my-2  border border-gray-300 rounded-xl justify-center items-center">
         <View className="flex flex-col justify-center ">
           {/* <Text className="text-[10px]">Enter signer email</Text> */}

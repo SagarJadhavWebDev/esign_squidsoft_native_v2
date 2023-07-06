@@ -22,6 +22,7 @@ import { useOrders, useSubscription } from "../../utils/useReduxUtil";
 import OrderService from "../../services/OrderService";
 import { setOrders } from "../../redux/reducers/OrdersSlice";
 import OrderCard from "./OrderCard";
+import routes from "../../constants/routes";
 
 interface SubscriptionsProps {
   navigation: any;
@@ -36,7 +37,7 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const getSubscriptions = () => {
     setLoading(true);
-  
+
     SubscriptionService.handleGetSubscription((data) => {
       dispatch(setSubscription(data));
       setLoading(false);
@@ -183,17 +184,36 @@ const Subscriptions: React.FC<SubscriptionsProps> = ({ navigation }) => {
               />
             </View>
           ) : loading ? null : tabType === "subscription" ? (
-            mapData?.map((subscription: any) => {
-              return (
-                <SubscriptionCard
-                  subscription={subscription}
-                  key={subscription?.id}
-                  type={tabType}
-                  navigation={navigation}
-                  handleCancelOrder={handleCancelOrder}
-                />
-              );
-            })
+            <View className="flex flex-col justify-center items-center">
+              {mapData?.map((subscription: any) => {
+                return (
+                  <SubscriptionCard
+                    subscription={subscription}
+                    key={subscription?.id}
+                    type={tabType}
+                    navigation={navigation}
+                    handleCancelOrder={handleCancelOrder}
+                  />
+                );
+              })}
+              {mapData?.length !== 3 ? (
+                <View className="flex flex-col my-5 justify-center items-center rounded-2xl w-[95%] h-[150px]  border border-gray-300  p-10   ">
+                  <View className="w-full h-full flex flex-col justify-center items-center gap-y-5 ">
+                    <Text className="text-greay-500 w-full text-sm font-semibold">
+                      You can add upto 3 Subscriptions
+                    </Text>
+                    <Text
+                      onPress={() => {
+                        navigation.navigate(routes.Plans);
+                      }}
+                      className="bg-red-600  text-white text-sm font-semibold p-1.5 px-5 rounded-lg"
+                    >
+                      Add New Plan 🚀{" "}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+            </View>
           ) : (
             mapData?.map((subscription: any) => {
               return (

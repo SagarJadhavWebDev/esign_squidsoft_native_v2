@@ -33,10 +33,13 @@ import {
   setshowEnvelopeUserWarningModal,
 } from "../../redux/reducers/uiSlice";
 import EnvelopeService from "../../services/EnvelopeService";
-import { setRemoteFields } from "../../redux/reducers/PdfSlice";
+import { setCurrentPage, setRemoteFields } from "../../redux/reducers/PdfSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
 import routes from "../../constants/routes";
 import React from "react";
+import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
+import { setselectedRecipients } from "../../redux/reducers/RecipientSlice";
+import EnvelopeUserWarningModal from "../../components/modals/EnvelopeUserWarningModal";
 interface PrepareDocumentProps {
   envelope: any;
   setEnvelope: any;
@@ -52,7 +55,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   // setCurrentStep,
   //setIsLoading,
 }) => {
-  const { currentPage, selfSignFields, fixedFields } = usePdfData();
   const { recipients, selectedRecipient } = useRecipients();
   const dispatch = useDispatch();
   const recipientsList = recipients?.filter((list) => list?.type === "SIGNER");
@@ -154,7 +156,6 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         }),
       })
         .then((res) => {
-          console.log("RES ADDED FIELDS", res);
           if (res?.success) {
             toast.show(res?.message, { type: "success" });
             dispatch(setRemoteFields(res?.data));
@@ -165,9 +166,7 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             dispatch(setIsLoading(false));
           }
         })
-        .catch((err) => {
-          console.log("RES ADDED FIELDS ERR", err);
-        });
+        .catch((err) => {});
 
       // if (response) {
       //   dispatch(setRemoteFields(data));
@@ -187,6 +186,14 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
   // useEffect(() => {
   //   dispatch(setIsLoading(false));
   // }, []);
+  const recipientsFieldList = addedFields?.map((u: any) => {
+    return u?.meta?.email;
+  });
+  const isAllUserFieldAdded = recipients?.filter((s) => {
+    return !recipientsFieldList?.includes(s?.user?.email);
+  });
+  console.log("selected doc", SelectedDocuments);
+  const { totalPages, currentPage } = usePdfData();
   return (
     <React.Fragment>
       <View className="w-full h-[90%]">
@@ -197,7 +204,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
               <RecipientSelector
                 recipients={recipients}
                 selectedRecipient={selectedRecipient}
-                setSelectedRecipient={() => {}}
+                setSelectedRecipient={(e: any) => {
+                  dispatch(setselectedRecipients(e?.option));
+                }}
               />
             )}
           </View>
@@ -206,7 +215,9 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
             {documents && (
               <DocumentSelector
                 selectedDocument={SelectedDocuments}
-                setSelectedDocument={() => {}}
+                setSelectedDocument={(e: any) => {
+                  dispatch(setSelecteDocument(e?.option));
+                }}
                 documents={documents}
               />
             )}
@@ -254,9 +265,41 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
         >
           <Text className="text-white text-xs font-extrabold">Prev </Text>
         </TouchableOpacity>
+        <GetSvg
+          name="leftArrowIcon"
+          classN="w-6 h-6 px-2 "
+          color="#374151"
+          callBack={() => {
+            if (currentPage !== 1) {
+              dispatch(setIsLoading(true));
+              dispatch(setCurrentPage(currentPage - 1));
+              setTimeout(() => dispatch(setIsLoading(false)), 2000);
+              // setCurrentPageNumber(currentPageNumber - 1);
+            }
+          }}
+        />
+        <Text className="mx-5">
+          Page {currentPage} of {totalPages}{" "}
+        </Text>
+        <GetSvg
+          callBack={() => {
+            if (currentPage !== totalPages) {
+              dispatch(setIsLoading(true));
+              dispatch(setCurrentPage(currentPage + 1));
+              setTimeout(() => dispatch(setIsLoading(false)), 2000);
+            }
+          }}
+          name="rightArrowIcon"
+          classN="w-6 h-6 px-2"
+          color="#374151"
+        />
         <TouchableOpacity
           onPress={() => {
-            handleSubmit(addedFields);
+            if (!isEmpty(isAllUserFieldAdded) && !isEmpty(addedFields)) {
+              dispatch(setshowEnvelopeUserWarningModal(true));
+            } else {
+              handleSubmit(addedFields);
+            }
           }}
           className={`rounded-full  p-1.5 px-4 ${
             addedFields?.length ? "bg-[#d10000]" : "bg-[#ef9393]"
@@ -265,6 +308,14 @@ const PrepareDocument: React.FC<PrepareDocumentProps> = ({
           <Text className="text-white text-xs font-extrabold ">Next </Text>
         </TouchableOpacity>
       </View>
+      <EnvelopeUserWarningModal
+        users={isAllUserFieldAdded?.map((u) => {
+          return u?.user?.email;
+        })}
+        callBack={() => {
+          handleSubmit(addedFields);
+        }}
+      />
     </React.Fragment>
   );
 };

@@ -99,10 +99,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     //     console.log("CHANGE PASSWORD ERR", err);
     //   });
 
-    console.log(
-      "CHNAGE PASSWORD",
-      ApiConfig.API_URL + apiEndpoint.profile.changePassword
-    );
+    
 
     ProfileService.handleChangePassword(passwordsValue, toast, (data) => {
       if (data) {

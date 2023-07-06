@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Image, View } from "react-native";
+import { Alert, Image, PermissionsAndroid, Platform, View } from "react-native";
 import imageConstants from "../constants/imageConstants";
 import permissionsHandler from "../utils/permissionHandler";
 import getSvgIcon from "../utils/getSvgIcon";
@@ -46,6 +46,41 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
         //TERMINATE APP;
       }
     });
+    // if (Platform.OS === "android") {
+    //   PermissionsAndroid.requestMultiple([
+    //     PermissionsAndroid.PERMISSIONS.CAMERA,
+    //     PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+    //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //     PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+    //     PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+    //     PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    //   ]).then((result: any) => {
+    //     if (
+    //       result["android.permission.ACCESS_COARSE_LOCATION"] &&
+    //       result["android.permission.CAMERA"] &&
+    //       result["android.permission.READ_CONTACTS"] &&
+    //       result["android.permission.ACCESS_FINE_LOCATION"] &&
+    //       result["android.permission.READ_EXTERNAL_STORAGE"] &&
+    //       result["android.permission.WRITE_EXTERNAL_STORAGE"] === "granted"
+    //     ) {
+    //       // this.setState({
+    //       //   permissionsGranted: true,
+    //       // });
+    //     } else if (
+    //       result["android.permission.ACCESS_COARSE_LOCATION"] ||
+    //       result["android.permission.CAMERA"] ||
+    //       result["android.permission.READ_CONTACTS"] ||
+    //       result["android.permission.ACCESS_FINE_LOCATION"] ||
+    //       result["android.permission.READ_EXTERNAL_STORAGE"] ||
+    //       result["android.permission.WRITE_EXTERNAL_STORAGE"] ===
+    //         "never_ask_again"
+    //     ) {
+    //       Alert.alert(
+    //         "Please Go into Settings -> Applications -> eSign by SquidSoft -> Permissions and Allow permissions to continue"
+    //       );
+    //     }
+    //   });
+    // }
     getIpData((data: any) => {});
   }, []);
 

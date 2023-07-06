@@ -94,7 +94,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
             <TouchableOpacity className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2">
               <Text
                 onPress={() => {
-                  console.log("MODAL");
+                  // console.log("MODAL");
                   dispatch(setCreateTeamModal(true));
                 }}
                 className="text-white text-xs w-1/2 text-center font-semibold"
@@ -202,7 +202,6 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
                   <TouchableOpacity className="flex  bg-red-500 mt-2 flex-row justify-center items-center rounded-xl  p-2">
                     <Text
                       onPress={() => {
-                        console.log("MODAL");
                         dispatch(setAddUserModal(true));
                       }}
                       className="text-white text-[11px] w-1/2  text-center font-semibold"
@@ -253,20 +252,22 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
       {showRemoveUserModal ? (
         <DeleteUserModal callBack={handleRemoveUser} team={team} />
       ) : null}
-      <TouchableOpacity
-        onPress={() => {
-          dispatch(setAddUserModal(true));
-        }}
-        style={{
-          bottom: 100,
-          right: 20,
-        }}
-        className=" bg-[#d10000] p-2 absolute rounded-full "
-      >
-        <Text className="">
-          <GetSvg name="addIcon" color="white" classN="w-8 h-8" />
-        </Text>
-      </TouchableOpacity>
+      {!isEmpty(team?.users) ? (
+        <TouchableOpacity
+          onPress={() => {
+            dispatch(setAddUserModal(true));
+          }}
+          style={{
+            bottom: 100,
+            right: 20,
+          }}
+          className=" bg-[#d10000] p-2 absolute rounded-full "
+        >
+          <Text className="text-white text-xs px-2 font-extrabold">
+            Add new member +{" "}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
