@@ -37,6 +37,7 @@ export interface uiState {
   showDownloadEnvelopeModal: boolean;
   filter: string;
   updateQuery: string;
+  modalData: string;
 }
 const INITIAL_STATE = {
   sidebarOpen: false,
@@ -74,6 +75,7 @@ const INITIAL_STATE = {
   showDownloadEnvelopeModal: false,
   filter: null,
   updateQuery: null,
+  modalData: null,
 };
 
 export const UiSlice = createSlice({
@@ -182,10 +184,14 @@ export const UiSlice = createSlice({
     setUpdateQuery: (state, action) => {
       state.updateQuery = action.payload;
     },
+    setmodalData: (state, action) => {
+      state.modalData = action.payload;
+    },
   },
 });
 
 export const {
+  setmodalData,
   setUpdateQuery,
   setFilter,
   setshowDownloadEnvelopeModal,

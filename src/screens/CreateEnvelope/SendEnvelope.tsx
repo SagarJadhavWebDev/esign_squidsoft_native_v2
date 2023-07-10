@@ -54,9 +54,11 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   const [showDatePicker, setshowDatePicker] = useState(false);
   const [dateValue, setDateValue] = useState<any>(null);
   const dispatch = useDispatch();
-  const [subject, setSubject] = useState<any>("Squidsoft eSign Request");
+  const [subject, setSubject] = useState<any>(
+    "Please sign this document asap."
+  );
   const [message, setMessage] = useState<any>(
-    "Please eSign in the following documents"
+    "Hi can you please review and sign this document thank you."
   );
   const { recipients } = useRecipients();
   const toast = useToast();
@@ -68,8 +70,8 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
   const user = useUser();
   const token = useToken();
   const [payload, setPayload] = useState<any>({
-    subject: "Squidsoft eSign Request",
-    message: "Please eSign in the following documents",
+    subject: "Please sign this document asap.",
+    message: "Hi can you please review and sign this document thank you.",
     expire_at: null,
     reciever_emails: null,
     save_as_template: false,
@@ -259,7 +261,7 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
           ) : null}
 
           <Text className="w-full text-start font-semibold px-1 mt-2 text-sm">
-            Message to Recipients :
+            Subject :
           </Text>
           <View
             // style={{
@@ -284,6 +286,9 @@ const SendEnvelope: React.FC<SendEnvelopeProps> = ({ navigation }) => {
           {!isEmpty(errors?.subjectError) ? (
             <Error text={errors?.subjectError} classN="mb-1" />
           ) : null}
+          <Text className="w-full text-start font-semibold px-1 mt-2 text-sm">
+            Message to Recipients :
+          </Text>
           <View
             style={{
               // borderRadius: 12,

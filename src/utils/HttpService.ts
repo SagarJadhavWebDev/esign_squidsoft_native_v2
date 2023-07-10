@@ -1,9 +1,12 @@
 import ApiConfig from "../constants/ApiConfig";
+import SP from "../types/LocalStorageType";
 import useAuth from "./auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const getHostName = () => {
   return "me";
 };
+
 const get = async (url: string, { token = "" }) => {
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
@@ -18,8 +21,9 @@ const get = async (url: string, { token = "" }) => {
 
   return response;
 };
-const post = async (url: string, { body, token = "" }: any) => {
+const post = async (url: string, { body }: any) => {
   //console.log(ApiConfig.API_URL + url);
+  const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
       Accept: "application/json",
@@ -33,7 +37,8 @@ const post = async (url: string, { body, token = "" }: any) => {
     .then((json) => json);
   return response;
 };
-const postFile = async (url: string, { formData, token = "" }: any) => {
+const postFile = async (url: string, { formData }: any) => {
+  const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
       Accept: "application/json",
@@ -74,7 +79,8 @@ const uploadFiles = (
 
     xhr.send(formData);
   });
-const putFile = async (url: string, { formData, token = "" }: any) => {
+const putFile = async (url: string, { formData }: any) => {
+  const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
       Accept: "application/json",
@@ -87,7 +93,8 @@ const putFile = async (url: string, { formData, token = "" }: any) => {
     .then((json) => json);
   return response;
 };
-const put = async (url: string, { body, token = "" }: any) => {
+const put = async (url: string, { body }: any) => {
+  const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
       Accept: "application/json",
@@ -101,7 +108,8 @@ const put = async (url: string, { body, token = "" }: any) => {
     .then((json) => json);
   return response;
 };
-const deleteRequest = async (url: string, { token = "" }) => {
+const deleteRequest = async (url: string) => {
+  const token = (await AsyncStorage.getItem(SP.AUTHTOKEN)) as any;
   var response = await fetch(ApiConfig.API_URL + url, {
     headers: {
       Accept: "application/json",

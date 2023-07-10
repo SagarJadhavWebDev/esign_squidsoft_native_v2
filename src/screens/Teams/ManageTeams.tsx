@@ -28,7 +28,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const teams: any = useTeams();
   const organization = useOrganization();
- // console.log("TEAMS", teams);
+  // console.log("TEAMS", teams);
   const plans = organization?.meta?.available_subscriptions;
 
   return (
@@ -54,7 +54,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
             <TouchableOpacity className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2">
               <Text
                 onPress={() => {
-                 // console.log("MODAL");
+                  // console.log("MODAL");
                   dispatch(setCreateTeamModal(true));
                 }}
                 className="text-white text-xs w-1/2 text-center font-semibold"
@@ -162,7 +162,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
       </View>
       {isOpen ? <CreateTeamModal /> : null}
       {addUserModal ? <AddUserModal team={team} /> : null}
-      {!isEmpty(plans) ? (
+      {!isEmpty(team) ? (
         <TouchableOpacity
           onPress={() => {
             dispatch(setCreateTeamModal(true));
@@ -173,9 +173,7 @@ const ManageTeams: React.FC<ManageTeamsProps> = ({ navigation }) => {
           }}
           className=" bg-[#d10000] p-2 absolute rounded-full "
         >
-          <Text className="">
-            <GetSvg name="addIcon" color="white" classN="w-8 h-8" />
-          </Text>
+          <Text className="text-white text-xs px-2 font-extrabold">Add New Team {" "} </Text>
         </TouchableOpacity>
       ) : null}
     </View>

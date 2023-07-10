@@ -46,9 +46,11 @@ const SendTemplate: React.FC<SendTemplateProps> = ({ navigation, route }) => {
   const [showDatePicker, setshowDatePicker] = useState(false);
   const [dateValue, setDateValue] = useState<any>(null);
   const dispatch = useDispatch();
-  const [subject, setSubject] = useState<any>("Squidsoft eSign Request");
+  const [subject, setSubject] = useState<any>(
+    "Please sign this document asap."
+  );
   const [message, setMessage] = useState<any>(
-    "Please eSign in the following documents"
+    "Hi can you please review and sign this document thank you."
   );
   const toast = useToast();
   const [errors, setErrors] = useState({
@@ -59,8 +61,8 @@ const SendTemplate: React.FC<SendTemplateProps> = ({ navigation, route }) => {
   const user = useUser();
   const token = useToken();
   const [payload, setPayload] = useState<any>({
-    subject: "Squidsoft eSign Request",
-    message: "Please eSign in the following documents",
+    subject: "Please sign this document asap.",
+    message: "Hi can you please review and sign this document thank you.",
     expire_at: null,
     reciever_emails: null,
     save_as_template: false,
@@ -287,7 +289,7 @@ const SendTemplate: React.FC<SendTemplateProps> = ({ navigation, route }) => {
             ) : null}
 
             <Text className="w-full text-start font-semibold px-1 mt-2 text-sm">
-              Message to Recipients :
+              Subject :
             </Text>
             <View
               // style={{
@@ -312,6 +314,9 @@ const SendTemplate: React.FC<SendTemplateProps> = ({ navigation, route }) => {
             {!isEmpty(errors?.subjectError) ? (
               <Error text={errors?.subjectError} classN="mb-1" />
             ) : null}
+            <Text className="w-full text-start font-semibold px-1 mt-2 text-sm">
+              Message to Recipients :
+            </Text>
             <View
               style={{
                 // borderRadius: 12,

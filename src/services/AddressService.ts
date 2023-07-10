@@ -12,30 +12,42 @@ const handleGetAddresses = (callBack: (data: any) => void) => {
       return callBack(false);
     });
 };
-const handleCreateAddresses = (payload: any, callBack: (data: any) => void) => {
+const handleCreateAddresses = (
+  payload: any,
+  toast: any,
+  callBack: (data: any) => void
+) => {
   ApiInstance.post(apiEndpoint.address.createAddress, payload)
     .then(async (res) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callBack(data);
     })
     .catch((err) => {
       return callBack(false);
     });
 };
-const handleSetDefaultAddresses = (id: any, callBack: (data: any) => void) => {
+const handleSetDefaultAddresses = (
+  id: any,
+  toast: any,
+  callBack: (data: any) => void
+) => {
   ApiInstance.post(apiEndpoint.address.setDefaultAddress(id))
     .then(async (res) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callBack(data);
     })
     .catch((err) => {
       return callBack(false);
     });
 };
-const handleDeleteAddresses = (id: any, callBack: (data: any) => void) => {
+const handleDeleteAddresses = (
+  id: any,
+  toast: any,
+  callBack: (data: any) => void
+) => {
   ApiInstance.delete(apiEndpoint.address.deleteAddress(id))
     .then(async (res) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callBack(data);
     })
     .catch((err) => {

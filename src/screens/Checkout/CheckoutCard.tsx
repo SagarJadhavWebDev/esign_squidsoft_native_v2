@@ -44,7 +44,7 @@ import AddAddressModal from "../../components/modals/AddAddressModal";
 import Addressservice from "../../services/AddressService";
 import { setAddresses } from "../../redux/reducers/AddressesSlice";
 import apiEndpoint from "../../constants/apiEndpoints";
-
+import { TextInput } from "react-native-gesture-handler";
 interface CheckoutCardProps {
   navigation: any;
   route: any;
@@ -155,7 +155,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     if (error) {
       setStripeReady(false);
       Alert.alert("Something went wrong!");
-      console.log("sjwks", error);
+      // console.log("sjwks", error);
     } else {
       setStripeReady(true);
     }
@@ -167,7 +167,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
       // console.log("RESPONSE:", paymentOption?.label, paymentOption?.image);
       if (error) {
         Alert.alert("Payment failed!");
-        console.log("sjwks", error);
+        // console.log("sjwks", error);
       } else {
         dispatch(setPaymentPending(true));
         setStripeReady(false);
@@ -181,7 +181,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     seCheckouttLoadiing(true);
 
     await getIpData((ipData: any) => {
-      console.log("IP DATA", ipData);
+      // console.log("IP DATA", ipData);
       const payload = {
         type: "PLAN",
         plan_id: checkoutData?.id,
@@ -220,15 +220,28 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
               case "RAZORPAY":
                 return RazorpayCheckout.open(options)
                   .then((res) => {
-                    SubscriptionService.handleGetSubscription((data) => {
-                      dispatch(setSubscription(data));
-                    });
-                    AuthService.handleGetProfile((data) => {
-                      if (data) {
-                        dispatch(setUser(data));
-                      }
-                    });
-                    navigation.pop();
+                    if (res?.razorpay_payment_id) {
+                      const payload = {
+                        id: order?.id,
+                        transaction_mode: order?.payment_intent_mode,
+                        transaction_id: res?.razorpay_payment_id,
+                      };
+                      OrderService.handleVerifyOrder(payload, (data) => {
+                        if (data) {
+                          SubscriptionService.handleGetSubscription((data) => {
+                            dispatch(setSubscription(data));
+                          });
+                          AuthService.handleGetProfile((data) => {
+                            if (data) {
+                              dispatch(setUser(data));
+                            }
+                          });
+                          navigation.navigate(routes.Subscriptions);
+                        }
+                      });
+                    } else {
+                      console.log("RAZR PAY PAYMENT ERR", res);
+                    }
                   })
                   .catch((e) => {
                     console.log("RAZORPAY PAYMENT", e);
@@ -249,6 +262,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     });
   };
   const amount = (theform: any) => {
+    console.log("AMOUNT", theform);
     let with2Decimals = theform?.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
     return with2Decimals;
   };
@@ -328,11 +342,11 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
             $
             {!isNull(couponCode?.final_amount)
               ? amount(couponCode?.final_amount)
-              : discountPrice}
+              : amount(discountPrice)}
           </Text>
         </View>
-        <View className="w-full h-20 flex flex-row justify-center items-center">
-          <View className="w-[80%]">
+        {/* <View className="w-full h-20 flex flex-row justify-center items-center">
+           <View className="w-[80%]">
             <Text className=" mx-1 text-gray-400 font-medium text-xs">
               Coupon Code
             </Text>
@@ -380,7 +394,49 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                 />
               )}
             </TouchableOpacity>
-          </View>
+          </View> 
+          
+        </View> */}
+        <View className="w-full p-2 flex flex-row justify-center   items-center">
+          <WFullInputField
+            // secureTextEntry={Showpasswords.old_password}
+
+            placeholder="Enter coupon code"
+            onChangeText={(e: any) => {
+              setCouponCode((prev: any) => ({
+                ...prev,
+                coupon_code: e,
+              }));
+            }}
+            value={couponCode?.coupon_code}
+            className="h-5 w-[80%] text-sm  "
+          />
+          <TouchableOpacity
+            onPress={() => {
+              if (!isNull(couponCode?.final_amount)) {
+                setCouponCode({
+                  coupon_code: null,
+                  discount: null,
+                  final_amount: null,
+                  gstin: user?.gstin ?? null,
+                  company_name: user?.company_name ?? null,
+                });
+              } else {
+                handleApplyCouponCode();
+              }
+            }}
+            className="mx-3 bg-[#d10000] rounded-full  p-1.5 px-4"
+          >
+            {!isNull(couponCode?.final_amount) ? (
+              <Text className="text-white text-xs font-extrabold ">
+                Remove{" "}
+              </Text>
+            ) : (
+              <Text className="text-white text-xs font-extrabold">Apply</Text>
+            )}
+
+            {/* <GetSvg name="rightArrowIcon" classN="w-3 h-3" color="white" /> */}
+          </TouchableOpacity>
         </View>
         <View className=" w-full mt-5 flex flex-row justify-between items-center">
           <TouchableOpacity
@@ -395,7 +451,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
           <TouchableOpacity
             onPress={() => {
               if (defaultAddress) {
-                console.log("NEXT", defaultAddress);
+                // console.log("NEXT", defaultAddress);
                 handleActiveSubscription();
               } else {
                 toast.show("Please add address before checkout", {
@@ -437,15 +493,15 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                         dispatch(setIsLoading(true));
                         Addressservice.handleSetDefaultAddresses(
                           a?.id,
+                          toast,
                           (data) => {
                             dispatch(setAddresses(data));
                             dispatch(setIsLoading(false));
-                            toast.show("Stamp set to default successfully", {
+                            toast.show("address set to default successfully", {
                               type: "success",
                             });
                           }
                         );
-                        console.log("ss");
                       }}
                     >
                       <GetSvg
@@ -457,15 +513,18 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                     <TouchableOpacity
                       onPress={() => {
                         dispatch(setIsLoading(true));
-                        Addressservice.handleDeleteAddresses(a?.id, (data) => {
-                          // setAddress(data);
-                          dispatch(setAddresses(data));
-                          dispatch(setIsLoading(false));
-                          toast.show("Stamp deleted successfully", {
-                            type: "success",
-                          });
-                        });
-                        console.log("sagar");
+                        Addressservice.handleDeleteAddresses(
+                          a?.id,
+                          toast,
+                          (data) => {
+                            // setAddress(data);
+                            dispatch(setAddresses(data));
+                            dispatch(setIsLoading(false));
+                            toast.show("address deleted successfully", {
+                              type: "success",
+                            });
+                          }
+                        );
                       }}
                       //title="Delete Address"
                       className="p-1 rounded-full hover:bg-gray-300 "

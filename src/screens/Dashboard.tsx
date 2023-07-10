@@ -465,7 +465,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigation, route }) => {
                                   access_token: i?.action_token,
                                 };
 
-                                console.log("VIEW", envelope);
+                                // console.log("VIEW", envelope);
                                 navigation?.navigate(routes.viewEnvelope, {
                                   envelope,
                                   currentTab: "SIGN",

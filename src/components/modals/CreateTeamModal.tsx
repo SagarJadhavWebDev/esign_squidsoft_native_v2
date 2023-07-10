@@ -1,16 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Modal, View, Pressable, Text, TextInput } from "react-native";
+import React, { useState } from "react";
+import { Modal, View, Pressable, Text } from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import { ScrollView } from "react-native-gesture-handler";
-import useAuth from "../../utils/auth";
-import { useToast } from "react-native-toast-notifications";
-import Svg, { Path } from "react-native-svg";
 import WFullInputField from "../atoms/WFullInputField";
-import Error from "../atoms/Error";
-import { isEmpty } from "lodash";
-import HttpService from "../../utils/HttpService";
-import apiEndpoints from "../../constants/apiEndpoints";
-import ProfileService from "../../services/ProfileService";
 import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "../../redux/store";
 import { useOrganization } from "../../utils/useReduxUtil";
@@ -19,11 +11,14 @@ import { setOrganization } from "../../redux/reducers/ListOrganizationSlice";
 import { setTeams } from "../../redux/reducers/TeamsSlice";
 import { setCreateTeamModal } from "../../redux/reducers/uiSlice";
 import CustomDropDown from "../molecules/CustomDropDown";
-
+import CreateTeamValidations from "../../validations/CreateTeamValidations";
+import serializeYupErrors from "../../utils/SerializeErrors";
+import Error from "../atoms/Error";
+import omit from "lodash/omit";
 interface CreateTeamModalProps {}
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
   const dispatch = useDispatch();
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState<any>();
   const isOpen = useSelector(
     (state: ApplicationState) => state?.ui?.createTeamModal
   );
@@ -31,21 +26,34 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
   const [payload, setPayload] = useState({
     name: null,
     subscription_id: null,
+    plan_name: null,
   });
   const organization = useOrganization();
   const plans = organization?.meta?.available_subscriptions;
   const handleSubmit = () => {
+    const updatedPayload = omit(payload, "plan_name");
     setLoading(true);
-    TeamsService.handleCreateTeam(payload, (data: any) => {
-      if (data) {
-        dispatch(setOrganization(data));
-        dispatch(setTeams(data?.teams));
-        dispatch(setCreateTeamModal(false));
+    CreateTeamValidations.CreateTeamValidations.validate(updatedPayload, {
+      abortEarly: false,
+    })
+      .catch((err) => {
         setLoading(false);
-      } else {
-        setLoading(false);
-      }
-    });
+        setErrors(serializeYupErrors(err));
+      })
+      .then((res) => {
+        if (res !== undefined) {
+          TeamsService.handleCreateTeam(updatedPayload, (data: any) => {
+            if (data) {
+              dispatch(setOrganization(data));
+              dispatch(setTeams(data?.teams));
+              dispatch(setCreateTeamModal(false));
+              setLoading(false);
+            } else {
+              setLoading(false);
+            }
+          });
+        }
+      });
   };
   //console.log("plans", organization);
   return (
@@ -95,8 +103,14 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                     <WFullInputField
                       textContentType="name"
                       placeholder="Enter team name"
-                      onChangeText={(e: any) => {}}
+                      onChangeText={(e: any) => {
+                        setPayload((prev) => ({
+                          ...prev,
+                          name: e,
+                        }));
+                      }}
                       className="h-5 text-sm  "
+                      error={errors?.name ? errors?.name : null}
                     />
                   </View>
                   <View className="">
@@ -112,18 +126,24 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                       })}
                       onSelect={(e: any) => {
                         const selectedState = e?.option;
-                       // console.log("selectedState", selectedState);
-
                         setPayload((prev) => ({
                           ...prev,
-                          city: selectedState?.label,
+                          subscription_id: selectedState?.value,
+                          plan_name: selectedState?.label,
                         }));
                       }}
-                      selectedValue={{ label: payload?.name ?? "Select plan" }}
-                      placeholder={"sad"}
+                      selectedValue={{
+                        label:
+                          payload?.name + payload?.subscription_id ??
+                          "Select plan",
+                      }}
+                      placeholder={""}
                       setMainScrollState={true}
                       width={150}
                     />
+                    {errors?.subscription_id ? (
+                      <Error text={errors?.subscription_id} />
+                    ) : null}
                   </View>
                 </ScrollView>
                 <View className="w-full justify-end items-center flex flex-row my-4 ">

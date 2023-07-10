@@ -1,11 +1,11 @@
 const auth = {
-  register: "/users/signup",
-  login: "/users/signin",
+  register: "users/signup",
+  login: "users/signin",
   resendEmail: "/users/resend",
   verifyEmail: "email/verify/",
   logout: "users/logout",
-  sendForgotLink: "/users/reset-password-link",
-  forgotPassword: "/users/forget-password",
+  sendForgotLink: "users/reset-password-link",
+  forgotPassword: "users/forget-password",
 };
 const profile = {
   getProfile: "/users/me",
@@ -19,7 +19,7 @@ const envelope = {
     `/envelopes/recipients/add/${envelopeId}`,
   sendEnvelope: (id: number) => `envelopes/send/${id}`,
   viewEnvelope: `envelope/view`,
-  voidEnvelope: (envelopeId: number) => `/envelopes/void/${envelopeId}`,
+  voidEnvelope: (envelopeId: number) => `envelopes/void/${envelopeId}`,
   searchRecipients: (q: string) => `/envelopes/recipients/search?q=${q}`,
 };
 const document = {

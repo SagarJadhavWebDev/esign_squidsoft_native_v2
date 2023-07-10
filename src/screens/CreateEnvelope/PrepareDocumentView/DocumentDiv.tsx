@@ -27,11 +27,16 @@ import HttpService from "../../../utils/HttpService";
 import renderFieldIcon from "../../../utils/renderFieldIcon";
 import {
   useDocuments,
+  usePdfData,
   useRecipients,
   useSignature,
 } from "../../../utils/useReduxUtil";
 import { useDispatch } from "react-redux";
-import { setAddedFields } from "../../../redux/reducers/PdfSlice";
+import {
+  setAddedFields,
+  setCurrentPage,
+  setTotalPages,
+} from "../../../redux/reducers/PdfSlice";
 import EachField from "./EachField";
 
 interface DocumentDivProps {
@@ -59,12 +64,13 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
 }) => {
   // const source = RNFetchBlob.fs.dirs.DocumentDir + "/" + selectedDocument?.name;
   const [source, setSource] = useState<any>(null);
-  const [totalPages, setTotalPages] = useState(0) as any;
+  // const [totalPages, setTotalPages] = useState(0) as any;
   const { documents, SelectedDocuments } = useDocuments();
   // const [addedFields, setAddedFields] = useState<FieldPayload[]>([]);
   // {"auth": 57, "authFields": [], "body": null, "completed": true, "created_date": "2023-01-10T08:26:30.000000Z", "created_time": "2023-01-10T08:26:30.000000Z", "documents": [{"id": 1050, "name": "T&C.pdf", "pages": [], "path": "userdata/57/Envelopes/857/Documents/1050/unsigned_document"}], "expire_at": null, "expire_time": null, "fields": [], "id": 857, "recipients": [{"id": 1318, "level": 0, "operation": "3", "signed_at": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}, {"id": 1319, "level": 1, "operation": "1", "signed_at": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}], "self_sign": 0, "sent_at": null, "sent_date": null, "sent_time": null, "subject": null, "user": {"created_at": "2022-10-10T17:00:20.000000Z", "email": "sagar@squidsoft.tech", "id": 57, "name": "sagar@squidsoft.tech", "updated_at": "2023-01-06T03:50:38.000000Z"}}
   const [divPosition, setDivPosition] = useState(null as any);
   const { token } = useAuth();
+  const { currentPage } = usePdfData();
   const toast = useToast();
   // console.log(
   //   "selectedDocument?.name",
@@ -97,7 +103,8 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
       PdfUtil.getPageCount(source)
         .then((res) => {
           console.log(res);
-          setTotalPages(res);
+          dispatch(setTotalPages(res));
+          // setTotalPages(res);
         })
         .catch((err) => console.log(err));
     }
@@ -108,7 +115,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
   }, []);
 
   useEffect(() => {
-    if (selectedDocument?.option?.name) {
+    if (selectedDocument) {
       handleDocumentFetch();
     }
   }, [selectedDocument]);
@@ -126,7 +133,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
 
   const pan = useRef(new Animated.ValueXY()).current;
   const fieldPan = useRef(new Animated.ValueXY()).current;
-  const [currentPageNumber, setCurrentPageNumber] = useState(1);
+  // const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const dimentions = useWindowDimensions();
 
   const [dragContainerSize, setDragContainerSize] = useState({
@@ -336,7 +343,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
         ? { envelopeid: envelope?.id }
         : { templateid: template?.id }),
       documentid: SelectedDocuments?.id,
-      pageno: currentPageNumber,
+      pageno: currentPage,
       type: selectedField.type,
       userid: selectedRecipient?.user?.id,
       email: selectedRecipient?.user?.email,
@@ -368,7 +375,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
             template_field_set_id: selectedRecipient?.id,
             template_document_id: SelectedDocuments?.id,
           }),
-      page_number: currentPageNumber,
+      page_number: currentPage,
       type: upperCase(selectedField.type),
       is_mandatory: true,
       x_coordinate: divPosition?.x ?? 0,
@@ -510,7 +517,8 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
     }
   }, [selectedRecipient, selectedDocument]);
   useEffect(() => {
-    setCurrentPageNumber(1);
+    dispatch(setCurrentPage(1));
+    // setCurrentPageNumber(1);
   }, [selectedDocument]);
   const removeAddedField = (field: any) => {
     const data = addedFields?.filter(
@@ -541,7 +549,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
           {source && (
             <PdfView
               source={source}
-              page={currentPageNumber - 1}
+              page={currentPage - 1}
               onError={(e) => {
                 toast.hideAll();
                 toast.show(
@@ -572,7 +580,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
             .filter(
               (f: any) =>
                 f?.envelope_document_id === selectedDocument?.id &&
-                f?.page_number === currentPageNumber
+                f?.page_number === currentPage
             )
             .map((i: any) => {
               return <EachField key={i?.id} i={i} />;
@@ -585,7 +593,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
         ) : null}
       </View>
       <View className=" w-full justify-center items-center my-2 flex flex-row">
-        <Pressable
+        {/* <Pressable
           onPress={() => {
             console.log("CALLED:");
             if (currentPageNumber !== 1) {
@@ -602,12 +610,12 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
                 setCurrentPageNumber(currentPageNumber - 1);
               }
             }}
-          />
+          /> 
         </Pressable>
         <Text className="mx-5">
           Page {currentPageNumber} of {totalPages}{" "}
         </Text>
-        <Pressable
+        {/* <Pressable
           onPress={() => {
             if (currentPageNumber !== totalPages) {
               setCurrentPageNumber(currentPageNumber + 1);
@@ -615,7 +623,7 @@ const DocumentDiv: React.FC<DocumentDivProps> = ({
           }}
         >
           <GetSvg name="rightArrowIcon" classN="w-6 h-6 px-2" color="#374151" />
-        </Pressable>
+        </Pressable> */}
       </View>
     </>
   );

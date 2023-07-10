@@ -22,7 +22,7 @@ import {
   useEnvelopeStep,
   useIsLoading,
 } from "../../utils/useReduxUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSelecteDocument } from "../../redux/reducers/documentsSlice";
 import { setAddedFields, setFixedFields } from "../../redux/reducers/PdfSlice";
 import {
@@ -31,11 +31,18 @@ import {
 } from "../../redux/reducers/RecipientSlice";
 import {
   setEnvelopeStep,
+  setIsLoading,
   setLoadingModal,
   setModalType,
+  setmodalData,
+  setshowEnvelopeDraftModal,
 } from "../../redux/reducers/uiSlice";
 import { setCurrentTab } from "../../redux/reducers/ManageSlice";
 import { setEnvelope } from "../../redux/reducers/envelopeSlice";
+import { ApplicationState } from "../../redux/store";
+import HttpService from "../../utils/HttpService";
+import { useToast } from "react-native-toast-notifications";
+import DraftEnvelopeModal from "../../components/modals/DraftEnvelopeModal";
 
 interface CreateEnvelopeProps {
   navigation: any;
@@ -103,7 +110,38 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
         return null;
     }
   };
+  const toast = useToast();
+  const modalToken: any = useSelector(
+    (state: ApplicationState) => state?.ui?.modalData
+  );
   const dispatch = useDispatch();
+  const handleDiscardEnvelope = () => {
+    dispatch(setIsLoading(true));
+    dispatch(setshowEnvelopeDraftModal(false));
+    const deleteTokens = modalToken?.split("api/").pop();
+    HttpService.delete(deleteTokens)
+      .then((res) => {
+        toast.show(res?.message, {
+          type: res?.success ? "success" : "error",
+        });
+        dispatch(setIsLoading(false));
+        dispatch(setEnvelope(null));
+        dispatch(setSelecteDocument(null));
+        dispatch(setFixedFields(null));
+        dispatch(setRecipients(null));
+        dispatch(setModalType(""));
+        dispatch(setLoadingModal(false));
+        dispatch(setCurrentTab("inbox"));
+        dispatch(setselectedRecipients(null));
+        dispatch(setEnvelopeStep(0));
+        dispatch(setAddedFields(null));
+        navigation.push(routes.dashboard);
+      })
+      .catch((err) => {
+        dispatch(setshowEnvelopeDraftModal(false));
+        dispatch(setIsLoading(false));
+      });
+  };
   return (
     <>
       <SafeAreaView className="w-full h-full bg-white">
@@ -114,25 +152,18 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
                 {steps?.[currentStep]?.name}
               </Text>
             </View>
-            <View className="h-full bg-white w-1/6 justify-center items-end">
-              <GetSvg
-                name="closeWithoutCircleIcon"
-                classN="w-6 h-6"
-                callBack={() => {
-                  dispatch(setEnvelope(null));
-                  dispatch(setSelecteDocument(null));
-                  dispatch(setFixedFields(null));
-                  dispatch(setRecipients(null));
-                  dispatch(setModalType(""));
-                  dispatch(setLoadingModal(false));
-                  dispatch(setCurrentTab("inbox"));
-                  dispatch(setselectedRecipients(null));
-                  dispatch(setEnvelopeStep(0));
-                  dispatch(setAddedFields(null));
-                  navigation.push(routes.dashboard);
-                }}
-              />
-            </View>
+            {currentStep !== 0 ? (
+              <View className="h-full bg-white w-1/6 justify-center items-end">
+                <GetSvg
+                  name="closeWithoutCircleIcon"
+                  classN="w-6 h-6"
+                  callBack={() => {
+                    dispatch(setmodalData(envelope?.delete_token));
+                    dispatch(setshowEnvelopeDraftModal(true));
+                  }}
+                />
+              </View>
+            ) : null}
           </View>
           <IndeterminateProgressBar loading={isloading ?? false} />
           <View className="bg-white w-full max-w-md mx-auto px-12 pt-1 h-1/2 flex-row flex justify-around items-center">
@@ -153,6 +184,11 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
           <ActivityIndicator size={"large"} color="#d10000" />
         </View>
       ) : null}
+
+      <DraftEnvelopeModal
+        callBack={handleDiscardEnvelope}
+        navigation={navigation}
+      />
     </>
   );
 };

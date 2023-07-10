@@ -8,9 +8,19 @@ import { Address } from "../../types/AddressTypes";
 import { TouchableOpacity } from "react-native";
 import NoDataFound from "../../components/atoms/NoDataFound";
 import AddAddressModal from "../../components/modals/AddAddressModal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAddresses } from "../../redux/reducers/AddressesSlice";
-import { showAddressModal } from "../../redux/reducers/uiSlice";
+import {
+  setmodalData,
+  setshowConfirmDeleteModal,
+  showAddressModal,
+} from "../../redux/reducers/uiSlice";
+import DeleteEnvelopeModal from "../../components/modals/DeleteEnvelopeModal";
+import { ApplicationState } from "../../redux/store";
+import HttpService from "../../utils/HttpService";
+import apiEndpoint from "../../constants/apiEndpoints";
+import { useToast } from "react-native-toast-notifications";
+import routes from "../../constants/routes";
 interface ManageAddressProps {
   navigation: any;
   showHeader?: boolean;
@@ -35,7 +45,10 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
   useEffect(() => {
     handleGetAddress();
   }, []);
-
+  const modalData = useSelector(
+    (state: ApplicationState) => state?.ui?.modalData
+  );
+  const toast = useToast();
   return (
     <View className="bg-white p-0  w-full flex gap-y-3  items-center">
       {showHeader ? (
@@ -75,8 +88,33 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
                     <TouchableOpacity
                       onPress={() => {
                         setIsLoading(true);
+                        // HttpService.post(
+                        //   apiEndpoint.address.setDefaultAddress(a?.id),
+                        //   null
+                        // )
+                        //   .then((res) => {
+                        //     console.log("RESULt", res);
+                        //     toast.show(res?.message, {
+                        //       type: res?.success ? "success" : "error",
+                        //     });
+                        //     setIsLoading(false);
+                        //     if (res?.data) {
+                        //       SignIn &&
+                        //         SignIn(res?.data?.token, () => {
+                        //           setPassword(null);
+                        //           setUsername(null);
+                        //           dispatch(setUser(res?.data?.user));
+                        //           setIsLoading(false);
+                        //           // navigation.navigate(routes.dashboard);
+                        //         });
+                        //     }
+                        //   })
+                        //   .catch((err) => {
+                        //     setIsLoading(false);
+                        //   });
                         Addressservice.handleSetDefaultAddresses(
                           a?.id,
+                          toast,
                           (data) => {
                             dispatch(setAddresses(data?.reverse()));
                             setIsLoading(false);
@@ -93,12 +131,9 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
-                        setIsLoading(true);
-                        Addressservice.handleDeleteAddresses(a?.id, (data) => {
-                          // setAddress(data);
-                          dispatch(setAddresses(data));
-                          setIsLoading(false);
-                        });
+                        dispatch(setmodalData(a?.id));
+                        dispatch(setshowConfirmDeleteModal(true));
+
                         console.log("sagar");
                       }}
                       //title="Delete Address"
@@ -152,12 +187,24 @@ const ManageAddress: React.FC<ManageAddressProps> = ({
           }}
           className=" bg-[#d10000] p-2 absolute rounded-full "
         >
-          <Text className="">
-            <GetSvg name="addIcon" color="white" classN="w-8 h-8" />
+          <Text className="text-white text-xs px-2 font-extrabold">
+            Add new address +{" "}
           </Text>
         </TouchableOpacity>
       ) : null}
-     <AddAddressModal /> 
+      <AddAddressModal />
+      <DeleteEnvelopeModal
+        description="Are you sure you want to delete this address"
+        callBack={() => {
+          dispatch(setshowConfirmDeleteModal(false));
+          setIsLoading(true);
+          Addressservice.handleDeleteAddresses(modalData, toast, (data) => {
+            // setAddress(data);
+            dispatch(setAddresses(data));
+            setIsLoading(false);
+          });
+        }}
+      />
     </View>
   );
 };

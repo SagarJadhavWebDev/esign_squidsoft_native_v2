@@ -431,12 +431,13 @@ const useOrganization = () => {
   const token = useToken();
 
   const dispatch = useDispatch();
-  if (organization !== undefined) {
+  if (organization) {
     return organization;
   } else if (token) {
     OrganizationsService.handleGetOrganizations((data: any) => {
       dispatch(setOrganization(data));
       dispatch(setTeams(data?.teams));
+      console.log("ORG", data);
       return data;
     });
   }

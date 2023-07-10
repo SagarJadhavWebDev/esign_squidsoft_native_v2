@@ -89,16 +89,8 @@ const AddRecipients: React.FC<AddRecipientsProps> = ({ navigation }) => {
   const toast = useToast();
   return (
     <SafeAreaView className="w-full h-full bg-white p-2 flex flex-col justify-between max-w-sm mx-auto">
-      <View className="h-[90%] bg-white w-full justify-start items-center">
-        <ScrollView
-          style={{
-            flexGrow: 0,
-            maxHeight: "70%",
-          }}
-          className="w-full"
-        >
-          <AddRecipientsCard />
-        </ScrollView>
+      <View className=" bg-white w-full justify-start items-center">
+        <AddRecipientsCard />
       </View>
       <View className=" w-full h-[10%] flex flex-row justify-between items-center">
         <TouchableOpacity
