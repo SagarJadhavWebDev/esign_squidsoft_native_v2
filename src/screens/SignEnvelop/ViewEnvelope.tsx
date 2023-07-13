@@ -121,7 +121,7 @@ const ViewEnvelope: React.FC<ViewEnvelopeProps> = ({ route, navigation }) => {
     <SafeAreaView className="w-full h-full flex flex-col justify-start">
       <View className="w-full h-12 flex flex-row justify-between items-center px-3 bg-white">
         <Text className="text-lg font-normal w-1/2">
-          Envelope : {envelopeData?.id + " "}
+          Envelope : {envelopeData?.id + "  "}
         </Text>
         <GetSvg
           name="closeWithoutCircleIcon"

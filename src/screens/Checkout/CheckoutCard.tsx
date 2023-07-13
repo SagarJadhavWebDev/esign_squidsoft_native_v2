@@ -484,9 +484,9 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                           (data) => {
                             dispatch(setAddresses(data));
                             dispatch(setIsLoading(false));
-                            toast.show("Stamp set to default successfully", {
-                              type: "success",
-                            });
+                            // toast.show("Stamp set to default successfully", {
+                            //   type: "success",
+                            // });
                           }
                         );
 
@@ -508,9 +508,9 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             // setAddress(data);
                             dispatch(setAddresses(data));
                             dispatch(setIsLoading(false));
-                            toast.show("Stamp deleted successfully", {
-                              type: "success",
-                            });
+                            // toast.show("Stamp deleted successfully", {
+                            //   type: "success",
+                            // });
                           }
                         );
                        

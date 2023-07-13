@@ -4,7 +4,7 @@ export type TouchedFields<T> = Partial<Record<keyof T, boolean>>;
 export type ErrorFields<T> = Partial<Record<keyof T, string>>;
 
 export default function serializeYupErrors<T>(
-  err: ValidationError,
+  err: ValidationError|any,
   touchedFields?: TouchedFields<T>
 ) {
   return err.inner.reduce((acc: ErrorFields<T>, val: ValidationError) => {

@@ -12,7 +12,10 @@ import {
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
 import ApiConfig from "../../constants/ApiConfig";
 import useAuth from "../../utils/auth";
-import DocumentPicker, { isInProgress } from "react-native-document-picker";
+import DocumentPicker, {
+  isInProgress,
+  types,
+} from "react-native-document-picker";
 import { useToast } from "react-native-toast-notifications";
 import ManageStamps from "./ManageStamps";
 import CredentialsService from "../../services/CredentialsService";
@@ -59,6 +62,7 @@ const UploadStamp: React.FC<UploadStampProps> = ({
         presentationStyle: "fullScreen",
         copyTo: "cachesDirectory",
         transitionStyle: "partialCurl",
+        type: types.images,
       });
 
       if (!isEmpty(pickerResult)) {
@@ -101,6 +105,7 @@ const UploadStamp: React.FC<UploadStampProps> = ({
           type: null,
           isOpen: false,
         });
+        toast.show("stamp uploaded successfully", { type: "success" });
         // dispatch(showUploadCredentialsModal(false));
         // dispatch(setIsLoading(false));
       } else {
@@ -108,6 +113,7 @@ const UploadStamp: React.FC<UploadStampProps> = ({
           type: null,
           isOpen: false,
         });
+        toast.show("stamp upload fail", { type: "error" });
       }
     });
   };

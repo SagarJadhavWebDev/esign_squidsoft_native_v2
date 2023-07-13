@@ -43,6 +43,8 @@ import { ApplicationState } from "../../redux/store";
 import HttpService from "../../utils/HttpService";
 import { useToast } from "react-native-toast-notifications";
 import DraftEnvelopeModal from "../../components/modals/DraftEnvelopeModal";
+import SubscriptionService from "../../services/SubscriptionService";
+import { setSubscription } from "../../redux/reducers/SubscriptionSlice";
 
 interface CreateEnvelopeProps {
   navigation: any;
@@ -87,6 +89,14 @@ const CreateEnvelope: React.FC<CreateEnvelopeProps> = ({
   }, [route?.params?.existingEnvelope]);
   const isloading = useIsLoading();
   //const [isloading, setIsLoading] = useState(false);
+  const getSubscriptions = () => {
+    SubscriptionService.handleGetSubscription((data) => {
+      dispatch(setSubscription(data));
+    });
+  };
+  useEffect(() => {
+    getSubscriptions();
+  }, []);
   const renderSteps = () => {
     // console.log("STEP:", currentStep);
     switch (currentStep) {

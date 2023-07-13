@@ -44,6 +44,8 @@ import AuthService from "../services/AuthService";
 import { setUser } from "../redux/reducers/userSlice";
 import SubscriptionService from "../services/SubscriptionService";
 import { setSubscription } from "../redux/reducers/SubscriptionSlice";
+import { setLoadingModal, setModalType } from "../redux/reducers/uiSlice";
+import LoadingModal from "../components/modals/LoadingModal";
 
 interface SettingsProps {
   navigation: any;
@@ -175,6 +177,8 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
       name: "Logout",
       icon: "logoutIcon",
       onClick: () => {
+        dispatch(setModalType("Loging you out.."));
+        dispatch(setLoadingModal(true));
         SignOut &&
           SignOut(() => {
             store.dispatch(revertAll());
@@ -434,6 +438,7 @@ const Settings: React.FC<SettingsProps> = ({ navigation }) => {
           <ActivityIndicator size={"large"} color="#d10000" />
         </View>
       ) : null}
+      <LoadingModal />
     </View>
   );
 };

@@ -81,7 +81,9 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                             s?.id,
                             (data) => {
                               dispatch(setStamps(data?.["stamps"]));
-                            }
+                              setIsOpen(false);
+                            },
+                            toast
                           );
                         }}
                         className={`w-5 h-5 rounded-full justify-center items-center ${
@@ -145,6 +147,14 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                       >
                         Select
                       </Text>
+                      <Text
+                        onPress={() => {
+                          setViewStamp(s?.source?.base64);
+                        }}
+                        className="bg-[#d10000] mx-5 text-white w-1/2 p-2 rounded-xl text-center"
+                      >
+                        View
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -162,7 +172,7 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
             </View>
           )
         ) : (
-          <>
+          <View className="min-w-[100%] w-full">
             <Text className="mb-2 px-3 tracking-wider">
               Stamp Name :- <Text className="font-bold">{viewStamp?.name}</Text>
             </Text>
@@ -185,17 +195,19 @@ const ManageStamps: React.FC<ManageStampsProps> = ({
                 <Text className="text-white font-bold text-lg">Close</Text>
               </TouchableOpacity>
             </View>
-          </>
+          </View>
         )}
       </ScrollView>
       <DeleteEnvelopeModal
         description="Are you sure you want to delete this stamp?"
         callBack={() => {
           dispatch(setshowConfirmDeleteModal(false));
+          setIsOpen(false);
           CredentialsService.handleDeleteCredentials(
             Number(modalData),
             (data) => {
               dispatch(setStamps(data?.["stamps"]));
+              toast.show("Stamp Delete Succesfully", { type: "error" });
             }
           );
         }}

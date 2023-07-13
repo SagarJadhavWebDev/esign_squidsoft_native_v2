@@ -11,6 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setIsLoading, showAddressModal } from "../../redux/reducers/uiSlice";
 import { ApplicationState } from "../../redux/store";
 import { useToast } from "react-native-toast-notifications";
+import AddressValidations from "../../validations/AddressValidations";
+import serializeYupErrors from "../../utils/SerializeErrors";
+import Error from "../atoms/Error";
 
 interface AddAddressModalProps {}
 const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
@@ -25,7 +28,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
   // const countryList = useCountryList();
   // const StateList = useStateList(); //[{ name: "Select State", iso2: "" }, ...useStateList()];
   // const citieList = useCitiesList(); //[{ name: "Select State", iso2: "" }, ...useCitiesList()];
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState<any>(null);
   const [payload, setPayload] = useState({
     address_line: null,
     street: null,
@@ -110,6 +113,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                       }));
                     }}
                     className="h-5 text-sm  "
+                    error={errors?.address_line}
                   />
                 </View>
                 <View className="">
@@ -133,6 +137,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                       }));
                     }}
                     className="h-5 text-sm  "
+                    error={errors?.street}
                   />
                 </View>
                 <View className="mb-1">
@@ -163,6 +168,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     setMainScrollState={setMainScroll}
                     width={150}
                   />
+                  {errors?.country ? <Error text={errors?.country} /> : null}
                 </View>
                 <View className="">
                   <Text className=" mx-1 text-gray-400 font-medium text-xs">
@@ -181,6 +187,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     className="h-5 text-sm  "
                     value={payload?.country_code ?? ""}
                     editable={false}
+                    error={errors?.country_code}
                   />
                 </View>
                 <View className="mb-1">
@@ -214,6 +221,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     setMainScrollState={setMainScroll}
                     width={150}
                   />
+                  {errors?.state ? <Error text={errors?.state} /> : null}
                 </View>
                 <View className="mb-1">
                   <Text className=" mx-1 my-1 text-gray-400 font-medium text-xs">
@@ -241,6 +249,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                     setMainScrollState={setMainScroll}
                     width={150}
                   />
+                   {errors?.city ? <Error text={errors?.city} /> : null}
+                  
                 </View>
                 <View className="">
                   <Text className=" mx-1 text-gray-400 font-medium text-xs">
@@ -257,6 +267,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                       }));
                     }}
                     className="h-5 text-sm  "
+                    error={errors?.postal_code}
                   />
                 </View>
               </ScrollView>
@@ -272,22 +283,32 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({}) => {
                 <Text
                   onPress={() => {
                     setIsLoading(true);
-                    Addressservice.handleCreateAddresses(
-                      payload,
-                      toast,
-                      (data) => {
-                        if (data) {
-                          dispatch(showAddressModal(false));
-                          setIsLoading(false);
-                          //setAddresses(datae);
-                          dispatch(setAddresses(data));
-                        } else {
-                          setIsLoading(false);
-                          //dispatch(setIsLoading(false));
+
+                    AddressValidations.validate(payload, { abortEarly: false })
+                      .catch((err) => {
+                        setErrors(serializeYupErrors(err));
+                        console.log("ERR", err);
+                        setIsLoading(false);
+                      })
+                      .then((res) => {
+                        if (res !== undefined) {
+                          Addressservice.handleCreateAddresses(
+                            payload,
+                            toast,
+                            (data) => {
+                              if (data) {
+                                dispatch(showAddressModal(false));
+                                setIsLoading(false);
+                                //setAddresses(datae);
+                                dispatch(setAddresses(data));
+                              } else {
+                                setIsLoading(false);
+                                //dispatch(setIsLoading(false));
+                              }
+                            }
+                          );
                         }
-                      }
-                    );
-                    //console.log("SAGAR", payload);
+                      });
                   }}
                   className="p-2 bg-[#d10000] w-24 text-center text-xs text-white rounded-full mx-5"
                 >

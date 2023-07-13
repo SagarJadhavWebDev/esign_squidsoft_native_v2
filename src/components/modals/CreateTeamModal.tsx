@@ -14,6 +14,7 @@ import CustomDropDown from "../molecules/CustomDropDown";
 import CreateTeamValidations from "../../validations/CreateTeamValidations";
 import serializeYupErrors from "../../utils/SerializeErrors";
 import Error from "../atoms/Error";
+import { omit } from "lodash";
 
 interface CreateTeamModalProps {}
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
@@ -26,12 +27,14 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
   const [payload, setPayload] = useState({
     name: null,
     subscription_id: null,
+    subName: null,
   });
   const organization = useOrganization();
   const plans = organization?.meta?.available_subscriptions;
   const handleSubmit = () => {
+    const newPayload = omit(payload, ["subName"]);
     setLoading(true);
-    CreateTeamValidations.CreateTeamValidations.validate(payload, {
+    CreateTeamValidations.CreateTeamValidations.validate(newPayload, {
       abortEarly: false,
     })
       .catch((err) => {
@@ -40,7 +43,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
       })
       .then((res) => {
         if (res !== undefined) {
-          TeamsService.handleCreateTeam(payload, (data: any) => {
+          TeamsService.handleCreateTeam(newPayload, (data: any) => {
             if (data) {
               dispatch(setOrganization(data));
               dispatch(setTeams(data?.teams));
@@ -128,9 +131,12 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({}) => {
                         setPayload((prev) => ({
                           ...prev,
                           subscription_id: selectedState?.value,
+                          subName: selectedState?.label,
                         }));
                       }}
-                      selectedValue={{ label: payload?.name ?? "Select plan" }}
+                      selectedValue={{
+                        label: payload?.subName ?? "Select plan",
+                      }}
                       placeholder={""}
                       setMainScrollState={true}
                       width={150}

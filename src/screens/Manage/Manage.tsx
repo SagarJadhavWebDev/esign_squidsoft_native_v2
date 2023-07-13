@@ -1,5 +1,12 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { capitalize, isEmpty, isNull } from "lodash";
+import {
+  camelCase,
+  capitalize,
+  isEmpty,
+  isNull,
+  kebabCase,
+  startCase,
+} from "lodash";
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -296,7 +303,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
     <React.Fragment>
       <View className="bg-white justify-center px-2">
         <View className="W-full flex flex-row py-2">
-          <View className={`w-[75%] flex flex-row  `}>
+          <View className={`w-[70%] flex flex-row  `}>
             {menu?.map((menu) => {
               return (
                 <TouchableOpacity
@@ -342,12 +349,12 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
               );
             })}
           </View>
-          <View className={`w-[23%] ml-2  flex justify-center items-center `}>
+          <View className={`w-[30%] ml-2  flex justify-center items-center `}>
             <CustomSelector
               disabled={
                 ["draft", "self_sign"].includes(currentTab) ? true : false
               }
-              width={87}
+              width={100}
               dataList={
                 currentTab === "inbox" ? InBoxFilterList : SentBoxFilterList
               }
@@ -361,7 +368,7 @@ const Manage: React.FC<ManageProps> = ({ route, navigation, setIsLoading }) => {
                     <Text className="text-gray-700 font-semibold w-full text-[10px] ">
                       {isEmpty(filterFromQuickview)
                         ? "All"
-                        : filterFromQuickview}
+                        : startCase(camelCase(filterFromQuickview))}
                     </Text>
                   </View>
                 </View>

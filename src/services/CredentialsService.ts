@@ -35,7 +35,7 @@ const handleInitialUpload = async (
     });
 };
 
-const handleDeleteCredentials = (id: number, callback: (data: any) => void) => {
+const handleDeleteCredentials = (id: number, callback: (data: any) => void, toast?:any) => {
   ApiInstance.delete(apiEndpoint.credentials.deleteCredentials(id)).then(
     async (res) => {
       const data = await handleResponse(res as any);
@@ -45,11 +45,12 @@ const handleDeleteCredentials = (id: number, callback: (data: any) => void) => {
 };
 const handleSetDefaultCredentials = (
   id: number,
-  callback: (data: any) => void
+  callback: (data: any) => void,
+  toast:any,
 ) => {
   ApiInstance.put(apiEndpoint.credentials.setDefaultStamp(id)).then(
     async (res) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callback(data);
     }
   );

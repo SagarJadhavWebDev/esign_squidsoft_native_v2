@@ -25,12 +25,13 @@ import { Linking } from "react-native";
 import VerifyEmail from "./VerifyEmail/VerifyEmail";
 import EmailSentCard from "./VerifyEmail/EmailSentCard";
 import SendTemplate from "./Templates/SendTemplate";
+import Loading from "../components/atoms/Loading";
 const Stack = createNativeStackNavigator();
 
 const Router = () => {
   const { token } = useAuth();
   const [showSplashScreen, setShowSplashScreen] = useState(true);
-
+  
   useEffect(() => {
     setTimeout(() => {
       setShowSplashScreen(false);
@@ -164,6 +165,7 @@ const Router = () => {
           )}
         </Stack.Navigator>
       </NavigationContainer>
+      
     </React.Fragment>
   );
 };

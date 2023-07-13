@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import DocumentPicker, {
   isInProgress,
+  types,
 } from "react-native-document-picker";
 import { useToast } from "react-native-toast-notifications";
 import IndeterminateProgressBar from "../../components/atoms/IndeterminateProgressBar";
@@ -89,6 +90,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: "fullScreen",
         copyTo: "cachesDirectory",
+        type: types.images,
       });
 
       if (!isEmpty(pickerResult)) {
@@ -128,41 +130,23 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
         const data = CryptoHandler.response(res, token ?? "");
         UpdateUser &&
           UpdateUser(res, token, () => {
+            toast.show(`${modalType} uploaded successfully`, {
+              type: "success",
+            });
             setIsOpen({
               type: null,
               isOpen: false,
-            });
-            toast.show(`${modalType} uploaded successfully`, {
-              type: "success",
             });
             setIsLoading && setIsLoading(false);
             callback(data);
           });
       })
       .catch((err) => {
-        //toast.show(err, { type: "error" });
-        // console.log("File Upload Err", err);
         setIsLoading && setIsLoading(false);
+        toast.show(`${modalType} uploaded successfully`, {
+          type: "error",
+        });
       });
-  };
-  const storagePemissionCheck = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        //actualDownload();
-        return true;
-      } else {
-        Alert.alert(
-          "Permission Denied!",
-          "You need to give storage permission to download the file"
-        );
-        return false;
-      }
-    } catch (err) {
-      console.warn(err);
-    }
   };
 
   const handleSaveDrawnSignature = (s: any) => {
@@ -188,6 +172,9 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
       if (callback) {
         callback(data);
       }
+      toast.show(`${modalType} uploaded successfully`, {
+        type: "success",
+      });
       setIsOpen(false);
       setIsLoading && setIsLoading(false);
     });
@@ -336,9 +323,13 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
                           dispatch(setSignature(data));
                         }
                       }
+
                       if (callback) {
                         callback(data);
                       }
+                      toast.show(`${modalType} uploaded successfully`, {
+                        type: "success",
+                      });
                       setIsOpen({
                         isOpen: false,
                         type: "",
@@ -350,7 +341,7 @@ const UploadCredentials: React.FC<UploadCredentialsProps> = ({
               }}
               className=" bg-[#d10000] px-3 my-2 py-0.5 rounded-full justify-center items-center"
             >
-              <Text className="text-sm text-white p-1 px-2">Submit</Text>
+              <Text className="text-sm text-white p-1 px-2">{"Submit "}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
