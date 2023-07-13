@@ -1,6 +1,7 @@
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import {
+  Linking,
   SafeAreaView,
   ScrollView,
   Text,
@@ -26,6 +27,8 @@ import { useDispatch } from "react-redux";
 import RegisterValidations from "../validations/RegisterValidations";
 import serializeYupErrors from "../utils/SerializeErrors";
 import HttpService from "../utils/HttpService";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import Error from "../components/atoms/Error";
 
 interface RegisterProps {
   navigation: any;
@@ -52,7 +55,7 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
     name: "",
     email: "",
     password: "",
-    terms_accepted: true,
+    terms_accepted: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -93,37 +96,35 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
   const validate = useValidateObjectValues(showPasswordsValidation, false);
   // console.log("isValidPassword",isValidPassword,showPasswordsValidation)
   const handleRegister = () => {
-    
-      setIsLoading(true);
-      RegisterValidations.validate(payload, {
-        abortEarly: false,
+    setIsLoading(true);
+    RegisterValidations.validate(payload, {
+      abortEarly: false,
+    })
+      .catch((err) => {
+        SetErrors(serializeYupErrors(err));
+        console.log("serializeYupErrors(err)", serializeYupErrors(err));
+        setIsLoading(false);
       })
-        .catch((err) => {
-          SetErrors(serializeYupErrors(err));
-          console.log("serializeYupErrors(err)", serializeYupErrors(err));
-          setIsLoading(false);
-        })
-        .then((res) => {
-          if (res !== undefined && validate) {
-            SetErrors(null);
-            HttpService.post(apiEndpoint.auth.register, {
-              body: JSON.stringify(payload),
-            }).then((res) => {
-              console.log("RESULt", res);
-              toast.show(res?.message, {
-                type: res?.success ? "success" : "error",
-              });
-              setIsLoading(false);
-              if (res?.success) {
-                navigation.navigate(routes.emailSent, {
-                  email: payload?.email,
-                  type: "VERIFY_EMAIL",
-                });
-              }
+      .then((res) => {
+        if (res !== undefined && validate) {
+          SetErrors(null);
+          HttpService.post(apiEndpoint.auth.register, {
+            body: JSON.stringify(payload),
+          }).then((res) => {
+            console.log("RESULt", res);
+            toast.show(res?.message, {
+              type: res?.success ? "success" : "error",
             });
-          }
-        });
-  
+            setIsLoading(false);
+            if (res?.success) {
+              navigation.navigate(routes.emailSent, {
+                email: payload?.email,
+                type: "VERIFY_EMAIL",
+              });
+            }
+          });
+        }
+      });
   };
   return (
     <>
@@ -256,8 +257,38 @@ const Register: React.FC<RegisterProps> = ({ navigation }) => {
               }
             />
 
+            <BouncyCheckbox
+              size={20}
+              fillColor="red"
+              unfillColor="#FFFFFF"
+              textComponent={
+                <Text
+                  onPress={() => {
+                    Linking.openURL(
+                      "https://esign.squidsoft.tech/terms-and-condition"
+                    );
+                  }}
+                  className="mx-2"
+                >
+                  {"I agree with the terms and conditions.     "}
+                </Text>
+              }
+              iconStyle={{ borderColor: "blue" }}
+              innerIconStyle={{ borderWidth: 2 }}
+              onPress={(isChecked: boolean) => {
+                setPayload((prev: any) => ({
+                  ...prev,
+                  terms_accepted: isChecked,
+                }));
+              }}
+              className="mx-2 my-2"
+            />
+            {errors?.terms_accepted ? (
+              <Error text={errors?.terms_accepted} />
+            ) : null}
+
             {showErrorBox ? (
-              <View className="w-full">
+              <View className="w-full mx-2">
                 <View className="h-8 flex flex-row w-full items-center ">
                   {showPasswordsValidation?.lowerCase ? (
                     <GetSvg
