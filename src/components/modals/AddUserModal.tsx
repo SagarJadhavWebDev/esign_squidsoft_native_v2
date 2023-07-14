@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Modal, View, Pressable, Text, TextInput } from "react-native";
+import {
+  Modal,
+  View,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import { ScrollView } from "react-native-gesture-handler";
 import useAuth from "../../utils/auth";
@@ -22,6 +29,9 @@ import { setAddUserModal } from "../../redux/reducers/uiSlice";
 import routes from "../../constants/routes";
 import CreateTeamValidations from "../../validations/CreateTeamValidations";
 import serializeYupErrors from "../../utils/SerializeErrors";
+import OrganizationsService from "../../services/OrganizationsService";
+import SubscriptionService from "../../services/SubscriptionService";
+import { setSubscription } from "../../redux/reducers/SubscriptionSlice";
 
 interface AddUserModalProps {
   team: any;
@@ -45,18 +55,26 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
       abortEarly: false,
     })
       .catch((err) => {
-        // console.log("CLICKED", err);
+        console.log("CLICKED", err);
         setLoading(false);
         setErrors(serializeYupErrors(err));
       })
       .then((res) => {
         if (res !== undefined) {
-          // console.log("CLICKED");
+          console.log("CLICKED");
           TeamsService.handleAddUser(payload, toast, (data: any) => {
             if (data) {
               // dispatch(setOrganization(data));
               dispatch(setAddUserModal(false));
               setLoading(false);
+              OrganizationsService.handleGetOrganizations((data: any) => {
+                dispatch(setOrganization(data));
+                dispatch(setTeams(data?.teams));
+                return data;
+              });
+              SubscriptionService.handleGetSubscription((data) => {
+                dispatch(setSubscription(data));
+              });
             } else {
               setLoading(false);
               dispatch(setAddUserModal(false));
@@ -119,27 +137,29 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ team }) => {
                         }));
                       }}
                       className="h-5 text-sm "
-                      error={errors?.name ? errors?.name : null}
+                      error={errors?.email ? errors?.email : null}
                     />
                   </View>
                 </ScrollView>
                 <View className="w-full justify-end items-center flex flex-row my-4 ">
-                  <Text
+                  <TouchableOpacity
                     onPress={() => {
                       dispatch(setAddUserModal(false));
                     }}
-                    className="p-2 bg-slate-800 w-24 text-center text-xs text-white rounded-full "
                   >
-                    Cancel
-                  </Text>
-                  <Text
+                    <Text className="p-2 bg-slate-800 w-24 text-center text-xs text-white rounded-full ">
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
                     onPress={() => {
                       handleSubmit();
                     }}
-                    className="p-2 bg-[#d10000] w-24 text-center text-xs text-white rounded-full mx-5"
                   >
-                    {loadiing ? "Submiting..." : " Submit"}
-                  </Text>
+                    <Text className="p-2 bg-[#d10000] w-24 text-center text-xs text-white rounded-full mx-5">
+                      {loadiing ? "Submiting..." : " Submit"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>

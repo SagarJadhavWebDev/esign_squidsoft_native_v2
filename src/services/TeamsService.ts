@@ -14,7 +14,7 @@ const handleCreateTeam = (payload: any, callBack: any) => {
 };
 const handleUpdateTeam = (id: number, payload: any, callBack: any) => {
   ApiInstance.put(apiEndpoint.teams.updateTeam(id), payload)
-    .then( async (res) => {
+    .then(async (res) => {
       const data = await handleResponse(res as any);
       return callBack(data);
     })
@@ -33,10 +33,10 @@ const handleAddUser = (payload: any, toast: any, callBack: any) => {
       callBack(false);
     });
 };
-const handleRemoveUser = (payload: any, callBack: any) => {
+const handleRemoveUser = (payload: any, toast: any, callBack: any) => {
   ApiInstance.post(apiEndpoint.teams.removeUser, payload)
     .then(async (res) => {
-      const data = await handleResponse(res as any);
+      const data = await handleResponse(res as any, toast);
       return callBack(data);
     })
     .catch((err) => {

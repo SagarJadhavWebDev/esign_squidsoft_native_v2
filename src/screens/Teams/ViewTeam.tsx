@@ -1,4 +1,10 @@
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import {
+  Pressable,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "../../redux/store";
@@ -21,6 +27,8 @@ import SubscriptionService from "../../services/SubscriptionService";
 import { setSubscription } from "../../redux/reducers/SubscriptionSlice";
 import routes from "../../constants/routes";
 import DeleteUserModal from "../../components/modals/DeleteUserModal";
+import { ScrollView } from "react-native-gesture-handler";
+import { useToast } from "react-native-toast-notifications";
 
 interface ViewTeamProps {
   route: any;
@@ -38,6 +46,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const teams: any = useTeams();
   // console.log("TEAMS2", team);
+  const toast = useToast()
   const [user, setUser] = useState<any>(null);
   const handleRemoveUser = (
     actionType: "MIGRATE" | "IGNORE",
@@ -51,7 +60,7 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
     };
 
     //console.log("payload", payload);
-    TeamsService.handleRemoveUser(payload, (data: any) => {
+    TeamsService.handleRemoveUser(payload,toast, (data: any) => {
       if (data) {
         if (data) {
           OrganizationsService.handleGetOrganizations((data: any) => {
@@ -71,11 +80,12 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
   const showRemoveUserModal = useSelector(
     (state: ApplicationState) => state?.ui?.showRemoveUserModal
   );
+  console.log("team", team);
+  const [refreshing, setRefreshing] = React.useState(false);
   return (
     <View className="bg-white p-0  w-full flex gap-y-3  items-center">
       <View className="w-full h-12 border-b border-gray-300 justify-between items-center flex flex-row   ">
         <Text className="text-base mx-5 font-semibold">{"Team details "}</Text>
-
         <Pressable
           onPress={() => {
             navigation.pop();
@@ -85,36 +95,48 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
         </Pressable>
       </View>
 
-      <View className="w-full px-3 h-full flex gap-y-3 items-center ">
-        {isEmpty(teams) ? (
-          <View className="w-full gap-y-3 items-center justify-center p-3 border border-gray-200 h-1/6 rounded-xl">
-            <Text className="text-gray-500 text-xs">
-              You dont't have any teams yet!
-            </Text>
-            <TouchableOpacity className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2">
-              <Text
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              OrganizationsService.handleGetOrganizations((data: any) => {
+                dispatch(setOrganization(data));
+                dispatch(setTeams(data?.teams));
+                return data;
+              });
+              SubscriptionService.handleGetSubscription((data) => {
+                dispatch(setSubscription(data));
+              });
+            }}
+          />
+        }
+      >
+        <View className="w-full px-3 h-full flex gap-y-3 items-center ">
+          {isEmpty(teams) ? (
+            <View className="w-full gap-y-3 items-center justify-center p-3 border border-gray-200 h-1/6 rounded-xl">
+              <Text className="text-gray-500 text-xs">
+                You dont't have any teams yet!
+              </Text>
+              <TouchableOpacity
                 onPress={() => {
                   // console.log("MODAL");
                   dispatch(setCreateTeamModal(true));
                 }}
-                className="text-white text-xs w-1/2 text-center font-semibold"
+                className="flex mt-2 flex-row justify-center items-center rounded-xl bg-red-500 p-2"
               >
-                Create New Team
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <React.Fragment>
-            {teams?.map((t: any) => {
-              return (
-                <View
-                  key={t?.name}
-                  className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl"
-                >
-                  <Text className="w-full mb-3 font-semibold">
-                    Team Information{" "}
-                  </Text>
-                  {/* <View className="w-full flex flex-row items-center justify-between">
+                <Text className="text-white text-xs w-1/2 text-center font-semibold">
+                  Create New Team
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <React.Fragment>
+              <View className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl">
+                <Text className="w-full mb-3 font-semibold">
+                  Team Information{" "}
+                </Text>
+                {/* <View className="w-full flex flex-row items-center justify-between">
                     <Text
                       numberOfLines={1}
                       className="text-gray-400 max-w-28 w-28  font-semibold text-xs"
@@ -141,114 +163,113 @@ const ViewTeam: React.FC<ViewTeamProps> = ({ route, navigation }) => {
                       </Text>
                     </View>
                   </View> */}
-                  <View className="w-full flex mb-2 flex-row justify-between">
-                    <Text className="text-gray-400  font-semibold  text-[11px]">
-                      {"Team Name  "}
-                    </Text>
-                    <Text className="text-gray-500 font-semibold  text-[11px]">
-                      {t?.name}{" "}
-                    </Text>
-                  </View>
-                  <View className="w-full flex mb-2 flex-row justify-between">
-                    <Text className="text-gray-400  font-semibold  text-[11px]">
-                      {"Plan  "}
-                    </Text>
-                    <Text className="text-gray-500 font-semibold  text-[11px]">
-                      {t?.subscription?.name} - {t?.subscription?.id}{" "}
-                    </Text>
-                  </View>
-                  <View className="w-full flex mb-2 flex-row justify-between">
-                    <Text className="text-gray-400  font-semibold  text-[11px]">
-                      {"Start Date "}
-                    </Text>
-                    <Text className="text-gray-500 font-semibold  text-[11px]">
-                      {getLocalDate(t?.subscription?.start_date).format(
-                        "DD/MM/YYYY"
-                      )}
-                    </Text>
-                  </View>
-                  <View className="w-full flex mb-2 flex-row justify-between">
-                    <Text className="text-gray-400  font-semibold  text-[11px]">
-                      {"End Date  "}
-                    </Text>
-                    <Text className="text-gray-500 font-semibold  text-[11px]">
-                      {getLocalDate(t?.subscription?.end_date).format(
-                        "DD/MM/YYYY"
-                      )}
-                    </Text>
-                  </View>
-                  <View className="w-full flex mb-2 flex-row justify-between">
-                    <Text className="text-gray-400  font-semibold  text-[11px]">
-                      {"User Allowed  "}
-                    </Text>
-                    <Text className="text-gray-500 font-semibold  text-[11px]">
-                      {t?.subscription?.user_count +
-                        " - " +
-                        t?.subscription?.allowed_user_count}
-                      {" Users  "}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
-
-            <View className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl">
-              <Text className="w-full mb-3 font-semibold">Team Members </Text>
-              {isEmpty(team?.users) ? (
-                <View className="my-2">
-                  <Text className="text-gray-500 text-xs">
-                    You dont't have any teams member yet!
+                <View className="w-full flex mb-2 flex-row justify-between">
+                  <Text className="text-gray-400  font-semibold  text-[11px]">
+                    {"Team Name  "}
                   </Text>
-                  <TouchableOpacity className="flex  bg-red-500 mt-2 flex-row justify-center items-center rounded-xl  p-2">
-                    <Text
+                  <Text className="text-gray-500 font-semibold  text-[11px]">
+                    {team?.name}{" "}
+                  </Text>
+                </View>
+                <View className="w-full flex mb-2 flex-row justify-between">
+                  <Text className="text-gray-400  font-semibold  text-[11px]">
+                    {"Plan  "}
+                  </Text>
+                  <Text className="text-gray-500 font-semibold  text-[11px]">
+                    {team?.subscription?.name} - {team?.subscription?.id}{" "}
+                  </Text>
+                </View>
+                <View className="w-full flex mb-2 flex-row justify-between">
+                  <Text className="text-gray-400  font-semibold  text-[11px]">
+                    {"Start Date "}
+                  </Text>
+                  <Text className="text-gray-500 font-semibold  text-[11px]">
+                    {getLocalDate(team?.subscription?.start_date).format(
+                      "DD/MM/YYYY"
+                    )}
+                  </Text>
+                </View>
+                <View className="w-full flex mb-2 flex-row justify-between">
+                  <Text className="text-gray-400  font-semibold  text-[11px]">
+                    {"End Date  "}
+                  </Text>
+                  <Text className="text-gray-500 font-semibold  text-[11px]">
+                    {getLocalDate(team?.subscription?.end_date).format(
+                      "DD/MM/YYYY"
+                    )}
+                  </Text>
+                </View>
+                <View className="w-full flex mb-2 flex-row justify-between">
+                  <Text className="text-gray-400  font-semibold  text-[11px]">
+                    {"User Allowed  "}
+                  </Text>
+                  <Text className="text-gray-500 font-semibold  text-[11px]">
+                    {team?.subscription?.user_count +
+                      " - " +
+                      team?.subscription?.allowed_user_count}
+                    {" Users  "}
+                  </Text>
+                </View>
+              </View>
+
+              <View className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl">
+                <Text className="w-full mb-3 font-semibold">Team Members </Text>
+                {isEmpty(team?.users) ? (
+                  <View className="my-2">
+                    <Text className="text-gray-500 text-xs">
+                      You dont't have any teams member yet!
+                    </Text>
+                    <TouchableOpacity
                       onPress={() => {
                         dispatch(setAddUserModal(true));
                       }}
-                      className="text-white text-[11px] w-1/2  text-center font-semibold"
+                      className="flex  bg-red-500 mt-2 flex-row justify-center items-center rounded-xl  p-2"
                     >
-                      Add new member{" "}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <React.Fragment>
-                  {team?.users?.map((t: any) => {
-                    return (
-                      <View
-                        key={t?.name}
-                        className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl"
-                      >
-                        <View className="w-full flex flex-row items-center justify-between">
-                          <Text
-                            numberOfLines={1}
-                            className="text-gray-400 max-w-28 w-28  font-semibold text-xs"
-                          >
-                            {t?.name}{" "}
-                          </Text>
-                          <View className=" flex flex-row justify-center items-center">
+                      <Text className="text-white text-[11px] w-1/2  text-center font-semibold">
+                        Add new member{" "}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <React.Fragment>
+                    {team?.users?.map((t: any) => {
+                      return (
+                        <View
+                          key={t?.name}
+                          className="w-full  p-3 border flex border-gray-200 items-center  justify-between rounded-xl"
+                        >
+                          <View className="w-full flex flex-row items-center justify-between">
                             <Text
+                              numberOfLines={1}
+                              className="text-gray-400 max-w-28 w-28  font-semibold text-xs"
+                            >
+                              {t?.name}{" "}
+                            </Text>
+                            <TouchableOpacity
                               onPress={() => {
                                 setUser(t);
                                 dispatch(setselectedUser(t?.email));
                                 dispatch(setshowRemoveUserModal(true));
                               }}
-                              className="text-white p-1 text-center px-2 font-semibold rounded-lg text-[9px] bg-red-500"
+                              className=" flex flex-row justify-center items-center"
                             >
-                              {"Delete user"}
-                            </Text>
+                              <Text className="text-white p-1 text-center px-2 font-semibold rounded-lg text-[9px] bg-red-500">
+                                {"Delete user"}
+                              </Text>
+                            </TouchableOpacity>
                           </View>
                         </View>
-                      </View>
-                    );
-                  })}
-                </React.Fragment>
-              )}
-            </View>
-          </React.Fragment>
-        )}
-      </View>
+                      );
+                    })}
+                  </React.Fragment>
+                )}
+              </View>
+            </React.Fragment>
+          )}
+        </View>
+      </ScrollView>
       {isOpen ? <CreateTeamModal /> : null}
-      {addUserModal ? <AddUserModal team={selectedTeam} /> : null}
+      {addUserModal ? <AddUserModal team={team} /> : null}
       {showRemoveUserModal ? (
         <DeleteUserModal callBack={handleRemoveUser} team={team} />
       ) : null}
