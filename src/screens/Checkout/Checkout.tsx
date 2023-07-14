@@ -68,7 +68,7 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
     Object.values(selectedOptions).every(
       (o: any) => !isNull(o?.value) && !isEmpty(o?.value)
     );
- // console.log("ADDERS PAYLOAD", isPayButtonDisable);
+  // console.log("ADDERS PAYLOAD", isPayButtonDisable);
   // const [stateList, setStateList] = useState([]) as any;
   // const [cityList, setCityList] = useState([]) as any;
   // const [countryOptions, setCountryOptions] = useState([]) as any;
@@ -311,7 +311,8 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
   //     isYearly ? Plan?.price * (12 - Plan?.yearly_discount) : Plan?.price
   //   );
   // }, [Plan]);
-  
+  const [checkoutLoading, seCheckouttLoadiing] = useState(false);
+
   return (
     <View className="w-full h-full items-center bg-white  ">
       <View className="w-full h-12 border-b border-gray-300 justify-between items-center flex flex-row   ">
@@ -344,7 +345,11 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
             Take a review of order and proceed{" "}
           </Text>
 
-          <CheckoutCard route={route} navigation={navigation} />
+          <CheckoutCard
+            route={route}
+            navigation={navigation}
+            seCheckouttLoadiing={seCheckouttLoadiing}
+          />
         </View>
       </ScrollView>
       {isLoading ? (
@@ -362,6 +367,11 @@ const Checkout: React.FC<CheckoutProps> = ({ navigation, route }) => {
           user={auth?.user}
           setIsLoading={setIsLoading}
         />
+      ) : null}
+      {checkoutLoading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
       ) : null}
     </View>
   );

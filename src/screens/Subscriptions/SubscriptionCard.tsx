@@ -45,7 +45,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 )
               : calcDate(Date.now(), subscription?.end_date)}
 
-            {/* {type === "orders"
+            {type === "orders"
               ? calcDate(
                   subscription?.start_date,
                   subscription?.end_date,
@@ -53,11 +53,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 ) === 1 || 0
                 ? " Day"
                 : " Days"
-              : subscription?.plan?.for?.toLowerCase() === "yearly"
+              : subscription?.plan?.type === "yearly"
               ? calcDate(
                   Date.now(),
-                  subscription?.subscription?.end_date ??
-                    subscription?.subscription?.end_date
+                  subscription?.end_date ?? subscription?.end_date
                 ) == 1
                 ? " Day left"
                 : " Days left"
@@ -66,7 +65,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                   subscription?.end_date ?? subscription?.end_date
                 ) == 1
               ? " Day left"
-              : " Days left"} */}
+              : " Days left"}
           </Text>
         </View>
       </View>

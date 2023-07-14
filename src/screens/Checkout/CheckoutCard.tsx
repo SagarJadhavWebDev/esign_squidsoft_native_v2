@@ -48,8 +48,13 @@ import { TextInput } from "react-native-gesture-handler";
 interface CheckoutCardProps {
   navigation: any;
   route: any;
+  seCheckouttLoadiing: any;
 }
-const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
+const CheckoutCard: React.FC<CheckoutCardProps> = ({
+  navigation,
+  route,
+  seCheckouttLoadiing,
+}) => {
   const Plan = route?.params?.plan;
   const subscriptionId = route?.params?.subscriptionId;
   const checkoutData = Plan;
@@ -57,7 +62,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
   const user = useUser();
   const address = useAddresses();
   const [loading, setLoadiing] = useState(false);
-  const [checkoutLoading, seCheckouttLoadiing] = useState(false);
   const toast = useToast();
   const [couponCode, setCouponCode] = useState<any>({
     coupon_code: null,
@@ -538,11 +542,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
       <AddAddressModal />
-      {checkoutLoading ? (
-        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
-          <ActivityIndicator size={"large"} color="#d10000" />
-        </View>
-      ) : null}
     </React.Fragment>
   );
 };
