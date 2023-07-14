@@ -27,7 +27,7 @@ import SubscriptionService from "../../services/SubscriptionService";
 import auth from "../../utils/auth";
 import WFullInputField from "../../components/atoms/WFullInputField";
 import routes from "../../constants/routes";
-import { Alert, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native";
 import GetSvg from "../../utils/GetSvg";
 import {
@@ -51,6 +51,7 @@ interface CheckoutCardProps {
 }
 const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
   const Plan = route?.params?.plan;
+  const subscriptionId = route?.params?.subscriptionId;
   const checkoutData = Plan;
   const dispatch = useDispatch();
   const user = useUser();
@@ -188,19 +189,19 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
         billing_address_id: defaultAddress?.id,
         coupon_code: couponCode?.coupon_code,
         currency: ipData?.country_code === "IN" ? "INR" : "USD",
-        subscription_id: null,
+        subscription_id: subscriptionId ?? null,
         gstin: couponCode?.gstin ?? null,
         company_name: couponCode?.company_name ?? null,
       };
       const validate = !isEmpty(couponCode?.gstin)
         ? isEmpty(couponCode?.gstin) && isEmpty(couponCode?.company_name)
         : true;
+      console.log("payload", payload);
       if (ipData) {
         OrderService.handleCreateOrder(payload, async (data) => {
           setOrder(data);
           seCheckouttLoadiing(false);
           if (data && user) {
-            // console.log("RAZR PAY PAYMENT ERR", data);
             seCheckouttLoadiing(false);
             setIntent(data?.payment_intent_id);
             const options: any = {
@@ -281,7 +282,7 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
     }
   }, [isPaymentSuccess]);
   const addressList = useAddresses();
-  //console.log("addressList", addressList);
+  // console.log("addressList", checkoutData);
   return (
     <React.Fragment>
       <View className="w-[90%] mt-3 h-fit rounded-xl bg-gray-100 p-3 flex ">
@@ -489,7 +490,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             // });
                           }
                         );
-
                       }}
                     >
                       <GetSvg
@@ -513,7 +513,6 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
                             // });
                           }
                         );
-                       
                       }}
                       //title="Delete Address"
                       className="p-1 rounded-full hover:bg-gray-300 "
@@ -539,6 +538,11 @@ const CheckoutCard: React.FC<CheckoutCardProps> = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
       <AddAddressModal />
+      {checkoutLoading ? (
+        <View className="absolute w-full h-full bg-[#00000055] justify-center items-center">
+          <ActivityIndicator size={"large"} color="#d10000" />
+        </View>
+      ) : null}
     </React.Fragment>
   );
 };

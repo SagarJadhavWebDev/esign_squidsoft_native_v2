@@ -380,8 +380,8 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
               {envelope?.download ? (
                 <TouchableOpacity
                   onPress={() => {
-                    checkPermission("Documents");
-                    // handleDownload("Documents");
+                    // checkPermission("Documents");
+                    handleDownload("Documents");
                   }}
                 >
                   <GetSvg
@@ -396,7 +396,8 @@ const EnvelopeListCard: React.FC<EnvelopeListCardProps> = ({
               {envelope?.audit_trail ? (
                 <TouchableOpacity
                   onPress={() => {
-                    checkPermission("Audit trail");
+                    handleDownload("Audit trail");
+                    // checkPermission("Audit trail");
                   }}
                 >
                   <GetSvg

@@ -93,6 +93,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               }
               navigation.navigate(routes.Checkout, {
                 plan: subscription?.plan,
+                subscriptionId: subscription?.id,
               });
             }}
             className={`bg-[#d10000] p-2  rounded-full px-5  mr-0.5 ${
@@ -100,7 +101,9 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             } `}
           >
             <Text className="text-white w-full text-[10px] font-semibold">
-              {subscription?.plan?.name === "Personal" ? "Activated " : "Renew "}
+              {subscription?.plan?.name === "Personal"
+                ? "Activated "
+                : "Renew "}
             </Text>
           </TouchableOpacity>
         </View>

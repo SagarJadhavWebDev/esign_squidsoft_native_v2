@@ -5,6 +5,7 @@ import handleResponse from "./handleResponse";
 const handleCreateOrder = (payload: any, callBack: (data: any) => void) => {
   ApiInstance.post(apiEndpoint.order.createOrder, payload)
     .then(async (res) => {
+      console.log("order crete error", res);
       const data = await handleResponse(res as any);
       return callBack(data);
     })
