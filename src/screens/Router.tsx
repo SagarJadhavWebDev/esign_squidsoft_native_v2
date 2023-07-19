@@ -31,7 +31,7 @@ const Stack = createNativeStackNavigator();
 const Router = () => {
   const { token } = useAuth();
   const [showSplashScreen, setShowSplashScreen] = useState(true);
-  
+
   useEffect(() => {
     setTimeout(() => {
       setShowSplashScreen(false);
@@ -40,8 +40,27 @@ const Router = () => {
 
   const navigationRef = useRef<any>();
 
-  const handleNavigationReady = async () => {
-    const urlData: any = await Linking.getInitialURL();
+  // const handleNavigationReady = async () => {
+  //   const urlData: any = await Linking.getInitialURL();
+  //   if (urlData)
+  //     if (urlData.includes("/envelope/view?")) {
+  //       const envelope = { access_token: urlData };
+  //       navigationRef?.current?.navigate(routes.viewEnvelope, {
+  //         envelope,
+  //         currentTab: "SIGN",
+  //       });
+  //     } else if (urlData?.includes("/email/verify/")) {
+  //       navigationRef?.current?.navigate(routes.verifyEmail, {
+  //         token: urlData,
+  //       });
+  //     } else if (urlData?.includes("/forgot-password?")) {
+  //       navigationRef?.current?.navigate(routes.ForgotPassword, {
+  //         token: urlData,
+  //       });
+  //     }
+  // };
+  const handleURL = (urlData: any) => {
+    console.log("HANDLE URL", urlData);
     if (urlData)
       if (urlData.includes("/envelope/view?")) {
         const envelope = { access_token: urlData };
@@ -59,10 +78,31 @@ const Router = () => {
         });
       }
   };
+  useEffect(() => {
+    function addLinkingEventListener() {
+      Linking.addEventListener("url", (evt) => {
+        console.log("HANDLE LIST", evt);
+        handleURL(evt?.url);
+      });
+    }
+    Linking.getInitialURL()
+      .then((initUrl) => {
+        handleURL(initUrl);
+      })
+      .catch((e) => {
+        console.log("ERROR", e);
+      })
+      .finally(() => {
+        addLinkingEventListener();
+      });
 
+    return () => {
+      Linking.removeAllListeners("url");
+    };
+  }, []);
   return (
     <React.Fragment>
-      <NavigationContainer onReady={handleNavigationReady} ref={navigationRef}>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator initialRouteName={routes.splash}>
           {showSplashScreen ? (
             <Stack.Screen
@@ -165,7 +205,6 @@ const Router = () => {
           )}
         </Stack.Navigator>
       </NavigationContainer>
-      
     </React.Fragment>
   );
 };
