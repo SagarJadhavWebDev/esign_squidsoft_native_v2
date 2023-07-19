@@ -124,24 +124,26 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
                       </Text>
                     </View>
                   </View>
-                  <View className="mt-3">
-                    <CustomDropDown
-                      items={[...userList, admin?.email ?? []]?.map(
-                        (s: any) => {
-                          return { value: s, label: s };
-                        }
-                      )}
-                      onSelect={(e: any) => {
-                        // const selectedState = e?.option;
-                        //console.log("selectedState", e);
-                        setTransferUser(e?.option?.value);
-                      }}
-                      selectedValue={{ label: transferUser ?? "Select user" }}
-                      placeholder={"sad"}
-                      setMainScrollState={true}
-                      width={150}
-                    />
-                  </View>
+                  {type !== "KEEP" ? (
+                    <View className="mt-3">
+                      <CustomDropDown
+                        items={[...userList, admin?.email ?? []]?.map(
+                          (s: any) => {
+                            return { value: s, label: s };
+                          }
+                        )}
+                        onSelect={(e: any) => {
+                          // const selectedState = e?.option;
+                          //console.log("selectedState", e);
+                          setTransferUser(e?.option?.value);
+                        }}
+                        selectedValue={{ label: transferUser ?? "Select user" }}
+                        placeholder={"sad"}
+                        setMainScrollState={true}
+                        width={150}
+                      />
+                    </View>
+                  ) : null}
                 </ScrollView>
                 <View className="w-full justify-end items-center flex flex-row my-4 ">
                   <Text
